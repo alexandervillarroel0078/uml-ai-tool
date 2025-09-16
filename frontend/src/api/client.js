@@ -1,8 +1,10 @@
 import axios from "axios";
 import useAuth from "../store/auth";
+import { API_URL } from "../config";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
+  baseURL: API_URL,
+  timeout: 10000,
 });
 
 api.interceptors.request.use((config) => {
@@ -14,8 +16,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (r) => r,
   (err) => {
-    if (err.response && err.response.status === 401) {
-      useAuth.getState().logout();
+    if (err?.response?.status === 401) {
+      try { useAuth.getState().logout(); } catch {}
       window.location.href = "/login";
     }
     return Promise.reject(err);
