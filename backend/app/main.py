@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import ALLOWED_ORIGINS
 from app.routers import auth as auth_router
 from app.routers import uml as uml_router
+from app.routers import classes as classes_router
+ 
 
 app = FastAPI(title="UML AI Tool API")
 
@@ -20,3 +22,6 @@ def health():
 
 app.include_router(auth_router.router)
 app.include_router(uml_router.router)
+app.include_router(classes_router.router)
+
+

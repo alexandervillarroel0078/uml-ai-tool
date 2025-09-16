@@ -438,8 +438,10 @@ if __name__ == "__main__":
 
 
 # SELECT * FROM "user";
+# SELECT * FROM diagram;
 # SELECT * FROM clase;
 # SELECT * FROM atributo;
+# SELECT * FROM metodo;
 # SELECT * FROM relacion;
 # SELECT * FROM alembic_version;
 

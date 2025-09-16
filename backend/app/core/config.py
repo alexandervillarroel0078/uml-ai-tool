@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     DB_URL: str = "postgresql+psycopg2://uml:uml@localhost:5432/uml"
     JWT_SECRET: str = "change-me"
     JWT_ALG: str = "HS256"
-    ACCESS_EXPIRE_MIN: int = 15
+    ACCESS_EXPIRE_MIN: int = 480
     REFRESH_EXPIRE_DAYS: int = 14
     CORS_ORIGINS: str = "http://localhost:5173"
 
