@@ -1,0 +1,5 @@
+diagram_title,clase_nombre,nombre,tipo_retorno
+Tiendita Online,Usuario,login,boolean
+Tiendita Online,Usuario,logout,void
+Tiendita Online,Pedido,calcularTotal,decimal
+Tiendita Online,Producto,aplicarDescuento,void

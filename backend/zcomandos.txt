@@ -15,6 +15,6 @@ alembic revision --autogenerate -m "init schema"
 alembic upgrade head
 uvicorn app.main:app --reload --port 8000
 
-
+python .\seeds\load_csv_sa.py //para poblar la BD
 
 http://127.0.0.1:8000/docs

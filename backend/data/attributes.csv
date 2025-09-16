@@ -1,5 +1,0 @@
-clase,nombre,tipo,requerido
-Usuario,email,string,true
-Usuario,passwordHash,string,true
-Proyecto,titulo,string,true
-Proyecto,descripcion,string,false

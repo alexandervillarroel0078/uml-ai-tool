@@ -1,0 +1,4 @@
+diagram_title,origen_nombre,destino_nombre,tipo,etiqueta
+Tiendita Online,Pedido,Usuario,ASSOCIATION,realiza
+Tiendita Online,Pedido,LineaPedido,COMPOSITION,contiene
+Tiendita Online,LineaPedido,Producto,ASSOCIATION,corresponde a

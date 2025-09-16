@@ -1,18 +1,46 @@
 from datetime import datetime, timedelta, timezone
-from jose import jwt
-from typing import Any, Dict
-from .config import settings
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import jwt, JWTError
+from passlib.hash import bcrypt
+from sqlalchemy.orm import Session
+from app.core.config import settings
+from app.db import get_db
+from app.models.user import User
 
-def create_token(subject: str, kind: str, minutes: int | None = None, days: int | None = None, extra: Dict[str, Any] | None = None) -> str:
+bearer = HTTPBearer(auto_error=False)
+
+def hash_password(raw: str) -> str:
+    return bcrypt.hash(raw)
+
+def verify_password(raw: str, hashed: str) -> bool:
+    return bcrypt.verify(raw, hashed)
+
+def create_access_token(sub: str) -> str:
     now = datetime.now(timezone.utc)
-    payload = {"sub": subject, "kind": kind, "iat": int(now.timestamp())}
-    if minutes:
-        payload["exp"] = int((now + timedelta(minutes=minutes)).timestamp())
-    if days:
-        payload["exp"] = int((now + timedelta(days=days)).timestamp())
-    if extra:
-        payload.update(extra)
+    exp = now + timedelta(minutes=settings.ACCESS_EXPIRE_MIN)
+    payload = {"sub": sub, "kind": "access", "iat": int(now.timestamp()), "exp": int(exp.timestamp())}
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALG)
 
-def decode_token(token: str) -> Dict[str, Any]:
+def decode_token(token: str) -> dict:
     return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALG])
+
+def get_current_user(
+    cred: HTTPAuthorizationCredentials = Depends(bearer),
+    db: Session = Depends(get_db),
+) -> User:
+    if cred is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing Authorization")
+    try:
+        payload = decode_token(cred.credentials)
+        if payload.get("kind") != "access":
+            raise HTTPException(status_code=401, detail="Invalid token kind")
+        email = payload.get("sub")
+        if not email:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    user = db.query(User).filter(User.email == email).one_or_none()
+    if not user or not user.active:
+        raise HTTPException(status_code=401, detail="User disabled")
+    return user

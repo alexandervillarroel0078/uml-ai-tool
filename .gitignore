@@ -1,0 +1,62 @@
+# === Python / FastAPI (backend) ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+build/
+dist/
+.eggs/
+.python-version
+.venv/
+venv/
+env/
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+coverage.xml
+htmlcov/
+.coverage*
+ipynb_checkpoints/
+
+# Config y secretos
+.env
+.env.*
+!.env.example
+
+# Alembic / SQL
+alembic/*cache*/
+alembic/versions/*_tmp_*.py
+*.sqlite3
+*.db
+
+# Logs
+logs/
+*.log
+
+# === Node / Frontend (Vite/React) ===
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.turbo/
+frontend/.parcel-cache/
+*.tsbuildinfo
+
+# Si hay frontend en la raíz:
+node_modules/
+dist/
+.vite/
+.turbo/
+.parcel-cache/
+
+# === IDE / OS ===
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# === Docker / misc ===
+docker-data/
+**/tmp/

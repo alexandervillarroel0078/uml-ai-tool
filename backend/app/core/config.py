@@ -13,4 +13,7 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 settings = Settings()
-ALLOWED_ORIGINS: List[str] = [o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()]
+
+ALLOWED_ORIGINS: List[str] = [
+    o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()
+]
