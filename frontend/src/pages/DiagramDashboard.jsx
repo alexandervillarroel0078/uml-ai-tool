@@ -1,9 +1,11 @@
-
+ 
+// src/pages/DiagramDashboard.jsx
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/client";
 import useAuth from "../store/auth";
 import useTheme from "../hooks/useTheme";
+
 import {
   listClasses,
   createClass as apiCreateClass,
@@ -11,7 +13,10 @@ import {
   deleteClass as apiDeleteClass,
   updateClassPosition,
   updateClassSize,
-}from "../api/classes";
+  listAttributes,
+  listMethods,
+} from "../api/classes";
+
 import Sheet from "../components/canvas/Sheet";
 import ClassCard from "../components/canvas/ClassCard";
 import Inspector from "../components/panels/Inspector";
@@ -31,27 +36,30 @@ export default function DiagramDashboard() {
   const email = useAuth((s) => s.email);
   const { theme, toggleTheme } = useTheme();
 
+  // Diagrama
   const [diagram, setDiagram] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  const [classes, setClasses] = useState([]);    // todas las clases
-  const [selectedId, setSelectedId] = useState(null); // clase seleccionada
-  const selected = classes.find(c => c.id === selectedId) || null;
+  // Clases (position/size/name)
+  const [classes, setClasses] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
+  const selected = classes.find((c) => c.id === selectedId) || null;
 
-  const [savingIds, setSavingIds] = useState(new Set());
+  // Cache centralizado de detalles por clase
+  // { [classId]: { attrs: [...], meths: [...] } }
+  const [detailsByClass, setDetailsByClass] = useState({});
 
-  const [newName, setNewName] = useState("");
-  const [creating, setCreating] = useState(false);
-
+  // Crear por click
   const [insertMode, setInsertMode] = useState(false);
   const [insertName, setInsertName] = useState("NuevaClase");
 
-  // cargar diagrama
+  // ====== CARGA DIAGRAMA ======
   useEffect(() => {
     let alive = true;
     (async () => {
-      setLoading(true); setErr("");
+      setLoading(true);
+      setErr("");
       try {
         const { data } = await api.get(`/diagrams/${id}`);
         if (!alive) return;
@@ -64,53 +72,81 @@ export default function DiagramDashboard() {
         setLoading(false);
       }
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, [id]);
 
-  // cargar clases
+  // ====== CARGA CLASES ======
   async function loadClasses() {
     try {
       const items = await listClasses(id);
       setClasses(items || []);
-      // si se borró la seleccionada, limpiar
-      if (selectedId && !items?.some(x => x.id === selectedId)) setSelectedId(null);
+      if (selectedId && !items?.some((x) => x.id === selectedId)) setSelectedId(null);
+    // Cargar detalles de todas las clases si faltan
+    await Promise.all(
+      (items || []).map(c =>
+        detailsByClass[c.id]
+          ? Promise.resolve()
+          : fetchDetails(c.id)  // ya tienes esta función en el mismo archivo
+      )
+    );
+    
+    
+    
     } catch {
       setClasses([]);
       setSelectedId(null);
     }
   }
-  useEffect(() => { if (diagram) loadClasses(); /* eslint-disable-next-line */ }, [diagram]);
+  useEffect(() => {
+    if (diagram) loadClasses();
+    // eslint-disable-next-line
+  }, [diagram]);
 
-  // crear por input
-  async function performCreate() {
-    const name = newName.trim();
-    if (!name || creating) return;
-    setCreating(true);
+  // ====== CARGA DETALLES (attrs/meths) ======
+  async function fetchDetails(classId) {
+    if (!classId) return;
     try {
-      const c = await apiCreateClass(id, { name, x_grid: 0, y_grid: 0, w_grid: 12, h_grid: 6, z_index: 1 });
-      setNewName("");
-      await loadClasses();
-      setSelectedId(c.id);
-    } catch (e) {
-      alert(e?.response?.data?.detail || "No se pudo crear la clase");
-    } finally {
-      setCreating(false);
+      const [a, m] = await Promise.all([listAttributes(classId), listMethods(classId)]);
+      setDetailsByClass((prev) => ({ ...prev, [classId]: { attrs: a || [], meths: m || [] } }));
+    } catch {
+      setDetailsByClass((prev) => ({ ...prev, [classId]: { attrs: [], meths: [] } }));
     }
   }
-  function onKeyDownCreate(e) {
-    if (e.key === "Enter") { e.preventDefault(); performCreate(); }
+
+  // Cargar detalles de la clase seleccionada si no los tenemos
+  useEffect(() => {
+    if (!selectedId) return;
+    if (!detailsByClass[selectedId]) {
+      fetchDetails(selectedId);
+    }
+  }, [selectedId, detailsByClass]);
+
+  // Helper para reemplazar detalles (lo usan hijos)
+  function replaceDetails(classId, patch) {
+    setDetailsByClass((prev) => ({
+      ...prev,
+      [classId]: { ...(prev[classId] || { attrs: [], meths: [] }), ...patch },
+    }));
   }
 
-  // crear por click en hoja (modo insertar)
+  // ====== CREAR CLASE POR CLICK EN HOJA ======
   async function handleCanvasClick({ x_grid, y_grid }) {
     if (!insertMode) return;
     try {
       const c = await apiCreateClass(id, {
         name: insertName.trim() || "NuevaClase",
-        x_grid, y_grid, w_grid: 12, h_grid: 6, z_index: 1,
+        x_grid,
+        y_grid,
+        w_grid: 12,
+        h_grid: 6,
+        z_index: 1,
       });
       await loadClasses();
       setSelectedId(c.id);
+      // crea detalles vacíos inicialmente
+      replaceDetails(c.id, { attrs: [], meths: [] });
     } catch (e) {
       alert(e?.response?.data?.detail || "No se pudo crear la clase");
     } finally {
@@ -118,22 +154,17 @@ export default function DiagramDashboard() {
     }
   }
 
-  // rename (sidebar lista) — opcional si lo mantienes ahí
+  // ====== RENAME (si editas desde la lista izquierda, si la tuvieras) ======
   const debouncedSave = useDebouncedCallback(async (classId, name) => {
-    try {
-      setSavingIds((prev) => new Set(prev).add(classId));
-      await updateClass(classId, { name });
-      setClasses((prev) => prev.map((c) => (c.id === classId ? { ...c, name } : c)));
-    } finally {
-      setSavingIds((prev) => { const n = new Set(prev); n.delete(classId); return n; });
-    }
+    await updateClass(classId, { name });
+    setClasses((prev) => prev.map((c) => (c.id === classId ? { ...c, name } : c)));
   }, 600);
 
   async function onBlurName(classId, value) {
     await updateClass(classId, { name: value });
   }
 
-  // drag/resize
+  // ====== DRAG/RESIZE ======
   async function handleDragEnd(classId, { x_grid, y_grid }) {
     try {
       await updateClassPosition(classId, { x_grid, y_grid });
@@ -153,83 +184,148 @@ export default function DiagramDashboard() {
     }
   }
 
-  // eliminar
+  // ====== ELIMINAR CLASE ======
   async function handleDelete(classId) {
     if (!confirm("¿Eliminar esta clase?")) return;
     try {
       await apiDeleteClass(classId);
       setClasses((prev) => prev.filter((c) => c.id !== classId));
+      setDetailsByClass((prev) => {
+        const n = { ...prev };
+        delete n[classId];
+        return n;
+      });
       if (selectedId === classId) setSelectedId(null);
     } catch (e) {
       alert(e?.response?.data?.detail || "No se pudo eliminar");
     }
   }
 
+  // ====== UI ======
   if (loading) return <div style={{ padding: 16 }}>Cargando…</div>;
   if (err) {
     return (
       <div style={{ padding: 16 }}>
         <div style={{ marginBottom: 8, color: "salmon" }}>{err}</div>
-        <button onClick={() => nav("/")} style={{ padding: "6px 10px" }}>Volver</button>
+        <button onClick={() => nav("/")} style={{ padding: "6px 10px" }}>
+          Volver
+        </button>
       </div>
     );
   }
   if (!diagram) return null;
 
   const input = {
-    width: "100%", height: 36, padding: "0 10px",
-    borderRadius: 8, border: "1px solid #334", background: "#0e1526",
-    color: "#fff", boxSizing: "border-box",
+    width: "100%",
+    height: 32,
+    padding: "0 10px",
+    borderRadius: 8,
+    border: "1px solid #334",
+    background: "#0e1526",
+    color: "#fff",
+    boxSizing: "border-box",
   };
 
   return (
-    <div style={{ display: "grid", gridTemplateRows: "64px 1fr", height: "100vh", background: "var(--bg, #0b1020)", color: "var(--text, #eaeefb)" }}>
-      {/* PARTE SUPERIOR DE LA VENTANA Header */}
-      <header style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 16px", borderBottom: "1px solid #213", background: "rgba(0,0,0,.15)" }}>
-        <button onClick={() => nav("/")} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateRows: "64px 1fr",
+        height: "100vh",
+        background: "var(--bg, #0b1020)",
+        color: "var(--text, #eaeefb)",
+      }}
+    >
+      {/* Header */}
+      <header
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          padding: "0 16px",
+          borderBottom: "1px solid #213",
+          background: "rgba(0,0,0,.15)",
+        }}
+      >
+        <button
+          onClick={() => nav("/")}
+          style={{
+            padding: "6px 10px",
+            borderRadius: 8,
+            border: "1px solid #334",
+            background: "transparent",
+            color: "inherit",
+          }}
+        >
           ← Volver
         </button>
         <strong style={{ fontSize: 16 }}>{diagram.title}</strong>
-        <span style={{ fontSize: 12, opacity: .8 }}>ID: {diagram.id}</span>
-        <span style={{ fontSize: 12, opacity: .8, marginLeft: 8 }}>Actualizado: {new Date(diagram.updated_at).toLocaleString()}</span>
+        <span style={{ fontSize: 12, opacity: 0.8 }}>ID: {diagram.id}</span>
+        <span style={{ fontSize: 12, opacity: 0.8, marginLeft: 8 }}>
+          Actualizado: {new Date(diagram.updated_at).toLocaleString()}
+        </span>
 
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
           <input
             value={insertName}
             onChange={(e) => setInsertName(e.target.value)}
             placeholder="Nombre a insertar"
-            style={{ ...input, width: 180, height: 32 }}
+            style={{ ...input, width: 180 }}
           />
           <button
-            onClick={() => setInsertMode(v => !v)}
-            style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: insertMode ? "#334" : "transparent", color: "inherit", fontWeight: 600 }}
+            onClick={() => setInsertMode((v) => !v)}
+            style={{
+              padding: "6px 10px",
+              borderRadius: 8,
+              border: "1px solid #334",
+              background: insertMode ? "#334" : "transparent",
+              color: "inherit",
+              fontWeight: 600,
+            }}
             title="Modo insertar: click en la hoja crea una clase"
           >
             {insertMode ? "🟢 Insertando…" : "➕ Insertar clase"}
           </button>
-          <span style={{ fontSize: 12, opacity: .8 }}>{email}</span>
-          <button onClick={toggleTheme} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}>
+          <span style={{ fontSize: 12, opacity: 0.8 }}>{email}</span>
+          <button
+            onClick={toggleTheme}
+            style={{
+              padding: "6px 10px",
+              borderRadius: 8,
+              border: "1px solid #334",
+              background: "transparent",
+              color: "inherit",
+            }}
+          >
             {theme === "dark" ? "🌙" : "☀️"}
           </button>
-          <button onClick={() => { logout(); nav("/login", { replace: true }); }} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}>
+          <button
+            onClick={() => {
+              logout();
+              nav("/login", { replace: true });
+            }}
+            style={{
+              padding: "6px 10px",
+              borderRadius: 8,
+              border: "1px solid #334",
+              background: "transparent",
+              color: "inherit",
+            }}
+          >
             Salir
           </button>
         </div>
       </header>
 
-      {/* TODA LA HOJA COMPLETA */}
-      {/* Cuerpo: lista izq | canvas centro | inspector der */}
+      {/* Layout: Izq | Canvas | Inspector */}
       <div style={{ display: "grid", gridTemplateColumns: "420px 1fr 420px", minHeight: 0 }}>
-        {/* PANEL IZQUIERDO Lista + crear (izquierda) */}
-      
+        {/* Izquierdo (puedes poner tu lista/crear) */}
         <aside style={{ borderRight: "1px solid #213", padding: 16, overflow: "auto" }}>
           <h3 style={{ marginTop: 0 }}>Panel Izquierdo</h3>
-
-          {/* Aquí irá la lista o la creación de clases */}
+          {/* Tu lista o herramientas aquí */}
         </aside>
 
-
-        {/* CENTRO Canvas (centro) */}
+        {/* Canvas */}
         <main style={{ position: "relative" }}>
           <Sheet onCanvasClick={handleCanvasClick}>
             {classes.map((c) => (
@@ -240,23 +336,50 @@ export default function DiagramDashboard() {
                 onSelect={setSelectedId}
                 onDragEnd={handleDragEnd}
                 onResizeEnd={handleResizeEnd}
+                // NUEVO: detalles desde el padre (no se auto-cargan en la tarjeta)
+                details={detailsByClass[c.id]} // {attrs, meths} o undefined
+                alwaysShowDetails={true}
               />
             ))}
           </Sheet>
+
           {insertMode && (
-            <div style={{ position: "absolute", left: 12, top: 12, background: "rgba(20,120,20,.15)", border: "1px solid #2b6", color: "#bfeecb", padding: "6px 10px", borderRadius: 8, fontSize: 12 }}>
-              Modo insertar: click en la hoja crea “{insertName || "NuevaClase"}”
+            <div
+              style={{
+                position: "absolute",
+                left: 12,
+                top: 12,
+                background: "rgba(20,120,20,.15)",
+                border: "1px solid #2b6",
+                color: "#bfeecb",
+                padding: "6px 10px",
+                borderRadius: 8,
+                fontSize: 12,
+              }}
+            >
+              Modo insertar: click crea “{insertName || "NuevaClase"}”
             </div>
           )}
         </main>
 
-        {/* PANEL DERECHO Inspector (derecha) */}
+        {/* Inspector (derecha) */}
         <Inspector
           selected={selected}
-          onSoftUpdate={(patch) => {
-            if (!patch?.id) return;
-            setClasses((prev) => prev.map((x) => (x.id === patch.id ? { ...x, ...patch } : x)));
+          details={selected ? detailsByClass[selected.id] : undefined}
+          // renombrar clase
+          onRename={async (name) => {
+            if (!selected) return;
+            await updateClass(selected.id, { name });
+            setClasses((prev) => prev.map((x) => (x.id === selected.id ? { ...x, name } : x)));
           }}
+          // CRUD de atributos/métodos: el inspector llama API y luego nos pasa el estado nuevo
+          onDetailsChange={(patch) => {
+            if (!selected) return;
+            replaceDetails(selected.id, patch);
+          }}
+          // (Opcional) recargar desde servidor (para “confirmar” normalizaciones)
+          reloadDetails={() => selected && fetchDetails(selected.id)}
+          onDeleteClass={() => selected && handleDelete(selected.id)}
         />
       </div>
     </div>
