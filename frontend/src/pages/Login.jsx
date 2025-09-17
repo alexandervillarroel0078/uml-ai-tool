@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/client";
 import useAuth from "../store/auth";
-import ApiStatusBadge from "../components/ApiStatusBadge";
+import ApiStatusBadge from "../components/common/ApiStatusBadge";
 
 export default function LoginPage() {
   const nav = useNavigate();

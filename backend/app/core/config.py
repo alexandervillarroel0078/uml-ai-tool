@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     JWT_ALG: str = "HS256"
     ACCESS_EXPIRE_MIN: int = 480
     REFRESH_EXPIRE_DAYS: int = 14
-    CORS_ORIGINS: str = "http://localhost:5173"
+    CORS_ORIGINS: str = "http://localhost:5173,http://192.168.0.12:5173,http://192.168.0.12:4173"
 
     class Config:
         env_file = ".env"

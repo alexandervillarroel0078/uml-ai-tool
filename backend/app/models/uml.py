@@ -106,7 +106,7 @@ class Atributo(Base):
     nombre: Mapped[str] = mapped_column(String(120), nullable=False)
     tipo: Mapped[str] = mapped_column(String(60), default="string")
     requerido: Mapped[bool] = mapped_column(Boolean, default=False)
-
+    
     clase_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("clase.id", ondelete="CASCADE"), nullable=False)
     clase: Mapped["Clase"] = relationship(back_populates="atributos")
 

@@ -1,6 +1,47 @@
-Sheet.jsx //Es el lienzo (canvas) base donde se dibujan todas las clases.
-ClassCard.jsx //Es la tarjeta visual de cada clase UML.
-DiagramDashboard.jsx Es el dashboard completo de un diagrama UML (pantalla principal).
+frontend/
+├─ public/
+├─ src/
+│  ├─ api/                 ← Endpoints del backend
+│  │  ├─ client.js         ← Configura axios (baseURL, headers, interceptores)
+│  │  ├─ diagrams.js       ← Endpoints de diagramas (listar, crear, borrar, obtener)
+│  │  ├─ classes.js        ← Endpoints de clases UML (CRUD) + atributos y métodos
+│  │  └─ relations.js      ← Endpoints de relaciones entre clases (crear/listar/eliminar)
+│  ├─ assets/
+│  │  └─ react.svg         ← Recursos estáticos (íconos, imágenes)
+│  ├─ components/
+│  │  ├─ canvas/                      ← Todo lo que se dibuja en el lienzo
+│  │  │  ├─ Sheet.jsx                 ← Lienzo con grilla; base donde se dibujan las clases
+│  │  │  ├─ Canvas.jsx                ← Contenedor del lienzo; orquesta Sheet + overlays
+│  │  │  └─ ClassCard.jsx             ← Tarjeta visual de cada clase UML (nombre, atributos, métodos, drag/resize, selección)
+│  │  │
+│  │  ├─ panels/                      ← Paneles laterales de edición
+│  │  │  ├─ Inspector.jsx             ← Panel derecho para editar clase seleccionada (nombre, atributos, métodos)
+│  │  │  ├─ RelationsPanel.jsx        ← Panel lateral para crear/editar relaciones (tipo, multiplicidad)
+│  │  │  └─ Sidebar.jsx               ← Panel izquierdo: lista de clases, búsqueda y acciones rápidas
+│  │  │
+│  │  └─ common/                      ← Componentes comunes y reutilizables
+│  │     ├─ ApiStatusBadge.jsx        ← Indicador de estado del backend (online/offline)
+│  │     └─ HeaderBar.jsx             ← Barra superior: título, usuario, tema, acciones globales
+│  ├─ hooks/
+│  │  └─ useTheme.js       ← Hook para tema (dark/light) y persistencia en localStorage
+│  ├─ pages/
+│  │  ├─ Login.jsx         ← Pantalla de login (envía credenciales, guarda token en store)
+│  │  ├─ Home.jsx          ← Lista de diagramas (crear, abrir, eliminar)
+│  │  └─ DiagramDashboard.jsx ← Pantalla principal: carga diagrama + clases, renderiza Sheet y paneles
+│  ├─ store/
+│  │  └─ auth.js           ← Estado global de autenticación (token, email, login/logout)
+│  ├─ styles/
+│  │  └─ theme.css         ← Variables de tema, tipografía y colores
+│  ├─ App.jsx              ← Define rutas (Login, Home, DiagramDashboard) y layout base
+│  ├─ App.css              ← Estilos globales mínimos
+│  ├─ index.css            ← Reset y estilos base (puede consolidarse en styles/theme.css)
+│  ├─ main.jsx             ← Punto de entrada; monta <App /> en el DOM
+│  └─ config.js            ← Config de frontend (ej: API_BASE_URL desde .env)
+├─ .env                    ← Variables de entorno
+├─ .env.development        ← Variables de entorno para dev
+├─ package.json            ← Scripts y dependencias
+├─ vite.config.js          ← Config de Vite (plugins, alias, proxy)
+└─ …(resto)
 
 
 
@@ -21,3 +62,20 @@ DiagramDashboard.jsx Es el dashboard completo de un diagrama UML (pantalla princ
 
 
 
+
+
+
+
+
+
+
+
+│  ├─ components/
+│  │  ├─ Sheet.jsx         ← Lienzo con grilla; base donde se dibujan las clases
+│  │  ├─ Canvas.jsx        ← Contenedor del lienzo; orquesta Sheet + overlays
+│  │  ├─ ClassCard.jsx     ← Tarjeta visual de cada clase UML (nombre, atributos, métodos, drag/resize, selección)
+│  │  ├─ Inspector.jsx     ← Panel derecho para editar clase seleccionada (nombre, atributos, métodos)
+│  │  ├─ RelationsPanel.jsx← Panel lateral para crear/editar relaciones (tipo, multiplicidad)
+│  │  ├─ Sidebar.jsx       ← Panel izquierdo: lista de clases, búsqueda y acciones rápidas
+│  │  ├─ ApiStatusBadge.jsx← Indicador de estado del backend (online/offline)
+│  │  └─ HeaderBar.jsx     ← Barra superior: título, usuario, tema, acciones globales

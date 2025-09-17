@@ -11,10 +11,10 @@ import {
   deleteClass as apiDeleteClass,
   updateClassPosition,
   updateClassSize,
-} from "../api/classes";
-import Sheet from "../components/Sheet";
-import ClassCard from "../components/ClassCard";
-import Inspector from "../components/Inspector";
+}from "../api/classes";
+import Sheet from "../components/canvas/Sheet";
+import ClassCard from "../components/canvas/ClassCard";
+import Inspector from "../components/panels/Inspector";
 
 function useDebouncedCallback(cb, delay = 600) {
   const t = useRef(null);
@@ -184,7 +184,7 @@ export default function DiagramDashboard() {
 
   return (
     <div style={{ display: "grid", gridTemplateRows: "64px 1fr", height: "100vh", background: "var(--bg, #0b1020)", color: "var(--text, #eaeefb)" }}>
-      {/* Header */}
+      {/* PARTE SUPERIOR DE LA VENTANA Header */}
       <header style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 16px", borderBottom: "1px solid #213", background: "rgba(0,0,0,.15)" }}>
         <button onClick={() => nav("/")} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}>
           ← Volver
@@ -217,74 +217,19 @@ export default function DiagramDashboard() {
         </div>
       </header>
 
+      {/* TODA LA HOJA COMPLETA */}
       {/* Cuerpo: lista izq | canvas centro | inspector der */}
       <div style={{ display: "grid", gridTemplateColumns: "420px 1fr 420px", minHeight: 0 }}>
-        {/* Lista + crear (izquierda) */}
+        {/* PANEL IZQUIERDO Lista + crear (izquierda) */}
+      
         <aside style={{ borderRight: "1px solid #213", padding: 16, overflow: "auto" }}>
-          <h3 style={{ marginTop: 0 }}>Clases</h3>
+          <h3 style={{ marginTop: 0 }}>Panel Izquierdo</h3>
 
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ fontSize: 12, opacity: .8, display: "block", marginBottom: 4 }}>Nueva clase</label>
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={onKeyDownCreate}
-              onBlur={performCreate}
-              placeholder="Escribe el nombre y Enter"
-              disabled={creating}
-              style={input}
-            />
-          </div>
-
-          {classes.length === 0 ? (
-            <div style={{ opacity: .7, fontSize: 14 }}>No hay clases todavía.</div>
-          ) : (
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 8 }}>
-              {classes.map((c) => (
-                <li
-                  key={c.id}
-                  onClick={() => setSelectedId(c.id)}
-                  style={{
-                    border: "1px solid #334",
-                    borderRadius: 8,
-                    padding: 12,
-                    background: c.id === selectedId ? "rgba(100,150,255,.08)" : "transparent",
-                    cursor: "pointer",
-                  }}
-                >
-                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <div style={{ flex: 1, position: "relative" }}>
-                      <input
-                        value={c.name ?? c.nombre ?? ""}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setClasses((prev) => prev.map((x) => (x.id === c.id ? { ...x, name: val } : x)));
-                          debouncedSave(c.id, val);
-                        }}
-                        onBlur={(e) => onBlurName(c.id, e.target.value)}
-                        style={{ ...input, paddingRight: 70 }}
-                      />
-                      {savingIds.has(c.id) && (
-                        <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", fontSize: 12, opacity: .7 }}>
-                          guardando…
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      title="Eliminar"
-                      onClick={(ev) => { ev.stopPropagation(); handleDelete(c.id); }}
-                      style={{ border: "1px solid #334", background: "transparent", color: "inherit", borderRadius: 8, padding: "6px 10px" }}
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+          {/* Aquí irá la lista o la creación de clases */}
         </aside>
 
-        {/* Canvas (centro) */}
+
+        {/* CENTRO Canvas (centro) */}
         <main style={{ position: "relative" }}>
           <Sheet onCanvasClick={handleCanvasClick}>
             {classes.map((c) => (
@@ -305,7 +250,7 @@ export default function DiagramDashboard() {
           )}
         </main>
 
-        {/* Inspector (derecha) */}
+        {/* PANEL DERECHO Inspector (derecha) */}
         <Inspector
           selected={selected}
           onSoftUpdate={(patch) => {

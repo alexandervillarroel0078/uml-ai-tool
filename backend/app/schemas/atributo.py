@@ -6,6 +6,7 @@ class AtributoCreate(BaseModel):
     name: str
     type: str
     required: bool = False
+    
 
 class AtributoUpdate(BaseModel):
     name: Optional[str] = None
