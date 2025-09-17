@@ -1,0 +1,23 @@
+Sheet.jsx //Es el lienzo (canvas) base donde se dibujan todas las clases.
+ClassCard.jsx //Es la tarjeta visual de cada clase UML.
+DiagramDashboard.jsx Es el dashboard completo de un diagrama UML (pantalla principal).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

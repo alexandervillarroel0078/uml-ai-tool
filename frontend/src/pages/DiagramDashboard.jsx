@@ -1,488 +1,4 @@
-// // // src/pages/DiagramDashboard.jsx
-// // import { useEffect, useMemo, useState } from "react";
-// // import { useNavigate, useParams } from "react-router-dom";
-// // import api from "../api/client";
-// // import useAuth from "../store/auth";
-// // import useTheme from "../hooks/useTheme";
 
-// // // (Si ya tienes estos componentes reales, descomenta y usa esos)
-// // // import HeaderBar from "../components/HeaderBar";
-// // // import Sidebar from "../components/Sidebar";
-// // // import Canvas from "../components/Canvas";
-// // // import RelationsPanel from "../components/RelationsPanel";
-
-// // export default function DiagramDashboard() {
-// //   const { id } = useParams();
-// //   const nav = useNavigate();
-// //   const logout = useAuth(s => s.logout);
-// //   const email  = useAuth(s => s.email);
-// //   const { theme, toggleTheme } = useTheme();
-
-// //   // Diagrama
-// //   const [diagram, setDiagram] = useState(null);
-// //   const [loadingDiagram, setLoadingDiagram] = useState(true);
-// //   const [err, setErr] = useState("");
-
-// //   // Estado de clases/relaciones (placeholder por ahora)
-// //   const [classes, setClasses] = useState([]);
-// //   const [name, setName] = useState("");
-// //   const [attrs, setAttrs] = useState([{ nombre: "email", tipo: "string", requerido: true }]);
-// //   const [loading, setLoading] = useState(false);
-// //   const [msg, setMsg] = useState("");
-
-// //   // Relaciones (UI simple/placeholder)
-// //   const [relMode, setRelMode] = useState(false);
-// //   const [relType, setRelType] = useState("ASSOCIATION");
-// //   const [relA, setRelA] = useState(null);
-// //   const [relB, setRelB] = useState(null);
-// //   const [multA, setMultA] = useState("1");
-// //   const [multB, setMultB] = useState("*");
-
-// //   // Demo visual si no hay datos (no rompe backend)
-// //   const demoClasses = useMemo(() => ([
-// //     {
-// //       id: 1, nombre: "Usuario", atributos: [
-// //         { nombre: "email", tipo: "string", requerido: true },
-// //         { nombre: "passwordHash", tipo: "string", requerido: true },
-// //       ]
-// //     },
-// //     {
-// //       id: 2, nombre: "Proyecto", atributos: [
-// //         { nombre: "titulo", tipo: "string", requerido: true },
-// //         { nombre: "descripcion", tipo: "string", requerido: false },
-// //       ]
-// //     },
-// //     {
-// //       id: 3, nombre: "Tarea", atributos: [
-// //         { nombre: "titulo", tipo: "string", requerido: true },
-// //         { nombre: "estado", tipo: "string", requerido: true },
-// //       ]
-// //     },
-// //   ]), []);
-
-// //   // Cargar diagrama
-// //   useEffect(() => {
-// //     let alive = true;
-// //     (async () => {
-// //       setLoadingDiagram(true); setErr("");
-// //       try {
-// //         const { data } = await api.get(`/diagrams/${id}`);
-// //         if (alive) setDiagram(data);
-// //       } catch (e) {
-// //         if (alive) setErr(e?.response?.data?.detail || "No se pudo cargar el diagrama");
-// //       } finally {
-// //         if (alive) setLoadingDiagram(false);
-// //       }
-// //     })();
-// //     return () => { alive = false; };
-// //   }, [id]);
-
-// //   // Cargar clases del diagrama (cuando tengamos endpoint real)
-// //   async function loadClasses() {
-// //     // TODO: conecta a GET /diagrams/:id/classes cuando exista.
-// //     // Por ahora mostramos demo para no romper UI:
-// //     setClasses(demoClasses);
-// //   }
-// //   useEffect(() => { if (diagram) loadClasses(); /* eslint-disable-next-line */ }, [diagram]);
-
-// //   // Crear clase (placeholder: solo refresca demo/estado local)
-// //   async function createClass() {
-// //     try {
-// //       setLoading(true); setMsg("");
-// //       // TODO: POST /diagrams/:id/classes con { nombre, atributos }
-// //       // await api.post(`/diagrams/${diagram.id}/classes`, { nombre: name, atributos: attrs });
-// //       // await loadClasses();
-// //       // Demo: actualiza local:
-// //       const tmp = {
-// //         id: Math.random().toString(36).slice(2),
-// //         nombre: name || "NuevaClase",
-// //         atributos: attrs,
-// //       };
-// //       setClasses(prev => [tmp, ...prev]);
-// //       setName("");
-// //       setAttrs([{ nombre: "email", tipo: "string", requerido: true }]);
-// //       setMsg("Clase creada (demo)");
-// //     } catch {
-// //       setMsg("Error al crear clase");
-// //     } finally {
-// //       setLoading(false);
-// //     }
-// //   }
-
-// //   // Crear relación (placeholder)
-// //   function createRelation() {
-// //     // TODO: POST /diagrams/:id/relations con { origen_id, destino_id, tipo, mult_origen, mult_destino }
-// //     setRelA(null); setRelB(null); setRelType("ASSOCIATION"); setMultA("1"); setMultB("*");
-// //     setMsg("Relación creada (demo)");
-// //   }
-
-// //   const classesToShow = classes.length ? classes : demoClasses;
-
-// //   if (loadingDiagram) return <div style={{ padding: 16 }}>Cargando…</div>;
-// //   if (err) return (
-// //     <div style={{ padding: 16 }}>
-// //       <div style={{ marginBottom: 8, color: "salmon" }}>{err}</div>
-// //       <button onClick={() => nav("/")} style={{ padding: "6px 10px" }}>Volver</button>
-// //     </div>
-// //   );
-// //   if (!diagram) return null;
-
-// //   return (
-// //     <div style={{ display: "grid", gridTemplateRows: "64px 1fr", height: "100vh", background: "var(--bg, #0b1020)", color: "var(--text, #eaeefb)" }}>
-// //       {/* HEADER (simple inline para no depender de HeaderBar ahora) */}
-// //       <header style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 16px", borderBottom: "1px solid #213", background: "rgba(0,0,0,.15)" }}>
-// //         <button onClick={() => nav("/")} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}>
-// //           ← Volver
-// //         </button>
-// //         <strong style={{ fontSize: 16 }}>{diagram.title}</strong>
-// //         <span style={{ fontSize: 12, opacity: .8 }}>ID: {diagram.id}</span>
-// //         <span style={{ fontSize: 12, opacity: .8, marginLeft: 8 }}>
-// //           Actualizado: {new Date(diagram.updated_at).toLocaleString()}
-// //         </span>
-// //         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
-// //           <span style={{ fontSize: 12, opacity: .8 }}>{email}</span>
-// //           <button onClick={toggleTheme} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}>
-// //             {theme === "dark" ? "🌙" : "☀️"}
-// //           </button>
-// //           <button onClick={() => { logout(); nav("/login", { replace: true }); }} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}>
-// //             Salir
-// //           </button>
-// //         </div>
-// //       </header>
-
-// //       {/* 3 columnas: Sidebar (crear clase) | Canvas | Relaciones */}
-// //       <div style={{ display: "grid", gridTemplateColumns: "460px 1fr 360px", minHeight: 0 }}>
-// //         {/* Sidebar — crear clase (placeholder) */}
-// //         <aside style={{ borderRight: "1px solid #213", padding: 16, overflow: "auto" }}>
-// //           <h3 style={{ marginTop: 0 }}>Clases</h3>
-
-// //           <div style={{ border: "1px solid #334", borderRadius: 12, padding: 12, marginBottom: 12 }}>
-// //             <div style={{ fontWeight: 600, marginBottom: 8 }}>Nueva clase</div>
-// //             <label style={{ fontSize: 12, opacity: .8 }}>Nombre</label>
-// //             <input
-// //               value={name}
-// //               onChange={e => setName(e.target.value)}
-// //               placeholder="Usuario"
-// //               style={{
-// //                 width: "100%", height: 36, padding: "0 10px", borderRadius: 8, border: "1px solid #334",
-// //                 background: "#0e1526", color: "#fff", boxSizing: "border-box", marginBottom: 8
-// //               }}
-// //             />
-// //             <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-// //               <button
-// //                 type="button"
-// //                 onClick={() => setAttrs(p => [...p, { nombre: "", tipo: "string", requerido: false }])}
-// //                 style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}
-// //               >
-// //                 + atributo
-// //               </button>
-// //               <button
-// //                 type="button"
-// //                 onClick={createClass}
-// //                 disabled={loading}
-// //                 style={{ padding: "6px 10px", borderRadius: 8, border: "none", background: "#4f46e5", color: "#fff" }}
-// //               >
-// //                 {loading ? "Creando…" : "Crear clase"}
-// //               </button>
-// //             </div>
-
-// //             {/* Lista simple de atributos (placeholder) */}
-// //             <div style={{ display: "grid", gap: 6 }}>
-// //               {attrs.map((a, idx) => (
-// //                 <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 8 }}>
-// //                   <input
-// //                     value={a.nombre}
-// //                     onChange={e => setAttrs(prev => prev.map((x, i) => i === idx ? { ...x, nombre: e.target.value } : x))}
-// //                     placeholder="nombre"
-// //                     style={{ height: 32, padding: "0 8px", borderRadius: 8, border: "1px solid #334", background: "#0e1526", color: "#fff" }}
-// //                   />
-// //                   <input
-// //                     value={a.tipo}
-// //                     onChange={e => setAttrs(prev => prev.map((x, i) => i === idx ? { ...x, tipo: e.target.value } : x))}
-// //                     placeholder="tipo (string, int...)"
-// //                     style={{ height: 32, padding: "0 8px", borderRadius: 8, border: "1px solid #334", background: "#0e1526", color: "#fff" }}
-// //                   />
-// //                   <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}>
-// //                     <input
-// //                       type="checkbox"
-// //                       checked={!!a.requerido}
-// //                       onChange={e => setAttrs(prev => prev.map((x, i) => i === idx ? { ...x, requerido: e.target.checked } : x))}
-// //                     />
-// //                     requerido
-// //                   </label>
-// //                 </div>
-// //               ))}
-// //             </div>
-// //           </div>
-
-// //           {msg && <div style={{ fontSize: 12, opacity: .85, marginBottom: 8 }}>{msg}</div>}
-
-// //           {/* Lista de clases (del diagrama) */}
-// //           <div style={{ display: "grid", gap: 8 }}>
-// //             {classesToShow.map(c => (
-// //               <div key={c.id} style={{ border: "1px solid #334", borderRadius: 8, padding: 10 }}>
-// //                 <div style={{ fontWeight: 600 }}>{c.nombre}</div>
-// //                 <ul style={{ margin: "6px 0 0", paddingLeft: 16 }}>
-// //                   {c.atributos?.map((at, i) => (
-// //                     <li key={i} style={{ fontSize: 12, opacity: .85 }}>
-// //                       {at.nombre}: {at.tipo}{at.requerido ? " *" : ""}
-// //                     </li>
-// //                   ))}
-// //                 </ul>
-// //               </div>
-// //             ))}
-// //           </div>
-// //         </aside>
-
-// //         {/* Canvas (placeholder visual) */}
-// //         <main style={{ position: "relative", overflow: "hidden" }}>
-// //           <div style={{ position: "absolute", top: 16, left: 24, color: "var(--text-muted, #9aa4c7)", fontWeight: 600 }}>
-// //             Canvas (placeholder)
-// //           </div>
-// //           <div style={{ height: "100%", display: "grid", placeItems: "center", opacity: .6 }}>
-// //             Aquí renderizaremos nodos/clases y relaciones del diagrama.
-// //           </div>
-// //         </main>
-
-// //         {/* Relaciones (placeholder) */}
-// //         <aside style={{ borderLeft: "1px solid #213", padding: 16, overflow: "auto" }}>
-// //           <h3 style={{ marginTop: 0 }}>Relaciones</h3>
-
-// //           <div style={{ border: "1px solid #334", borderRadius: 12, padding: 12 }}>
-// //             <div style={{ fontWeight: 600, marginBottom: 8 }}>Nueva relación</div>
-
-// //             <label style={{ fontSize: 12, opacity: .8 }}>Tipo</label>
-// //             <select
-// //               value={relType}
-// //               onChange={e => setRelType(e.target.value)}
-// //               style={{ width: "100%", height: 36, borderRadius: 8, border: "1px solid #334", background: "#0e1526", color: "#fff", marginBottom: 8 }}
-// //             >
-// //               <option>ASSOCIATION</option>
-// //               <option>AGGREGATION</option>
-// //               <option>COMPOSITION</option>
-// //               <option>INHERITANCE</option>
-// //               <option>DEPENDENCY</option>
-// //             </select>
-
-// //             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
-// //               <div>
-// //                 <label style={{ fontSize: 12, opacity: .8 }}>Desde</label>
-// //                 <select
-// //                   value={relA ?? ""}
-// //                   onChange={e => setRelA(e.target.value || null)}
-// //                   style={{ width: "100%", height: 36, borderRadius: 8, border: "1px solid #334", background: "#0e1526", color: "#fff" }}
-// //                 >
-// //                   <option value="">(elige clase)</option>
-// //                   {classesToShow.map(c => <option value={c.id} key={c.id}>{c.nombre}</option>)}
-// //                 </select>
-// //               </div>
-// //               <div>
-// //                 <label style={{ fontSize: 12, opacity: .8 }}>Hacia</label>
-// //                 <select
-// //                   value={relB ?? ""}
-// //                   onChange={e => setRelB(e.target.value || null)}
-// //                   style={{ width: "100%", height: 36, borderRadius: 8, border: "1px solid #334", background: "#0e1526", color: "#fff" }}
-// //                 >
-// //                   <option value="">(elige clase)</option>
-// //                   {classesToShow.map(c => <option value={c.id} key={c.id}>{c.nombre}</option>)}
-// //                 </select>
-// //               </div>
-// //             </div>
-
-// //             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
-// //               <input
-// //                 value={multA}
-// //                 onChange={e => setMultA(e.target.value)}
-// //                 placeholder="mult origen (1, *, 1..*)"
-// //                 style={{ height: 36, borderRadius: 8, border: "1px solid #334", background: "#0e1526", color: "#fff", padding: "0 10px" }}
-// //               />
-// //               <input
-// //                 value={multB}
-// //                 onChange={e => setMultB(e.target.value)}
-// //                 placeholder="mult destino"
-// //                 style={{ height: 36, borderRadius: 8, border: "1px solid #334", background: "#0e1526", color: "#fff", padding: "0 10px" }}
-// //               />
-// //             </div>
-
-// //             <button
-// //               type="button"
-// //               onClick={createRelation}
-// //               style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: "#4f46e5", color: "#fff" }}
-// //             >
-// //               Crear relación
-// //             </button>
-// //           </div>
-// //         </aside>
-// //       </div>
-// //     </div>
-// //   );
-// // }
-// //src/pages/DiagramDashboard.jsx
-// import { useEffect, useRef, useState } from "react";
-// import { useNavigate, useParams } from "react-router-dom";
-// import api from "../api/client";
-// import useAuth from "../store/auth";
-// import useTheme from "../hooks/useTheme";
-// import { listClasses, updateClass } from "../api/classes";
-
-// function useDebouncedCallback(cb, delay = 600) {
-//   const t = useRef(null);
-//   return (...args) => {
-//     if (t.current) clearTimeout(t.current);
-//     t.current = setTimeout(() => cb(...args), delay);
-//   };
-// }
-
-// export default function DiagramDashboard() {
-//   const { id } = useParams();
-//   const nav = useNavigate();
-//   const logout = useAuth(s => s.logout);
-//   const email  = useAuth(s => s.email);
-//   const { theme, toggleTheme } = useTheme();
-
-//   const [diagram, setDiagram] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [err, setErr] = useState("");
-
-//   const [classes, setClasses] = useState([]);           // [{id, name}]
-//   const [savingIds, setSavingIds] = useState(new Set()); // ids que están auto-guardando
-
-//   // Cargar diagrama
-//   useEffect(() => {
-//     let alive = true;
-//     (async () => {
-//       setLoading(true); setErr("");
-//       try {
-//         const { data } = await api.get(`/diagrams/${id}`);
-//         if (!alive) return;
-//         setDiagram(data);
-//       } catch (e) {
-//         if (!alive) return;
-//         setErr(e?.response?.data?.detail || "No se pudo cargar el diagrama");
-//       } finally {
-//         if (!alive) return;
-//         setLoading(false);
-//       }
-//     })();
-//     return () => { alive = false; };
-//   }, [id]);
-
-//   // Cargar clases
-//   async function loadClasses() {
-//     try {
-//       const items = await listClasses(id);
-//       setClasses(items || []);
-//     } catch {
-//       setClasses([]);
-//     }
-//   }
-//   useEffect(() => { if (diagram) loadClasses(); /* eslint-disable-next-line */ }, [diagram]);
-
-//   // Auto-save nombre de clase (debounced + blur)
-//   const debouncedSave = useDebouncedCallback(async (classId, name) => {
-//     try {
-//       setSavingIds(prev => new Set(prev).add(classId));
-//       await updateClass(classId, { name });
-//       // refrescar solo el nombre localmente (evita llamar loadClasses())
-//       setClasses(prev => prev.map(c => c.id === classId ? { ...c, name } : c));
-//     } finally {
-//       setSavingIds(prev => {
-//         const n = new Set(prev);
-//         n.delete(classId);
-//         return n;
-//       });
-//     }
-//   }, 600);
-
-//   function onChangeName(classId, newName) {
-//     setClasses(prev => prev.map(c => c.id === classId ? { ...c, name: newName } : c));
-//     debouncedSave(classId, newName);
-//   }
-
-//   async function onBlurName(classId, value) {
-//     // por si el usuario escribe y sale rápido, garantizamos un save inmediato
-//     await updateClass(classId, { name: value });
-//   }
-
-//   if (loading) return <div style={{ padding: 16 }}>Cargando…</div>;
-//   if (err) return (
-//     <div style={{ padding: 16 }}>
-//       <div style={{ marginBottom: 8, color: "salmon" }}>{err}</div>
-//       <button onClick={() => nav("/")} style={{ padding: "6px 10px" }}>Volver</button>
-//     </div>
-//   );
-//   if (!diagram) return null;
-
-//   return (
-//     <div style={{ display: "grid", gridTemplateRows: "64px 1fr", height: "100vh", background: "var(--bg, #0b1020)", color: "var(--text, #eaeefb)" }}>
-//       {/* Header sin botones de CRUD */}
-//       <header style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 16px", borderBottom: "1px solid #213", background: "rgba(0,0,0,.15)" }}>
-//         <button onClick={() => nav("/")} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}>
-//           ← Volver
-//         </button>
-//         <strong style={{ fontSize: 16 }}>{diagram.title}</strong>
-//         <span style={{ fontSize: 12, opacity: .8 }}>ID: {diagram.id}</span>
-//         <span style={{ fontSize: 12, opacity: .8, marginLeft: 8 }}>
-//           Actualizado: {new Date(diagram.updated_at).toLocaleString()}
-//         </span>
-//         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
-//           <span style={{ fontSize: 12, opacity: .8 }}>{email}</span>
-//           <button onClick={toggleTheme} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}>
-//             {theme === "dark" ? "🌙" : "☀️"}
-//           </button>
-//           <button onClick={() => { logout(); nav("/login", { replace: true }); }} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}>
-//             Salir
-//           </button>
-//         </div>
-//       </header>
-
-//       {/* Cuerpo: solo lista y edición inline SIN botones de crear/eliminar */}
-//       <div style={{ display: "grid", gridTemplateColumns: "520px 1fr", minHeight: 0 }}>
-//         <aside style={{ borderRight: "1px solid #213", padding: 16, overflow: "auto" }}>
-//           <h3 style={{ marginTop: 0 }}>Clases</h3>
-
-//           {classes.length === 0 ? (
-//             <div style={{ opacity: .7, fontSize: 14 }}>No hay clases aún. (La creación se hará desde otro flujo)</div>
-//           ) : (
-//             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 8 }}>
-//               {classes.map(c => (
-//                 <li key={c.id} style={{ border: "1px solid #334", borderRadius: 8, padding: 12 }}>
-//                   <label style={{ fontSize: 12, opacity: .8 }}>Nombre</label>
-//                   <div style={{ position: "relative" }}>
-//                     <input
-//                       value={c.name ?? c.nombre ?? ""}
-//                       onChange={e => onChangeName(c.id, e.target.value)}
-//                       onBlur={e => onBlurName(c.id, e.target.value)}
-//                       style={{
-//                         width: "100%", height: 36, padding: "0 36px 0 10px",
-//                         borderRadius: 8, border: "1px solid #334", background: "#0e1526",
-//                         color: "#fff", boxSizing: "border-box"
-//                       }}
-//                     />
-//                     {/* spinner/indicador de guardado */}
-//                     {savingIds.has(c.id) && (
-//                       <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", fontSize: 12, opacity: .7 }}>
-//                         guardando…
-//                       </span>
-//                     )}
-//                   </div>
-
-//                   {/* Aquí más adelante puedes listar atributos/métodos en solo lectura
-//                       y abrir un panel aparte para editarlos también sin botones de guardar */}
-//                 </li>
-//               ))}
-//             </ul>
-//           )}
-//         </aside>
-
-//         <main style={{ display: "grid", placeItems: "center", opacity: .6 }}>
-//           Vista del diagrama (canvas) — más adelante la haremos colaborativa.
-//         </main>
-//       </div>
-//     </div>
-//   );
-// }
-// src/pages/DiagramDashboard.jsx
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/client";
@@ -493,7 +9,12 @@ import {
   createClass as apiCreateClass,
   updateClass,
   deleteClass as apiDeleteClass,
+  updateClassPosition,
+  updateClassSize,
 } from "../api/classes";
+import Sheet from "../components/Sheet";
+import ClassCard from "../components/ClassCard";
+import Inspector from "../components/Inspector";
 
 function useDebouncedCallback(cb, delay = 600) {
   const t = useRef(null);
@@ -510,25 +31,27 @@ export default function DiagramDashboard() {
   const email = useAuth((s) => s.email);
   const { theme, toggleTheme } = useTheme();
 
-  // Diagrama
   const [diagram, setDiagram] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  // Clases
-  const [classes, setClasses] = useState([]); // [{id,name}]
-  const [savingIds, setSavingIds] = useState(new Set()); // ids guardando
+  const [classes, setClasses] = useState([]);    // todas las clases
+  const [selectedId, setSelectedId] = useState(null); // clase seleccionada
+  const selected = classes.find(c => c.id === selectedId) || null;
 
-  // Crear clase (sin botón)
+  const [savingIds, setSavingIds] = useState(new Set());
+
   const [newName, setNewName] = useState("");
   const [creating, setCreating] = useState(false);
 
-  // Cargar diagrama
+  const [insertMode, setInsertMode] = useState(false);
+  const [insertName, setInsertName] = useState("NuevaClase");
+
+  // cargar diagrama
   useEffect(() => {
     let alive = true;
     (async () => {
-      setLoading(true);
-      setErr("");
+      setLoading(true); setErr("");
       try {
         const { data } = await api.get(`/diagrams/${id}`);
         if (!alive) return;
@@ -541,189 +64,167 @@ export default function DiagramDashboard() {
         setLoading(false);
       }
     })();
-    return () => {
-      alive = false;
-    };
+    return () => { alive = false; };
   }, [id]);
 
-  // Cargar clases
+  // cargar clases
   async function loadClasses() {
     try {
       const items = await listClasses(id);
       setClasses(items || []);
+      // si se borró la seleccionada, limpiar
+      if (selectedId && !items?.some(x => x.id === selectedId)) setSelectedId(null);
     } catch {
       setClasses([]);
+      setSelectedId(null);
     }
   }
-  useEffect(() => {
-    if (diagram) loadClasses();
-    // eslint-disable-next-line
-  }, [diagram]);
+  useEffect(() => { if (diagram) loadClasses(); /* eslint-disable-next-line */ }, [diagram]);
 
-  // Crear clase (Enter o blur)
+  // crear por input
   async function performCreate() {
     const name = newName.trim();
     if (!name || creating) return;
     setCreating(true);
     try {
-      await apiCreateClass(id, { name });
+      const c = await apiCreateClass(id, { name, x_grid: 0, y_grid: 0, w_grid: 12, h_grid: 6, z_index: 1 });
       setNewName("");
       await loadClasses();
+      setSelectedId(c.id);
     } catch (e) {
       alert(e?.response?.data?.detail || "No se pudo crear la clase");
     } finally {
       setCreating(false);
     }
   }
-
   function onKeyDownCreate(e) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      performCreate();
+    if (e.key === "Enter") { e.preventDefault(); performCreate(); }
+  }
+
+  // crear por click en hoja (modo insertar)
+  async function handleCanvasClick({ x_grid, y_grid }) {
+    if (!insertMode) return;
+    try {
+      const c = await apiCreateClass(id, {
+        name: insertName.trim() || "NuevaClase",
+        x_grid, y_grid, w_grid: 12, h_grid: 6, z_index: 1,
+      });
+      await loadClasses();
+      setSelectedId(c.id);
+    } catch (e) {
+      alert(e?.response?.data?.detail || "No se pudo crear la clase");
+    } finally {
+      setInsertMode(false);
     }
   }
 
-  // Renombrar (debounced + blur)
+  // rename (sidebar lista) — opcional si lo mantienes ahí
   const debouncedSave = useDebouncedCallback(async (classId, name) => {
     try {
       setSavingIds((prev) => new Set(prev).add(classId));
       await updateClass(classId, { name });
       setClasses((prev) => prev.map((c) => (c.id === classId ? { ...c, name } : c)));
     } finally {
-      setSavingIds((prev) => {
-        const n = new Set(prev);
-        n.delete(classId);
-        return n;
-      });
+      setSavingIds((prev) => { const n = new Set(prev); n.delete(classId); return n; });
     }
   }, 600);
 
-  function onChangeName(classId, newNameVal) {
-    setClasses((prev) => prev.map((c) => (c.id === classId ? { ...c, name: newNameVal } : c)));
-    debouncedSave(classId, newNameVal);
-  }
-
   async function onBlurName(classId, value) {
-    // guarda por si el usuario salió antes del debounce
     await updateClass(classId, { name: value });
   }
 
-  // Eliminar
+  // drag/resize
+  async function handleDragEnd(classId, { x_grid, y_grid }) {
+    try {
+      await updateClassPosition(classId, { x_grid, y_grid });
+      setClasses((prev) => prev.map((c) => (c.id === classId ? { ...c, x_grid, y_grid } : c)));
+    } catch (e) {
+      alert(e?.response?.data?.detail || "No se pudo mover la clase");
+      await loadClasses();
+    }
+  }
+  async function handleResizeEnd(classId, { w_grid, h_grid }) {
+    try {
+      await updateClassSize(classId, { w_grid, h_grid });
+      setClasses((prev) => prev.map((c) => (c.id === classId ? { ...c, w_grid, h_grid } : c)));
+    } catch (e) {
+      alert(e?.response?.data?.detail || "No se pudo redimensionar la clase");
+      await loadClasses();
+    }
+  }
+
+  // eliminar
   async function handleDelete(classId) {
     if (!confirm("¿Eliminar esta clase?")) return;
     try {
       await apiDeleteClass(classId);
       setClasses((prev) => prev.filter((c) => c.id !== classId));
+      if (selectedId === classId) setSelectedId(null);
     } catch (e) {
       alert(e?.response?.data?.detail || "No se pudo eliminar");
     }
   }
 
   if (loading) return <div style={{ padding: 16 }}>Cargando…</div>;
-  if (err)
+  if (err) {
     return (
       <div style={{ padding: 16 }}>
         <div style={{ marginBottom: 8, color: "salmon" }}>{err}</div>
-        <button onClick={() => nav("/")} style={{ padding: "6px 10px" }}>
-          Volver
-        </button>
+        <button onClick={() => nav("/")} style={{ padding: "6px 10px" }}>Volver</button>
       </div>
     );
+  }
   if (!diagram) return null;
 
-  // estilos reutilizables
-  const inputStyle = {
-    width: "100%",
-    height: 36,
-    padding: "0 10px",
-    borderRadius: 8,
-    border: "1px solid #334",
-    background: "#0e1526",
-    color: "#fff",
-    boxSizing: "border-box",
+  const input = {
+    width: "100%", height: 36, padding: "0 10px",
+    borderRadius: 8, border: "1px solid #334", background: "#0e1526",
+    color: "#fff", boxSizing: "border-box",
   };
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateRows: "64px 1fr",
-        height: "100vh",
-        background: "var(--bg, #0b1020)",
-        color: "var(--text, #eaeefb)",
-      }}
-    >
+    <div style={{ display: "grid", gridTemplateRows: "64px 1fr", height: "100vh", background: "var(--bg, #0b1020)", color: "var(--text, #eaeefb)" }}>
       {/* Header */}
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          padding: "0 16px",
-          borderBottom: "1px solid #213",
-          background: "rgba(0,0,0,.15)",
-        }}
-      >
-        <button
-          onClick={() => nav("/")}
-          style={{
-            padding: "6px 10px",
-            borderRadius: 8,
-            border: "1px solid #334",
-            background: "transparent",
-            color: "inherit",
-          }}
-        >
+      <header style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 16px", borderBottom: "1px solid #213", background: "rgba(0,0,0,.15)" }}>
+        <button onClick={() => nav("/")} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}>
           ← Volver
         </button>
         <strong style={{ fontSize: 16 }}>{diagram.title}</strong>
-        <span style={{ fontSize: 12, opacity: 0.8 }}>ID: {diagram.id}</span>
-        <span style={{ fontSize: 12, opacity: 0.8, marginLeft: 8 }}>
-          Actualizado: {new Date(diagram.updated_at).toLocaleString()}
-        </span>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 12, opacity: 0.8 }}>{email}</span>
+        <span style={{ fontSize: 12, opacity: .8 }}>ID: {diagram.id}</span>
+        <span style={{ fontSize: 12, opacity: .8, marginLeft: 8 }}>Actualizado: {new Date(diagram.updated_at).toLocaleString()}</span>
+
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
+          <input
+            value={insertName}
+            onChange={(e) => setInsertName(e.target.value)}
+            placeholder="Nombre a insertar"
+            style={{ ...input, width: 180, height: 32 }}
+          />
           <button
-            onClick={toggleTheme}
-            style={{
-              padding: "6px 10px",
-              borderRadius: 8,
-              border: "1px solid #334",
-              background: "transparent",
-              color: "inherit",
-            }}
+            onClick={() => setInsertMode(v => !v)}
+            style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: insertMode ? "#334" : "transparent", color: "inherit", fontWeight: 600 }}
+            title="Modo insertar: click en la hoja crea una clase"
           >
+            {insertMode ? "🟢 Insertando…" : "➕ Insertar clase"}
+          </button>
+          <span style={{ fontSize: 12, opacity: .8 }}>{email}</span>
+          <button onClick={toggleTheme} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}>
             {theme === "dark" ? "🌙" : "☀️"}
           </button>
-          <button
-            onClick={() => {
-              logout();
-              nav("/login", { replace: true });
-            }}
-            style={{
-              padding: "6px 10px",
-              borderRadius: 8,
-              border: "1px solid #334",
-              background: "transparent",
-              color: "inherit",
-            }}
-          >
+          <button onClick={() => { logout(); nav("/login", { replace: true }); }} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334", background: "transparent", color: "inherit" }}>
             Salir
           </button>
         </div>
       </header>
 
-      {/* Cuerpo */}
-      <div style={{ display: "grid", gridTemplateColumns: "520px 1fr", minHeight: 0 }}>
-        {/* Columna izquierda: crear + listar */}
+      {/* Cuerpo: lista izq | canvas centro | inspector der */}
+      <div style={{ display: "grid", gridTemplateColumns: "420px 1fr 420px", minHeight: 0 }}>
+        {/* Lista + crear (izquierda) */}
         <aside style={{ borderRight: "1px solid #213", padding: 16, overflow: "auto" }}>
           <h3 style={{ marginTop: 0 }}>Clases</h3>
 
-          {/* CREAR (sin botón): escribe y Enter o blur */}
           <div style={{ marginBottom: 12 }}>
-            <label style={{ fontSize: 12, opacity: 0.8, display: "block", marginBottom: 4 }}>
-              Nueva clase
-            </label>
+            <label style={{ fontSize: 12, opacity: .8, display: "block", marginBottom: 4 }}>Nueva clase</label>
             <input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
@@ -731,50 +232,48 @@ export default function DiagramDashboard() {
               onBlur={performCreate}
               placeholder="Escribe el nombre y Enter"
               disabled={creating}
-              style={inputStyle}
+              style={input}
             />
           </div>
 
-          {/* LISTA */}
           {classes.length === 0 ? (
-            <div style={{ opacity: 0.7, fontSize: 14 }}>No hay clases todavía.</div>
+            <div style={{ opacity: .7, fontSize: 14 }}>No hay clases todavía.</div>
           ) : (
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 8 }}>
               {classes.map((c) => (
-                <li key={c.id} style={{ border: "1px solid #334", borderRadius: 8, padding: 12 }}>
+                <li
+                  key={c.id}
+                  onClick={() => setSelectedId(c.id)}
+                  style={{
+                    border: "1px solid #334",
+                    borderRadius: 8,
+                    padding: 12,
+                    background: c.id === selectedId ? "rgba(100,150,255,.08)" : "transparent",
+                    cursor: "pointer",
+                  }}
+                >
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     <div style={{ flex: 1, position: "relative" }}>
                       <input
                         value={c.name ?? c.nombre ?? ""}
-                        onChange={(e) => onChangeName(c.id, e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setClasses((prev) => prev.map((x) => (x.id === c.id ? { ...x, name: val } : x)));
+                          debouncedSave(c.id, val);
+                        }}
                         onBlur={(e) => onBlurName(c.id, e.target.value)}
-                        style={{ ...inputStyle, paddingRight: 70 }}
+                        style={{ ...input, paddingRight: 70 }}
                       />
                       {savingIds.has(c.id) && (
-                        <span
-                          style={{
-                            position: "absolute",
-                            right: 10,
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            fontSize: 12,
-                            opacity: 0.7,
-                          }}
-                        >
+                        <span style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", fontSize: 12, opacity: .7 }}>
                           guardando…
                         </span>
                       )}
                     </div>
                     <button
                       title="Eliminar"
-                      onClick={() => handleDelete(c.id)}
-                      style={{
-                        border: "1px solid #334",
-                        background: "transparent",
-                        color: "inherit",
-                        borderRadius: 8,
-                        padding: "6px 10px",
-                      }}
+                      onClick={(ev) => { ev.stopPropagation(); handleDelete(c.id); }}
+                      style={{ border: "1px solid #334", background: "transparent", color: "inherit", borderRadius: 8, padding: "6px 10px" }}
                     >
                       🗑️
                     </button>
@@ -785,10 +284,35 @@ export default function DiagramDashboard() {
           )}
         </aside>
 
-        {/* Columna derecha: placeholder canvas */}
-        <main style={{ display: "grid", placeItems: "center", opacity: 0.6 }}>
-          Aquí luego dibujaremos el diagrama (canvas).
+        {/* Canvas (centro) */}
+        <main style={{ position: "relative" }}>
+          <Sheet onCanvasClick={handleCanvasClick}>
+            {classes.map((c) => (
+              <ClassCard
+                key={c.id}
+                cls={c}
+                selected={c.id === selectedId}
+                onSelect={setSelectedId}
+                onDragEnd={handleDragEnd}
+                onResizeEnd={handleResizeEnd}
+              />
+            ))}
+          </Sheet>
+          {insertMode && (
+            <div style={{ position: "absolute", left: 12, top: 12, background: "rgba(20,120,20,.15)", border: "1px solid #2b6", color: "#bfeecb", padding: "6px 10px", borderRadius: 8, fontSize: 12 }}>
+              Modo insertar: click en la hoja crea “{insertName || "NuevaClase"}”
+            </div>
+          )}
         </main>
+
+        {/* Inspector (derecha) */}
+        <Inspector
+          selected={selected}
+          onSoftUpdate={(patch) => {
+            if (!patch?.id) return;
+            setClasses((prev) => prev.map((x) => (x.id === patch.id ? { ...x, ...patch } : x)));
+          }}
+        />
       </div>
     </div>
   );
