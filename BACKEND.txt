@@ -1,0 +1,52 @@
+backend/
+├─ .venv/
+├─ alembic/
+│  ├─ versions/
+│  ├─ env.py
+│  ├─ README
+│  └─ script.py.mako
+├─ app/
+│  ├─ __pycache__/
+│  ├─ core/
+│  │  ├─ __init__.py
+│  │  ├─ config.py
+│  │  └─ security.py
+│  ├─ models/
+│  │  ├─ __init__.py
+│  │  ├─ uml.py
+│  │  └─ user.py
+│  ├─ routers/
+│  │  ├─ __init__.py
+│  │  ├─ _helpers.py
+│  │  ├─ atributos.py
+│  │  ├─ auth.py
+│  │  ├─ classes.py
+│  │  ├─ diagramas.py
+│  │  ├─ metodo.py
+│  │  └─ relacion.py
+│  ├─ schemas/
+│  │  ├─ __init__.py
+│  │  ├─ atributo.py
+│  │  ├─ auth.py
+│  │  ├─ clase.py
+│  │  ├─ diagram.py
+│  │  ├─ metodo.py
+│  │  └─ relacion.py
+│  ├─ services/
+│  │  ├─ __init__.py
+│  │  └─ users.py
+│  ├─ db.py
+│  └─ main.py
+├─ seeds/
+│  ├─ __pycache__/
+│  ├─ data/
+│  ├─ __init__.py
+│  └─ load_csv_sa.py
+├─ .env.example
+├─ alembic.ini
+├─ diagrama.png
+├─ diagrama.txt
+├─ postman.txt
+├─ pyproject.toml
+├─ zarquitectura.txt
+└─ zcomandos.txt

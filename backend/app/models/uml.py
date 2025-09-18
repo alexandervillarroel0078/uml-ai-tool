@@ -93,6 +93,12 @@ class Relacion(Base):
     src_lane:   Mapped[int] = mapped_column(Integer,    nullable=False, server_default="0")
     dst_lane:   Mapped[int] = mapped_column(Integer,    nullable=False, server_default="0")
 
+# 🔹 Multiplicidad (min/max) por extremo
+    mult_origen_min:  Mapped[int]        = mapped_column(Integer, nullable=False, server_default="1")
+    mult_origen_max:  Mapped[Optional[int]] = mapped_column(Integer, nullable=True)   # NULL = *
+    mult_destino_min: Mapped[int]        = mapped_column(Integer, nullable=False, server_default="1")
+    mult_destino_max: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)   # NULL = *
+
 
 
 

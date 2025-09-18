@@ -1,4 +1,111 @@
 frontend/
+├─ node_modules/
+├─ public/
+├─ src/
+│  ├─ api/
+│  │  ├─ classes.js
+│  │  ├─ client.js
+│  │  ├─ diagrams.js
+│  │  └─ relations.js
+│  ├─ assets/
+│  │  └─ react.svg
+│  ├─ components/
+│  │  ├─ canvas/
+│  │  │  ├─ ClassCard/
+│  │  │  │  ├─ Body.jsx
+│  │  │  │  ├─ ClassCard.jsx
+│  │  │  │  └─ Header.jsx
+│  │  │  ├─ index.js
+│  │  │  ├─ Ports.jsx
+│  │  │  ├─ useAutoGrow.js
+│  │  │  ├─ useDragResize.js
+│  │  │  ├─ utils/
+│  │  │  │  └─ geometry.js
+│  │  │  ├─ Canvas.jsx
+│  │  │  ├─ ClassCardShell.jsx
+│  │  │  ├─ ClassDetails.jsx
+│  │  │  ├─ ConnectionLayer.jsx
+│  │  │  └─ Sheet.jsx
+│  │  ├─ common/
+│  │  │  ├─ ApiStatusBadge.jsx
+│  │  │  └─ HeaderBar.jsx
+│  │  ├─ layout/
+│  │  │  ├─ HeaderBar.jsx
+│  │  │  └─ LeftPanel.jsx
+│  │  └─ panels/
+│  │     ├─ Inspector.jsx
+│  │     ├─ RelationsPanel.jsx
+│  │     └─ Sidebar.jsx
+│  ├─ hooks/
+│  │  ├─ useClassesAndDetails.js
+│  │  ├─ useDebouncedCallback.js
+│  │  ├─ useDiagram.js
+│  │  └─ useTheme.js
+│  ├─ pages/
+│  │  ├─ DiagramDashboard.jsx
+│  │  ├─ Home.jsx
+│  │  └─ Login.jsx
+│  ├─ store/
+│  │  └─ auth.js
+│  ├─ styles/
+│  │  └─ theme.css
+│  ├─ App.jsx
+│  ├─ App.css
+│  ├─ config.js
+│  ├─ index.css
+│  └─ main.jsx
+├─ .env
+├─ .gitignore
+├─ eslint.config.js
+├─ estructura.txt
+├─ index.html
+├─ package-lock.json
+├─ package.json
+└─ README.md
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+frontend/
 ├─ public/
 ├─ src/
 │  ├─ api/                 ← Endpoints del backend
