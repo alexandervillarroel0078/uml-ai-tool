@@ -21,3 +21,43 @@ http://127.0.0.1:8000/docs
 
 FRONTEND 
 npm run dev
+
+
+
+cd backend
+cd frontend
+
+
+
+
+
+# SELECT * FROM "user";
+# SELECT * FROM diagram;
+# SELECT * FROM clase;
+# SELECT * FROM atributo;
+# SELECT * FROM metodo;
+# SELECT * FROM relacion;
+# SELECT * FROM alembic_version;
+
+
+
+DROP SCHEMA public CASCADE;
+
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+
+DO $$ DECLARE
+    r RECORD;
+ BEGIN
+     -- Desactivar temporalmente restricciones
+     EXECUTE 'SET session_replication_role = replica';
+
+     -- Eliminar todas las tablas del esquema público
+     FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+         EXECUTE 'DROP TABLE IF EXISTS public.' || quote_ident(r.tablename) || ' CASCADE';
+     END LOOP;
+
+     -- Restaurar las restricciones
+     EXECUTE 'SET session_replication_role = origin';
+ END $$;

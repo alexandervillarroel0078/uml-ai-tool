@@ -1,36 +1,110 @@
+# from datetime import datetime, timedelta, timezone
+# from fastapi import Depends, HTTPException, status
+# from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+# from jose import jwt, JWTError
+# from passlib.hash import bcrypt
+# from sqlalchemy.orm import Session
+# from app.core.config import settings
+# from app.db import get_db
+# from app.models.user import User
+
+# bearer = HTTPBearer(auto_error=False)
+
+# def hash_password(raw: str) -> str:
+#     return bcrypt.hash(raw)
+
+# def verify_password(raw: str, hashed: str) -> bool:
+#     return bcrypt.verify(raw, hashed)
+
+# def create_access_token(sub: str) -> str:
+#     now = datetime.now(timezone.utc)
+#     exp = now + timedelta(minutes=settings.ACCESS_EXPIRE_MIN)
+#     payload = {"sub": sub, "kind": "access", "iat": int(now.timestamp()), "exp": int(exp.timestamp())}
+#     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALG)
+
+# def decode_token(token: str) -> dict:
+#     return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALG])
+
+# def get_current_user(
+#     cred: HTTPAuthorizationCredentials = Depends(bearer),
+#     db: Session = Depends(get_db),
+# ) -> User:
+#     if cred is None:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing Authorization")
+#     try:
+#         payload = decode_token(cred.credentials)
+#         if payload.get("kind") != "access":
+#             raise HTTPException(status_code=401, detail="Invalid token kind")
+#         email = payload.get("sub")
+#         if not email:
+#             raise HTTPException(status_code=401, detail="Invalid token payload")
+#     except JWTError:
+#         raise HTTPException(status_code=401, detail="Invalid or expired token")
+#     user = db.query(User).filter(User.email == email).one_or_none()
+#     if not user or not user.active:
+#         raise HTTPException(status_code=401, detail="User disabled")
+#     return user
 from datetime import datetime, timedelta, timezone
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from passlib.hash import bcrypt
 from sqlalchemy.orm import Session
+
 from app.core.config import settings
 from app.db import get_db
 from app.models.user import User
 
 bearer = HTTPBearer(auto_error=False)
 
+# ========================
+# Password helpers
+# ========================
 def hash_password(raw: str) -> str:
     return bcrypt.hash(raw)
 
 def verify_password(raw: str, hashed: str) -> bool:
     return bcrypt.verify(raw, hashed)
 
+# ========================
+# JWT helpers
+# ========================
 def create_access_token(sub: str) -> str:
     now = datetime.now(timezone.utc)
     exp = now + timedelta(minutes=settings.ACCESS_EXPIRE_MIN)
-    payload = {"sub": sub, "kind": "access", "iat": int(now.timestamp()), "exp": int(exp.timestamp())}
+    payload = {
+        "sub": sub,
+        "kind": "access",
+        "iat": int(now.timestamp()),
+        "exp": int(exp.timestamp()),
+    }
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALG)
 
 def decode_token(token: str) -> dict:
     return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALG])
 
+# ========================
+# Auth dependency
+# ========================
 def get_current_user(
     cred: HTTPAuthorizationCredentials = Depends(bearer),
     db: Session = Depends(get_db),
 ) -> User:
+    """
+    Devuelve el usuario actual basado en el token JWT.
+    Si settings.DEBUG=True → devuelve un usuario dummy (sin validar token).
+    """
+
+    # 🔹 Si estamos en modo DEBUG, ignorar tokens y devolver dummy
+    if getattr(settings, "DEBUG", False):
+        return User(id=1, email="dummy@example.com", active=True)
+
     if cred is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing Authorization")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing Authorization",
+        )
+
     try:
         payload = decode_token(cred.credentials)
         if payload.get("kind") != "access":
@@ -40,7 +114,9 @@ def get_current_user(
             raise HTTPException(status_code=401, detail="Invalid token payload")
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
+
     user = db.query(User).filter(User.email == email).one_or_none()
     if not user or not user.active:
         raise HTTPException(status_code=401, detail="User disabled")
+
     return user

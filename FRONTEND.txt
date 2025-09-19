@@ -14,11 +14,11 @@ frontend/
 │  │  │  ├─ ClassCard/
 │  │  │  │  ├─ Body.jsx
 │  │  │  │  ├─ ClassCard.jsx
-│  │  │  │  └─ Header.jsx
-│  │  │  ├─ index.js
-│  │  │  ├─ Ports.jsx
-│  │  │  ├─ useAutoGrow.js
-│  │  │  ├─ useDragResize.js
+│  │  │  │  ├─ Header.jsx
+│  │  │  │  ├─ index.js
+│  │  │  │  ├─ Ports.jsx
+│  │  │  │  ├─ useAutoGrow.js
+│  │  │  │  └─ useDragResize.js
 │  │  │  ├─ utils/
 │  │  │  │  └─ geometry.js
 │  │  │  ├─ Canvas.jsx

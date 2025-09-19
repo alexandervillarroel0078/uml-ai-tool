@@ -40,6 +40,11 @@ backend/
 ├─ seeds/
 │  ├─ __pycache__/
 │  ├─ data/
+atributos.csv
+clases.csv
+diagrams.csv
+metodos.csv
+relaciones.csv
 │  ├─ __init__.py
 │  └─ load_csv_sa.py
 ├─ .env.example

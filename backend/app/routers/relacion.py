@@ -11,6 +11,7 @@ from app.models.user import User
 from app.models.uml import Diagram, Clase, Relacion, RelType
 from app.schemas.relacion import RelacionCreate, RelacionUpdate, RelacionOut
 from ._helpers import get_my_diagram
+from sqlalchemy.orm import aliased
 
 router = APIRouter(prefix="/diagrams", tags=["relations"])
 
@@ -70,19 +71,19 @@ def create_relation(
                 req=req_id, src_ok=bool(src), dst_ok=bool(dst)))
             raise HTTPException(404, detail="Clase origen/destino no encontrada en el diagrama")
 
-        # Validaciones de multiplicidad básicas antes de persistir
-        if body.src_mult_min is not None and body.src_mult_min < 0:
-            log.warning("create_relation.invalid_multiplicity " + _ctx(req=req_id, side="src", issue="min<0"))
-            raise HTTPException(422, detail="multiplicidad min debe ser >= 0")
-        if body.dst_mult_min is not None and body.dst_mult_min < 0:
-            log.warning("create_relation.invalid_multiplicity " + _ctx(req=req_id, side="dst", issue="min<0"))
-            raise HTTPException(422, detail="multiplicidad min debe ser >= 0")
-        if body.src_mult_max is not None and body.src_mult_min is not None and body.src_mult_max < body.src_mult_min:
-            log.warning("create_relation.invalid_multiplicity " + _ctx(req=req_id, side="src", issue="max<min"))
-            raise HTTPException(422, detail="src_mult_max < src_mult_min")
-        if body.dst_mult_max is not None and body.dst_mult_min is not None and body.dst_mult_max < body.dst_mult_min:
-            log.warning("create_relation.invalid_multiplicity " + _ctx(req=req_id, side="dst", issue="max<min"))
-            raise HTTPException(422, detail="dst_mult_max < dst_mult_min")
+        # # Validaciones de multiplicidad básicas antes de persistir
+        # if body.src_mult_min is not None and body.src_mult_min < 0:
+        #     log.warning("create_relation.invalid_multiplicity " + _ctx(req=req_id, side="src", issue="min<0"))
+        #     raise HTTPException(422, detail="multiplicidad min debe ser >= 0")
+        # if body.dst_mult_min is not None and body.dst_mult_min < 0:
+        #     log.warning("create_relation.invalid_multiplicity " + _ctx(req=req_id, side="dst", issue="min<0"))
+        #     raise HTTPException(422, detail="multiplicidad min debe ser >= 0")
+        # if body.src_mult_max is not None and body.src_mult_min is not None and body.src_mult_max < body.src_mult_min:
+        #     log.warning("create_relation.invalid_multiplicity " + _ctx(req=req_id, side="src", issue="max<min"))
+        #     raise HTTPException(422, detail="src_mult_max < src_mult_min")
+        # if body.dst_mult_max is not None and body.dst_mult_min is not None and body.dst_mult_max < body.dst_mult_min:
+        #     log.warning("create_relation.invalid_multiplicity " + _ctx(req=req_id, side="dst", issue="max<min"))
+        #     raise HTTPException(422, detail="dst_mult_max < dst_mult_min")
 
         r = Relacion(
             diagram_id=d.id,
@@ -124,9 +125,35 @@ def list_relations(
     log.info("list_relations.start " + _ctx(req=req_id, user_id=me.id, diagram_id=diagram_id))
     try:
         d = get_my_diagram(db, me, diagram_id)
-        items = db.query(Relacion).filter(Relacion.diagram_id == d.id).all()
-        log.info("list_relations.ok " + _ctx(req=req_id, count=len(items)))
-        return items
+
+        Origen = aliased(Clase)
+        Destino = aliased(Clase)
+
+        items = (
+            db.query(
+                Relacion,
+                Origen.nombre.label("origen_nombre"),
+                Destino.nombre.label("destino_nombre"),
+            )
+            .join(Origen, Relacion.origen_id == Origen.id)
+            .join(Destino, Relacion.destino_id == Destino.id)
+            .filter(Relacion.diagram_id == d.id)
+            .all()
+        )
+
+        result = []
+        for rel, origen_nombre, destino_nombre in items:
+            data = RelacionOut.model_validate(
+                {
+                    **rel.__dict__,
+                    "origen_nombre": origen_nombre,
+                    "destino_nombre": destino_nombre,
+                }
+            )
+            result.append(data)
+
+        log.info("list_relations.ok " + _ctx(req=req_id, count=len(result)))
+        return result
     except HTTPException:
         raise
     except Exception:
@@ -236,3 +263,9 @@ def delete_relation(
     except Exception:
         log.exception("delete_relation.error " + _ctx(req=req_id, relation_id=relation_id))
         raise HTTPException(500, detail="Error interno eliminando la relación")
+
+
+
+
+
+ 
