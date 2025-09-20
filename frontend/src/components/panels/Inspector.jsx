@@ -51,27 +51,10 @@ const selectBase = {
   backgroundRepeat: "no-repeat",
 };
 
-/**
- * Inspector controlado por el padre:
- * Props:
- *  - selected: clase seleccionada (o null)
- *  - details: { attrs:[], meths:[] } | undefined (el padre los carga)
- *  - onRename(name: string)
- *  - onDetailsChange(patch: {attrs?, meths?})
- *  - reloadDetails(): Promise<void>  (opcional, “confirmar” contra servidor)
- *  - onDeleteClass(): void
- */
 export default function Inspector({ selected, details, onRename, onDetailsChange, reloadDetails, onDeleteClass }) {
   const [name, setName] = useState("");
   const [msg, setMsg] = useState("");
   const [savingName, setSavingName] = useState(false);
-
-  // sync con clase seleccionada
-  // useEffect(() => {
-  //   setMsg("");
-  //   setSavingName(false);
-  //   setName(selected ? selected.name ?? selected.nombre ?? "" : "");
-  // }, [selected?.id, selected?.name, selected?.nombre]);
 
   useEffect(() => {
     setMsg("");
@@ -80,26 +63,27 @@ export default function Inspector({ selected, details, onRename, onDetailsChange
   }, [selected?.id, selected?.name]);
   // autosave nombre
 
-const debouncedSaveName = useDebouncedCallback(async (val) => {
-  if (!selected?.id) return;
-  try {
-    setSavingName(true);
-    const updated = await updateClass(selected.id, { name: val }); // 👈 aquí llamamos directo al API
-    
-    setName(updated.name); // sincronizamos estado
-    
+  const debouncedSaveName = useDebouncedCallback(async (val) => {
+    if (!selected?.id) return;
+    try {
+      setSavingName(true);
+      const updated = await updateClass(selected.id, { name: val }); // 👈 aquí llamamos directo al API
 
-  } catch (e) {
-    setMsg(e?.response?.data?.detail || "No se pudo guardar el nombre");
-  } finally {
-    setSavingName(false);
-  }
-}, 600);
+      setName(updated.name); // sincronizamos estado
+
+
+    } catch (e) {
+      setMsg(e?.response?.data?.detail || "No se pudo guardar el nombre");
+    } finally {
+      setSavingName(false);
+    }
+  }, 600);
 
 
   function onChangeName(val) {
     setName(val);
     debouncedSaveName(val);
+    onRename?.(val);
   }
 
   // ===== Atributos CRUD =====

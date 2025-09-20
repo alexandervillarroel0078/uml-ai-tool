@@ -1,10 +1,10 @@
-//src/api/classes.js
 import api from "./client";
 
 // ===== Helper para mapear nombre → name =====
+// El backend usa `nombre`, pero en el frontend trabajamos con `name`
 const mapClass = (c) => ({
   id: c.id,
-  name: c.nombre, // alias backend → frontend
+  name: c.nombre,
   x_grid: c.x_grid,
   y_grid: c.y_grid,
   w_grid: c.w_grid,
@@ -12,62 +12,53 @@ const mapClass = (c) => ({
   z_index: c.z_index,
 });
 
-// // ========== CLASES ==========
-// export const listClasses = (diagramId) =>
-//   api.get(`/diagrams/${diagramId}/classes`)
-//     .then(r => (r.data || []).map(mapClass));
+// ====== CLASES ======
 
-// /**
-//  * Crea una clase. Puedes pasar solo { name } o también layout.
-//  * extra (opcionales): x_grid, y_grid, w_grid, h_grid, z_index
-//  */
-// export const createClass = (
-//   diagramId,
-//   { name, x_grid, y_grid, w_grid, h_grid, z_index } = {}
-// ) =>
-//   api.post(`/diagrams/${diagramId}/classes`, {
-//     name, x_grid, y_grid, w_grid, h_grid, z_index,
-//   }).then(r => mapClass(r.data));
-
-// /** Patch genérico: { name?, x_grid?, y_grid?, w_grid?, h_grid?, z_index? } */
-// export const updateClass = (classId, patch) =>
-//   api.patch(`/diagrams/classes/${classId}`, patch).then(r => mapClass(r.data));
-
-
-// listClasses
+/** Lista todas las clases de un diagrama */
 export const listClasses = (diagramId) =>
   api.get(`/diagrams/${diagramId}/classes`)
     .then(r => (r.data || []).map(mapClass));
 
-// createClass
-// export const createClass = (diagramId, body) =>
-//   api.post(`/diagrams/${diagramId}/classes`, body).then(r => mapClass(r.data));
-
-// // updateClass
-// export const updateClass = (classId, patch) =>
-//   api.patch(`/diagrams/classes/${classId}`, patch).then(r => mapClass(r.data));
-
-
-
+/** Crea una nueva clase dentro de un diagrama */
 export const createClass = (
   diagramId,
   { name, x_grid, y_grid, w_grid, h_grid, z_index } = {}
-) =>
-  api.post(`/diagrams/${diagramId}/classes`, {
-    name, x_grid, y_grid, w_grid, h_grid, z_index,
-  }).then(r => mapClass(r.data));
+) => {
+  const body = { name, x_grid, y_grid, w_grid, h_grid, z_index };
+  console.log("[createClass] POST body:", body); // 👈 LOG
+  
+  return api.post(`/diagrams/${diagramId}/classes`, body)
+    .then(r => {
+      console.log("[createClass] response:", r.data); // 👈 LOG
+      return mapClass(r.data);
+    })
+    .catch(err => {
+      console.error("[createClass] error:", err?.response?.data || err); // 👈 LOG
+      throw err;
+    });
+};
 
-export const updateClass = (classId, patch) =>
-  api.patch(`/diagrams/classes/${classId}`, patch).then(r => mapClass(r.data));
+/** Actualiza una clase existente */
+export const updateClass = (classId, patch) => {
+  console.log("[updateClass] PATCH body:", patch); // 👈 LOG
 
+  return api.patch(`/diagrams/classes/${classId}`, patch)
+    .then(r => {
+      console.log("[updateClass] response:", r.data); // 👈 LOG
+      return mapClass(r.data);
+    })
+    .catch(err => {
+      console.error("[updateClass] error:", err?.response?.data || err); // 👈 LOG
+      throw err;
+    });
+};
+
+/** Elimina una clase */
 export const deleteClass = (classId) =>
   api.delete(`/diagrams/classes/${classId}`);
 
+// ====== HELPERS DE CLASE ======
 
-
-
-
-// Helpers cómodos
 export const updateClassPosition = (classId, { x_grid, y_grid }) =>
   updateClass(classId, { x_grid, y_grid });
 
@@ -77,8 +68,8 @@ export const updateClassSize = (classId, { w_grid, h_grid }) =>
 export const updateClassZ = (classId, z_index) =>
   updateClass(classId, { z_index });
 
+// ====== ATRIBUTOS ======
 
-// ATRIBUTOS
 export const listAttributes = (classId) =>
   api.get(`/diagrams/classes/${classId}/attributes`).then(r => r.data);
 
@@ -91,7 +82,8 @@ export const updateAttribute = (attrId, patch) =>
 export const deleteAttribute = (attrId) =>
   api.delete(`/diagrams/attributes/${attrId}`);
 
-// MÉTODOS
+// ====== MÉTODOS ======
+
 export const listMethods = (classId) =>
   api.get(`/diagrams/classes/${classId}/methods`).then(r => r.data);
 
