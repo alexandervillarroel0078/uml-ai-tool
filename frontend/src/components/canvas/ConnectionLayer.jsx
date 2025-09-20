@@ -141,14 +141,23 @@ export default function ConnectionLayer({
           case "GENERALIZATION":
             markerEnd = "url(#arrow-hollow)";
             break;
+          // case "AGGREGATION":
+          //   markerStart = "url(#diamond-hollow)";
+          //   markerEnd = "url(#arrow-normal)";
+          //   break;
+          // case "COMPOSITION":
+          //   markerStart = "url(#diamond-filled)";
+          //   markerEnd = "url(#arrow-normal)";
+          //   break;
           case "AGGREGATION":
-            markerStart = "url(#diamond-hollow)";
-            markerEnd = "url(#arrow-normal)";
+            markerStart = null;
+            markerEnd = "url(#diamond-hollow)";
             break;
           case "COMPOSITION":
-            markerStart = "url(#diamond-filled)";
-            markerEnd = "url(#arrow-normal)";
+            markerStart = null;
+            markerEnd = "url(#diamond-filled)";
             break;
+
           case "DEPENDENCY":
             lineProps.strokeDasharray = "6,4";
             markerEnd = "url(#arrow-normal)";

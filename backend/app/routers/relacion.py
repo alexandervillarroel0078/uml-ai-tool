@@ -35,6 +35,11 @@ def _get_class_in_my_diagram(
         .one_or_none()
     )
 
+
+
+
+
+
 @router.post("/{diagram_id}/relations", response_model=RelacionOut, status_code=status.HTTP_201_CREATED)
 def create_relation(
     diagram_id: UUID,
@@ -71,20 +76,6 @@ def create_relation(
                 req=req_id, src_ok=bool(src), dst_ok=bool(dst)))
             raise HTTPException(404, detail="Clase origen/destino no encontrada en el diagrama")
 
-        # # Validaciones de multiplicidad básicas antes de persistir
-        # if body.src_mult_min is not None and body.src_mult_min < 0:
-        #     log.warning("create_relation.invalid_multiplicity " + _ctx(req=req_id, side="src", issue="min<0"))
-        #     raise HTTPException(422, detail="multiplicidad min debe ser >= 0")
-        # if body.dst_mult_min is not None and body.dst_mult_min < 0:
-        #     log.warning("create_relation.invalid_multiplicity " + _ctx(req=req_id, side="dst", issue="min<0"))
-        #     raise HTTPException(422, detail="multiplicidad min debe ser >= 0")
-        # if body.src_mult_max is not None and body.src_mult_min is not None and body.src_mult_max < body.src_mult_min:
-        #     log.warning("create_relation.invalid_multiplicity " + _ctx(req=req_id, side="src", issue="max<min"))
-        #     raise HTTPException(422, detail="src_mult_max < src_mult_min")
-        # if body.dst_mult_max is not None and body.dst_mult_min is not None and body.dst_mult_max < body.dst_mult_min:
-        #     log.warning("create_relation.invalid_multiplicity " + _ctx(req=req_id, side="dst", issue="max<min"))
-        #     raise HTTPException(422, detail="dst_mult_max < dst_mult_min")
-
         r = Relacion(
             diagram_id=d.id,
             origen_id=src.id,
@@ -107,7 +98,13 @@ def create_relation(
         db.commit(); db.refresh(r)
         log.info("create_relation.ok " + _ctx(
             req=req_id, relation_id=r.id, type=r.tipo.value, label=r.etiqueta))
-        return r
+
+        # ✅ Devolver con los nombres incluidos
+        return RelacionOut.model_validate({
+            **r.__dict__,
+            "origen_nombre": src.nombre,
+            "destino_nombre": dst.nombre,
+        })
     except HTTPException:
         raise
     except Exception as e:
@@ -160,6 +157,8 @@ def list_relations(
         log.exception("list_relations.error " + _ctx(req=req_id, diagram_id=diagram_id))
         raise HTTPException(500, detail="Error interno listando relaciones")
 
+
+
 @router.patch("/relations/{relation_id}", response_model=RelacionOut)
 def update_relation(
     relation_id: UUID,
@@ -183,10 +182,9 @@ def update_relation(
 
         changes: dict[str, dict] = {}
 
-        # Helpers para registrar cambios
         def apply(attr: str, new_val):
             old_val = getattr(r, attr)
-            if new_val is not None and new_val != old_val:
+            if new_val != old_val:   # 👈 ahora sí deja poner None
                 setattr(r, attr, new_val)
                 changes[attr] = {"old": old_val, "new": new_val}
 
@@ -208,32 +206,34 @@ def update_relation(
 
         # Validaciones de multiplicidad
         if r.mult_origen_min is not None and r.mult_origen_min < 0:
-            log.warning("update_relation.invalid_multiplicity " + _ctx(req=req_id, side="src", issue="min<0"))
             raise HTTPException(422, detail="multiplicidad min debe ser >= 0")
         if r.mult_destino_min is not None and r.mult_destino_min < 0:
-            log.warning("update_relation.invalid_multiplicity " + _ctx(req=req_id, side="dst", issue="min<0"))
             raise HTTPException(422, detail="multiplicidad min debe ser >= 0")
         if r.mult_origen_max is not None and r.mult_origen_min is not None and r.mult_origen_max < r.mult_origen_min:
-            log.warning("update_relation.invalid_multiplicity " + _ctx(req=req_id, side="src", issue="max<min"))
             raise HTTPException(422, detail="src_mult_max < src_mult_min")
         if r.mult_destino_max is not None and r.mult_destino_min is not None and r.mult_destino_max < r.mult_destino_min:
-            log.warning("update_relation.invalid_multiplicity " + _ctx(req=req_id, side="dst", issue="max<min"))
             raise HTTPException(422, detail="dst_mult_max < dst_mult_min")
 
         r.diagram.updated_at = func.now()
         db.commit(); db.refresh(r)
 
-        log.info("update_relation.ok " + _ctx(
-            req=req_id, relation_id=r.id, changed=len(changes)))
-        if changes:
-            # Log con detalle a nivel DEBUG para no saturar en INFO
-            log.debug("update_relation.changes " + _ctx(req=req_id) + f" changes={changes}")
-        return r
+        origen_nombre = db.query(Clase.nombre).filter(Clase.id == r.origen_id).scalar()
+        destino_nombre = db.query(Clase.nombre).filter(Clase.id == r.destino_id).scalar()
+
+        return RelacionOut.model_validate({
+            **r.__dict__,
+            "origen_nombre": origen_nombre,
+            "destino_nombre": destino_nombre,
+        })
+
     except HTTPException:
         raise
     except Exception:
         log.exception("update_relation.error " + _ctx(req=req_id, relation_id=relation_id))
         raise HTTPException(500, detail="Error interno actualizando la relación")
+
+
+
 
 @router.delete("/relations/{relation_id}", status_code=204)
 def delete_relation(

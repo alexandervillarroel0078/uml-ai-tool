@@ -43,10 +43,10 @@ class RelacionCreate(BaseModel):
     def normalize_multiplicity(self):
         if self.type in ("DEPENDENCY", "INHERITANCE"):
             # fuerza a null (no aplica)
-            self.src_mult_min = None
-            self.src_mult_max = None
-            self.dst_mult_min = None
-            self.dst_mult_max = None
+            self.src_mult_min = 1
+            self.src_mult_max = 1
+            self.dst_mult_min = 1
+            self.dst_mult_max = 1
         else:
             # validaciones normales
             if isinstance(self.src_mult_max, int) and isinstance(self.src_mult_min, int):
@@ -90,10 +90,10 @@ class RelacionUpdate(BaseModel):
     @model_validator(mode="after")
     def normalize_multiplicity_update(self):
         if self.type in ("DEPENDENCY", "INHERITANCE"):
-            self.src_mult_min = None
-            self.src_mult_max = None
-            self.dst_mult_min = None
-            self.dst_mult_max = None
+            self.src_mult_min = 1
+            self.src_mult_max = 1
+            self.dst_mult_min = 1
+            self.dst_mult_max = 1
         else:
             if self.src_mult_min is not None and self.src_mult_max is not None:
                 if self.src_mult_max < self.src_mult_min:

@@ -1,0 +1,88 @@
+[
+    {
+        "url": "/diagrams/{{diagram_id}}/relations",
+        "method": "POST",
+        "body": {
+            "from_class": "e5192b09-1e80-4f7f-8376-3cce9319cdd8",
+            "to_class": "1c7853ff-2caa-4bae-9e61-fbbfde2bdc80",
+            "type": "ASSOCIATION",
+            "label": "usa",
+            "src_anchor": "right",
+            "dst_anchor": "left",
+            "src_offset": 0,
+            "dst_offset": 0,
+            "src_lane": 0,
+            "dst_lane": 0,
+            "src_mult_min": 1,
+            "src_mult_max": null,
+            "dst_mult_min": 0,
+            "dst_mult_max": 1
+        },
+        "response": {
+            "id": "37dc55ed-47a0-4567-9135-71074cbd744d",
+            "origen_id": "e5192b09-1e80-4f7f-8376-3cce9319cdd8",
+            "destino_id": "1c7853ff-2caa-4bae-9e61-fbbfde2bdc80",
+            "tipo": "ASSOCIATION",
+            "etiqueta": "usa",
+            "src_anchor": "right",
+            "dst_anchor": "left",
+            "src_offset": 0,
+            "dst_offset": 0,
+            "src_lane": 0,
+            "dst_lane": 0,
+            "mult_origen_min": 1,
+            "mult_origen_max": null,
+            "mult_destino_min": 0,
+            "mult_destino_max": 1,
+            "origen_nombre": "claseA",
+            "destino_nombre": "ClaseB"
+        }
+    },
+    {
+        "url": "/diagrams/{{diagram_id}}/relations",
+        "method": "GET",
+        "response": {}
+    },
+    {
+        "url": "/diagrams/relations/{{relation_id}}",
+        "method": "PATCH",
+        "body": {
+            "type": "COMPOSITION",
+            "label": "compone",
+            "src_anchor": "right",
+            "dst_anchor": "left",
+            "src_offset": 0,
+            "dst_offset": 0,
+            "src_lane": 0,
+            "dst_lane": 0,
+            "src_mult_min": 1,
+            "src_mult_max": null,
+            "dst_mult_min": 1,
+            "dst_mult_max": null
+        },
+        "response": {
+            "id": "794d29d7-2cae-4035-b9a6-929ae880ded1",
+            "origen_id": "e5192b09-1e80-4f7f-8376-3cce9319cdd8",
+            "destino_id": "1c7853ff-2caa-4bae-9e61-fbbfde2bdc80",
+            "tipo": "COMPOSITION",
+            "etiqueta": "compone",
+            "src_anchor": "right",
+            "dst_anchor": "left",
+            "src_offset": 0,
+            "dst_offset": 0,
+            "src_lane": 0,
+            "dst_lane": 0,
+            "mult_origen_min": 1,
+            "mult_origen_max": null,
+            "mult_destino_min": 1,
+            "mult_destino_max": null,
+            "origen_nombre": "claseA",
+            "destino_nombre": "ClaseB"
+        }
+    },
+    {
+        "url": "/diagrams/relations/{{relation_id}}",
+        "method": "DELETE",
+        "response": null
+    }
+]
