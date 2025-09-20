@@ -1,4 +1,4 @@
- 
+
 import { useEffect, useRef, useState } from "react";
 import {
   createAttribute,
@@ -8,6 +8,7 @@ import {
   updateMethod,
   deleteMethod,
 } from "../../api/classes";
+import { updateClass } from "../../api/classes";
 
 function useDebouncedCallback(cb, delay = 600) {
   const t = useRef(null);
@@ -66,24 +67,36 @@ export default function Inspector({ selected, details, onRename, onDetailsChange
   const [savingName, setSavingName] = useState(false);
 
   // sync con clase seleccionada
+  // useEffect(() => {
+  //   setMsg("");
+  //   setSavingName(false);
+  //   setName(selected ? selected.name ?? selected.nombre ?? "" : "");
+  // }, [selected?.id, selected?.name, selected?.nombre]);
+
   useEffect(() => {
     setMsg("");
     setSavingName(false);
-    setName(selected ? selected.name ?? selected.nombre ?? "" : "");
-  }, [selected?.id, selected?.name, selected?.nombre]);
-
+    setName(selected ? selected.name : "");
+  }, [selected?.id, selected?.name]);
   // autosave nombre
-  const debouncedSaveName = useDebouncedCallback(async (val) => {
-    if (!selected?.id) return;
-    try {
-      setSavingName(true);
-      await onRename?.(val);
-    } catch (e) {
-      setMsg(e?.response?.data?.detail || "No se pudo guardar el nombre");
-    } finally {
-      setSavingName(false);
-    }
-  }, 600);
+
+const debouncedSaveName = useDebouncedCallback(async (val) => {
+  if (!selected?.id) return;
+  try {
+    setSavingName(true);
+    const updated = await updateClass(selected.id, { name: val }); // 👈 aquí llamamos directo al API
+    
+    setName(updated.name); // sincronizamos estado
+    
+
+  } catch (e) {
+    setMsg(e?.response?.data?.detail || "No se pudo guardar el nombre");
+  } finally {
+    setSavingName(false);
+  }
+}, 600);
+
+
   function onChangeName(val) {
     setName(val);
     debouncedSaveName(val);

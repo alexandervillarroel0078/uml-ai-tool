@@ -1,5 +1,4 @@
-// src/hooks/useClassesAndDetails.js
-//(clases + detalles + handlers, misma lógica)
+ 
 import { useEffect, useState } from "react";
 import {
   listClasses,
@@ -43,7 +42,7 @@ export default function useClassesAndDetails(diagram) {
       setClasses(items || []);
       if (selectedId && !items?.some((x) => x.id === selectedId)) setSelectedId(null);
 
-      // Cargar detalles de todas las clases si faltan (misma lógica)
+      // Cargar detalles de todas las clases si faltan
       await Promise.all(
         (items || []).map((c) =>
           detailsByClass[c.id] ? Promise.resolve() : fetchDetails(c.id)
@@ -60,7 +59,6 @@ export default function useClassesAndDetails(diagram) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [diagram]);
 
-  // Cargar detalles de la clase seleccionada si faltan (misma lógica)
   useEffect(() => {
     if (!selectedId) return;
     if (!detailsByClass[selectedId]) {
@@ -68,7 +66,6 @@ export default function useClassesAndDetails(diagram) {
     }
   }, [selectedId, detailsByClass]);
 
-  // Helper reemplazo (misma firma)
   function replaceDetails(classId, patch) {
     setDetailsByClass((prev) => ({
       ...prev,
@@ -100,12 +97,13 @@ export default function useClassesAndDetails(diagram) {
 
   // ====== RENAME ======
   const debouncedSave = useDebouncedCallback(async (classId, name) => {
-    await updateClass(classId, { name });
-    setClasses((prev) => prev.map((c) => (c.id === classId ? { ...c, name } : c)));
+    const updated = await updateClass(classId, { name });
+    setClasses((prev) => prev.map((c) => (c.id === classId ? updated : c)));
   }, 600);
 
   async function onBlurName(classId, value) {
-    await updateClass(classId, { name: value });
+    const updated = await updateClass(classId, { name: value });
+    setClasses((prev) => prev.map((c) => (c.id === classId ? updated : c)));
   }
 
   // ====== DRAG/RESIZE ======
@@ -145,6 +143,14 @@ export default function useClassesAndDetails(diagram) {
       alert(e?.response?.data?.detail || "No se pudo eliminar");
     }
   }
+  async function handleRename(classId, name) {
+    try {
+      const updated = await updateClass(classId, { name });
+      setClasses((prev) => prev.map((c) => (c.id === classId ? updated : c)));
+    } catch (e) {
+      alert(e?.response?.data?.detail || "No se pudo renombrar la clase");
+    }
+  }
 
   return {
     // estado
@@ -160,7 +166,7 @@ export default function useClassesAndDetails(diagram) {
     fetchDetails,
     handleCanvasClick,
     debouncedSave,
-    onBlurName,
+    handleRename, 
     handleDragEnd,
     handleResizeEnd,
     handleDelete,

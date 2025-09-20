@@ -54,6 +54,17 @@ def create_class(
     return c  # ClaseOut usa alias para mapear nombre->name y trae layout
 
 
+#devuelve una clase por su id
+@router.get("/classes/{class_id}", response_model=ClaseOut)
+def get_class(
+    class_id: UUID,
+    db: Session = Depends(get_db),
+    me: User = Depends(get_current_user),
+):
+    c = get_my_class(db, me, class_id)
+    return c
+
+#devulve todas las clases de un diagrama
 @router.get("/{diagram_id}/classes", response_model=list[ClaseOut])
 def list_classes(
     diagram_id: UUID,
@@ -98,3 +109,8 @@ def delete_class(
     c = get_my_class(db, me, class_id)
     db.delete(c); db.commit()
     return
+
+
+
+
+ 
