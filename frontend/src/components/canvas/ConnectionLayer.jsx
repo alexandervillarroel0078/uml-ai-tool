@@ -212,6 +212,7 @@ export default function ConnectionLayer({
                 textAnchor="middle"
                 style={{ userSelect: "none" }}
               >
+                
                 {seg.label}
               </text>
             )}

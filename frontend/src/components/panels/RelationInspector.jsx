@@ -1,4 +1,168 @@
 
+// // // src/components/panels/RelationInspector.jsx
+// // export default function RelationInspector({ relation, onUpdate, onDelete }) {
+// //   if (!relation) {
+// //     return (
+// //       <aside style={{ borderLeft: "1px solid #213", padding: 16, color: "#cbd4f5" }}>
+// //         <div style={{ opacity: 0.7 }}>Selecciona una relación para editar</div>
+// //       </aside>
+// //     );
+// //   }
+
+// //   const wrap = { borderLeft: "1px solid #213", padding: 16, color: "#cbd4f5", overflow: "auto" };
+// //   const label = { fontSize: 12, opacity: 0.8, marginBottom: 4, marginTop: 12 };
+// //   const input = { width: "100%", padding: "8px", borderRadius: 8, border: "1px solid #334", background: "#0e1526", color: "#fff" };
+// // //NUEVO CAMBIO
+// //   // 🔑 helper para siempre enviar el body completo
+// //   const fullUpdate = (patch) => {
+// //     onUpdate({
+// //       type: relation.type,
+// //       label: relation.label,
+// //       src_anchor: relation.src_anchor ?? "right",
+// //       dst_anchor: relation.dst_anchor ?? "left",
+// //       src_offset: relation.src_offset ?? 0,
+// //       dst_offset: relation.dst_offset ?? 0,
+// //       src_lane: relation.src_lane ?? 0,
+// //       dst_lane: relation.dst_lane ?? 0,
+// //       src_mult_min: relation.src_mult_min ?? 0,
+// //       src_mult_max: relation.src_mult_max,
+// //       dst_mult_min: relation.dst_mult_min ?? 0,
+// //       dst_mult_max: relation.dst_mult_max,
+// //       ...patch, // lo que realmente cambió
+// //     });
+// //   };
+
+// //   return (
+// //     <aside style={wrap}>
+// //       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+// //         <h3 style={{ margin: 0 }}>Relación</h3>
+// //         <button
+// //           onClick={onDelete}
+// //           title="Eliminar relación"
+// //           style={{
+// //             marginLeft: "auto",
+// //             padding: "6px 10px",
+// //             borderRadius: 8,
+// //             border: "1px solid #334",
+// //             background: "transparent",
+// //             color: "inherit",
+// //           }}
+// //         >
+// //           🗑️ Relación
+// //         </button>
+// //       </div>
+// //       <div style={{ fontSize: 12, opacity: 0.8, marginBottom: 6 }}>
+// //         Relación ID: {relation.id}
+// //       </div>
+
+// //       {/* Tipo */}
+// //       <div style={label}>Tipo</div>
+// //       <select
+// //         style={input}
+// //         value={relation.type}
+// //         onChange={(e) => fullUpdate({ type: e.target.value })}
+// //       >
+// //         <option value="ASSOCIATION">Asociación</option>
+// //         <option value="AGGREGATION">Agregación</option>
+// //         <option value="COMPOSITION">Composición</option>
+// //         <option value="INHERITANCE">Herencia</option>
+// //         <option value="DEPENDENCY">Dependencia</option>
+// //       </select>
+
+// //       {/* Anchors */}
+// //       <div style={label}>Anchor Origen</div>
+// //       <select
+// //         style={input}
+// //         value={relation.src_anchor ?? "right"}
+// //         onChange={(e) => fullUpdate({ src_anchor: e.target.value })}
+// //       >
+// //         <option value="left">Izquierda</option>
+// //         <option value="right">Derecha</option>
+// //         <option value="top">Arriba</option>
+// //         <option value="bottom">Abajo</option>
+// //       </select>
+
+// //       <div style={label}>Anchor Destino</div>
+// //       <select
+// //         style={input}
+// //         value={relation.dst_anchor ?? "left"}
+// //         onChange={(e) => fullUpdate({ dst_anchor: e.target.value })}
+// //       >
+// //         <option value="left">Izquierda</option>
+// //         <option value="right">Derecha</option>
+// //         <option value="top">Arriba</option>
+// //         <option value="bottom">Abajo</option>
+// //       </select>
+
+// //       {/* Label */}
+// //       <div style={label}>Etiqueta (label)</div>
+// //       <input
+// //         style={input}
+// //         type="text"
+// //         value={relation.label ?? ""}
+// //         placeholder="ej: usa, pertenece, compone"
+// //         onChange={(e) => fullUpdate({ label: e.target.value })}
+// //       />
+
+// //       {/* Multiplicidad */}
+// //       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
+// //         <div>
+// //           <div style={label}>Origen mín</div>
+// //           <input
+// //             style={input}
+// //             type="number"
+// //             min={0}
+// //             value={relation.src_mult_min ?? ""}
+// //             onChange={(e) =>
+// //               fullUpdate({ src_mult_min: e.target.value === "" ? null : Number(e.target.value) })
+// //             }
+// //           />
+// //         </div>
+// //         <div>
+// //           <div style={label}>Origen máx</div>
+// //           <input
+// //             style={input}
+// //             type="text"
+// //             value={relation.src_mult_max == null ? "*" : relation.src_mult_max}
+// //             onChange={(e) =>
+// //               fullUpdate({
+// //                 src_mult_max: e.target.value === "*" ? null : Number(e.target.value),
+// //               })
+// //             }
+// //           />
+// //         </div>
+// //         <div>
+// //           <div style={label}>Destino mín</div>
+// //           <input
+// //             style={input}
+// //             type="number"
+// //             min={0}
+// //             value={relation.dst_mult_min ?? ""}
+// //             onChange={(e) =>
+// //               fullUpdate({ dst_mult_min: e.target.value === "" ? null : Number(e.target.value) })
+// //             }
+// //           />
+// //         </div>
+// //         <div>
+// //           <div style={label}>Destino máx</div>
+// //           <input
+// //             style={input}
+// //             type="text"
+// //             value={relation.dst_mult_max == null ? "*" : relation.dst_mult_max}
+// //             onChange={(e) =>
+// //               fullUpdate({
+// //                 dst_mult_max: e.target.value === "*" ? null : Number(e.target.value),
+// //               })
+// //             }
+// //           />
+// //         </div>
+// //       </div>
+// //     </aside>
+// //   );
+// // }
+// // src/components/panels/RelationInspector.jsx
+// import { useState, useEffect } from "react";
+
 // export default function RelationInspector({ relation, onUpdate, onDelete }) {
 //   if (!relation) {
 //     return (
@@ -8,9 +172,53 @@
 //     );
 //   }
 
-//   const wrap = { borderLeft: "1px solid #213", padding: 16, color: "#cbd4f5", overflow: "auto" };
-//   const label = { fontSize: 12, opacity: 0.8, marginBottom: 4, marginTop: 12 };
-//   const input = { width: "100%", padding: "8px", borderRadius: 8, border: "1px solid #334", background: "#0e1526", color: "#fff" };
+//   const wrap = {
+//     borderLeft: "1px solid #213",
+//     padding: 16,
+//     color: "#cbd4f5",
+//     overflow: "auto",
+//   };
+//   const label = {
+//     fontSize: 12,
+//     opacity: 0.8,
+//     marginBottom: 4,
+//     marginTop: 12,
+//   };
+//   const input = {
+//     width: "100%",
+//     padding: "8px",
+//     borderRadius: 8,
+//     border: "1px solid #334",
+//     background: "#0e1526",
+//     color: "#fff",
+//   };
+
+//   // 🔹 Estado local para permitir escribir libremente
+//   const [localLabel, setLocalLabel] = useState(relation.label ?? "");
+
+//   // Si cambia la relación seleccionada, refrescamos el input
+//   useEffect(() => {
+//     setLocalLabel(relation.label ?? "");
+//   }, [relation]);
+
+//   // 🔑 helper para siempre enviar el body completo
+//   const fullUpdate = (patch) => {
+//     onUpdate({
+//       type: relation.type,
+//       label: relation.label,
+//       src_anchor: relation.src_anchor ?? "right",
+//       dst_anchor: relation.dst_anchor ?? "left",
+//       src_offset: relation.src_offset ?? 0,
+//       dst_offset: relation.dst_offset ?? 0,
+//       src_lane: relation.src_lane ?? 0,
+//       dst_lane: relation.dst_lane ?? 0,
+//       src_mult_min: relation.src_mult_min ?? 0,
+//       src_mult_max: relation.src_mult_max,
+//       dst_mult_min: relation.dst_mult_min ?? 0,
+//       dst_mult_max: relation.dst_mult_max,
+//       ...patch, // lo que realmente cambió
+//     });
+//   };
 
 //   return (
 //     <aside style={wrap}>
@@ -40,7 +248,7 @@
 //       <select
 //         style={input}
 //         value={relation.type}
-//         onChange={(e) => onUpdate({ type: e.target.value })}
+//         onChange={(e) => fullUpdate({ type: e.target.value })}
 //       >
 //         <option value="ASSOCIATION">Asociación</option>
 //         <option value="AGGREGATION">Agregación</option>
@@ -48,11 +256,13 @@
 //         <option value="INHERITANCE">Herencia</option>
 //         <option value="DEPENDENCY">Dependencia</option>
 //       </select>
+
+//       {/* Anchors */}
 //       <div style={label}>Anchor Origen</div>
 //       <select
 //         style={input}
 //         value={relation.src_anchor ?? "right"}
-//         onChange={(e) => onUpdate({ src_anchor: e.target.value })}
+//         onChange={(e) => fullUpdate({ src_anchor: e.target.value })}
 //       >
 //         <option value="left">Izquierda</option>
 //         <option value="right">Derecha</option>
@@ -64,7 +274,7 @@
 //       <select
 //         style={input}
 //         value={relation.dst_anchor ?? "left"}
-//         onChange={(e) => onUpdate({ dst_anchor: e.target.value })}
+//         onChange={(e) => fullUpdate({ dst_anchor: e.target.value })}
 //       >
 //         <option value="left">Izquierda</option>
 //         <option value="right">Derecha</option>
@@ -77,13 +287,21 @@
 //       <input
 //         style={input}
 //         type="text"
-//         value={relation.label ?? ""}
+//         value={localLabel}
 //         placeholder="ej: usa, pertenece, compone"
-//         onChange={(e) => onUpdate({ label: e.target.value })}
+//         onChange={(e) => setLocalLabel(e.target.value)} // ✅ escribe libremente
+//         onBlur={() => fullUpdate({ label: localLabel })} // ✅ guarda al salir
 //       />
 
 //       {/* Multiplicidad */}
-//       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
+//       <div
+//         style={{
+//           display: "grid",
+//           gridTemplateColumns: "1fr 1fr",
+//           gap: 16,
+//           marginTop: 12,
+//         }}
+//       >
 //         <div>
 //           <div style={label}>Origen mín</div>
 //           <input
@@ -91,7 +309,11 @@
 //             type="number"
 //             min={0}
 //             value={relation.src_mult_min ?? ""}
-//             onChange={(e) => onUpdate({ src_mult_min: e.target.value === "" ? null : Number(e.target.value) })}
+//             onChange={(e) =>
+//               fullUpdate({
+//                 src_mult_min: e.target.value === "" ? null : Number(e.target.value),
+//               })
+//             }
 //           />
 //         </div>
 //         <div>
@@ -101,8 +323,9 @@
 //             type="text"
 //             value={relation.src_mult_max == null ? "*" : relation.src_mult_max}
 //             onChange={(e) =>
-//               onUpdate({
-//                 src_mult_max: e.target.value === "*" ? null : Number(e.target.value),
+//               fullUpdate({
+//                 src_mult_max:
+//                   e.target.value === "*" ? null : Number(e.target.value),
 //               })
 //             }
 //           />
@@ -114,7 +337,11 @@
 //             type="number"
 //             min={0}
 //             value={relation.dst_mult_min ?? ""}
-//             onChange={(e) => onUpdate({ dst_mult_min: e.target.value === "" ? null : Number(e.target.value) })}
+//             onChange={(e) =>
+//               fullUpdate({
+//                 dst_mult_min: e.target.value === "" ? null : Number(e.target.value),
+//               })
+//             }
 //           />
 //         </div>
 //         <div>
@@ -124,8 +351,9 @@
 //             type="text"
 //             value={relation.dst_mult_max == null ? "*" : relation.dst_mult_max}
 //             onChange={(e) =>
-//               onUpdate({
-//                 dst_mult_max: e.target.value === "*" ? null : Number(e.target.value),
+//               fullUpdate({
+//                 dst_mult_max:
+//                   e.target.value === "*" ? null : Number(e.target.value),
 //               })
 //             }
 //           />
@@ -134,7 +362,20 @@
 //     </aside>
 //   );
 // }
-// src/components/panels/RelationInspector.jsx
+import { useState, useEffect } from "react";
+
+function useDebouncedCallback(callback, delay) {
+  const [timeoutId, setTimeoutId] = useState(null);
+
+  function debounced(...args) {
+    if (timeoutId) clearTimeout(timeoutId);
+    const id = setTimeout(() => callback(...args), delay);
+    setTimeoutId(id);
+  }
+
+  return debounced;
+}
+
 export default function RelationInspector({ relation, onUpdate, onDelete }) {
   if (!relation) {
     return (
@@ -146,13 +387,30 @@ export default function RelationInspector({ relation, onUpdate, onDelete }) {
 
   const wrap = { borderLeft: "1px solid #213", padding: 16, color: "#cbd4f5", overflow: "auto" };
   const label = { fontSize: 12, opacity: 0.8, marginBottom: 4, marginTop: 12 };
-  const input = { width: "100%", padding: "8px", borderRadius: 8, border: "1px solid #334", background: "#0e1526", color: "#fff" };
+  const input = {
+    width: "100%",
+    padding: "8px",
+    borderRadius: 8,
+    border: "1px solid #334",
+    background: "#0e1526",
+    color: "#fff"
+  };
+
+  // Estado local del label
+  const [localLabel, setLocalLabel] = useState(relation.label ?? "");
+  useEffect(() => {
+    setLocalLabel(relation.label ?? "");
+    // }, [relation]);
+  // }, [relation?.id]);
+  }, [relation?.id, relation?.label]);
 
   // 🔑 helper para siempre enviar el body completo
   const fullUpdate = (patch) => {
     onUpdate({
       type: relation.type,
-      label: relation.label,
+      // label: relation.label,
+      // label: localLabel,
+      label: patch.label ?? relation.label ?? "",
       src_anchor: relation.src_anchor ?? "right",
       dst_anchor: relation.dst_anchor ?? "left",
       src_offset: relation.src_offset ?? 0,
@@ -163,9 +421,15 @@ export default function RelationInspector({ relation, onUpdate, onDelete }) {
       src_mult_max: relation.src_mult_max,
       dst_mult_min: relation.dst_mult_min ?? 0,
       dst_mult_max: relation.dst_mult_max,
-      ...patch, // lo que realmente cambió
+      ...patch,
     });
   };
+
+  // Debounce para guardar mientras escribes
+  const debouncedUpdate = useDebouncedCallback(
+    (val) => fullUpdate({ label: val }),
+    400 // ms
+  );
 
   return (
     <aside style={wrap}>
@@ -234,9 +498,12 @@ export default function RelationInspector({ relation, onUpdate, onDelete }) {
       <input
         style={input}
         type="text"
-        value={relation.label ?? ""}
-        placeholder="ej: usa, pertenece, compone"
-        onChange={(e) => fullUpdate({ label: e.target.value })}
+        value={localLabel}
+        placeholder={localLabel ? "" : "ej: usa, pertenece, compone"}
+        onChange={(e) => {
+          setLocalLabel(e.target.value); // ✅ actualiza solo local
+          debouncedUpdate(e.target.value); // ✅ guarda con retardo
+        }}
       />
 
       {/* Multiplicidad */}
