@@ -1,24 +1,30 @@
 
 import { useEffect, useState } from "react";
-import { listRelations, createRelation } from "../api/relations";
-import { hitTestClasses, inferClosestSide } from "../components/canvas/utils/geometry";
-
 import { useNavigate, useParams } from "react-router-dom";
+// enpoints API
+import { listRelations, createRelation } from "../api/relations";
+import { updateRelation, deleteRelation } from "../api/relations";
+//hacen cálculos geométricos
+import { hitTestClasses, inferClosestSide } from "../components/canvas/utils/geometry";
+//funcion global
 import useAuth from "../store/auth";
+//funciones personalizadas
 import useTheme from "../hooks/useTheme";
-
 import useDiagram from "../hooks/useDiagram";
 import useClassesAndDetails from "../hooks/useClassesAndDetails";
 
+//componentes UI
 import Sheet from "../components/canvas/Sheet";
 import ClassCard from "../components/canvas/ClassCard";
-import Inspector from "../components/panels/Inspector";
-import HeaderBar from "../components/layout/HeaderBar";
-import LeftPanel from "../components/layout/LeftPanel";
 import ConnectionLayer from "../components/canvas/ConnectionLayer";
-
+import Inspector from "../components/panels/Inspector";
 import RelationInspector from "../components/panels/RelationInspector";
-import { updateRelation, deleteRelation } from "../api/relations";
+ 
+//parte superior de la pagina
+import HeaderBar from "../components/layout/HeaderBar";
+//panel lateral izquierdo
+import LeftPanel from "../components/layout/LeftPanel";
+
 
 export default function DiagramDashboard() {
   const { id } = useParams(); // diagramId
@@ -48,11 +54,12 @@ export default function DiagramDashboard() {
     handleDelete,
   } = useClassesAndDetails(diagram);
 
+  //carla las relaciones del diagrama
   useEffect(() => {
     if (!diagram) return;
     (async () => {
       try {
-        const items = await listRelations(diagram.id);
+        const items = await listRelations(diagram.id); //API
         setRelations(items || []);
       } catch {
         setRelations([]);
@@ -77,7 +84,7 @@ export default function DiagramDashboard() {
     const onMove = (e) => {
       setLinking((prev) => (prev ? { ...prev, cursor: { x: e.clientX, y: e.clientY } } : prev));
     };
-
+    // al soltar el ratón, si estamos sobre otra clase, creamos la relación por defecto 
     const onUp = async (e) => {
       const pt = { x: e.clientX, y: e.clientY };
       let toId = hitTestByDom(pt);
@@ -85,6 +92,7 @@ export default function DiagramDashboard() {
       if (toId && toId !== linking.fromId) {
         const dstSide = inferClosestSide(toId, pt);
         try {
+          //API
           const r = await createRelation(diagram.id, {
             from_class: linking.fromId,
             to_class: toId,
@@ -124,7 +132,7 @@ export default function DiagramDashboard() {
   }
   if (!diagram) return null;
 
-  
+  // actualizar una relacion, patch = cambios a aplicar
   const handleUpdateRelation = async (patch) => {
     try {
       const updated = await updateRelation(selectedRel.id, patch);
@@ -133,7 +141,7 @@ export default function DiagramDashboard() {
       alert("No se pudo actualizar la relación");
     }
   };
-
+  // eliminar una relacion
   const handleDeleteRelation = async () => {
     if (!window.confirm("¿Eliminar esta relación?")) return;
     try {
@@ -155,6 +163,7 @@ export default function DiagramDashboard() {
         color: "var(--text, #eaeefb)",
       }}
     >
+      {/* // Barra superior */}
       <HeaderBar
         diagram={diagram}
         email={email}
@@ -171,12 +180,11 @@ export default function DiagramDashboard() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr minmax(300px, 420px)", // 👈 canvas flexible, inspector 300–420px
-          minHeight: 0,
+          gridTemplateColumns: "1fr minmax(300px, 420px)",  
           height: "100%",
         }}
       >
-        {/* Canvas */}
+        {/* Canvas diagrama de clase relaciones */}
         <main style={{ position: "relative" }}>
           <Sheet onCanvasClick={handleCanvasClick} onCameraChange={setCamera}>
             {classes.map((c) => (

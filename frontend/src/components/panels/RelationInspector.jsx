@@ -1,4 +1,5 @@
-
+//se usa cuando seleccionas una relacion
+//src/components/panels/RelationInspector.jsx
 import { useState, useEffect } from "react";
 
 function useDebouncedCallback(callback, delay) {
@@ -34,12 +35,13 @@ export default function RelationInspector({ relation, onUpdate, onDelete }) {
   };
 
   // Estado local del label
-  const [localLabel, setLocalLabel] = useState(relation.label ?? "");
+  // const [localLabel, setLocalLabel] = useState(relation.label ?? "");
+  const [localLabel, setLocalLabel] = useState(relation.etiqueta ?? "");
   useEffect(() => {
-    setLocalLabel(relation.label ?? "");
+    setLocalLabel(relation.etiqueta ?? "");
     // }, [relation]);
-  // }, [relation?.id]);
-  }, [relation?.id, relation?.label]);
+    // }, [relation?.id]);
+  }, [relation?.id, relation?.etiqueta]);
 
   // 🔑 helper para siempre enviar el body completo
   const fullUpdate = (patch) => {
@@ -95,7 +97,7 @@ export default function RelationInspector({ relation, onUpdate, onDelete }) {
       <div style={label}>Tipo</div>
       <select
         style={input}
-        value={relation.type}
+        value={relation.tipo}
         onChange={(e) => fullUpdate({ type: e.target.value })}
       >
         <option value="ASSOCIATION">Asociación</option>
@@ -144,7 +146,7 @@ export default function RelationInspector({ relation, onUpdate, onDelete }) {
       />
 
       {/* Multiplicidad */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
+      {/* <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
         <div>
           <div style={label}>Origen mín</div>
           <input
@@ -195,7 +197,61 @@ export default function RelationInspector({ relation, onUpdate, onDelete }) {
             }
           />
         </div>
+      </div> */}
+      {/* Multiplicidad */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
+        <div>
+          <div style={label}>Origen mín</div>
+          <input
+            style={input}
+            type="number"
+            min={0}
+            value={relation.mult_origen_min ?? ""}
+            onChange={(e) =>
+              fullUpdate({ mult_origen_min: e.target.value === "" ? null : Number(e.target.value) })
+            }
+          />
+        </div>
+        <div>
+          <div style={label}>Origen máx</div>
+          <input
+            style={input}
+            type="text"
+            value={relation.mult_origen_max == null ? "*" : relation.mult_origen_max}
+            onChange={(e) =>
+              fullUpdate({
+                mult_origen_max: e.target.value === "*" ? null : Number(e.target.value),
+              })
+            }
+          />
+        </div>
+        <div>
+          <div style={label}>Destino mín</div>
+          <input
+            style={input}
+            type="number"
+            min={0}
+            value={relation.mult_destino_min ?? ""}
+            onChange={(e) =>
+              fullUpdate({ mult_destino_min: e.target.value === "" ? null : Number(e.target.value) })
+            }
+          />
+        </div>
+        <div>
+          <div style={label}>Destino máx</div>
+          <input
+            style={input}
+            type="text"
+            value={relation.mult_destino_max == null ? "*" : relation.mult_destino_max}
+            onChange={(e) =>
+              fullUpdate({
+                mult_destino_max: e.target.value === "*" ? null : Number(e.target.value),
+              })
+            }
+          />
+        </div>
       </div>
+
     </aside>
   );
 }

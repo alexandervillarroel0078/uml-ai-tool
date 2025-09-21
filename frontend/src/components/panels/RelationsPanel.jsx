@@ -1,4 +1,4 @@
- 
+//para crear nueva relacions
 // src/components/panels/RelationsPanel.jsx
 export default function RelationsPanel({
   classes = [],
