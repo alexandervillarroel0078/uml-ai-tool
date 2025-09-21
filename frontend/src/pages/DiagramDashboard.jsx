@@ -124,179 +124,128 @@ export default function DiagramDashboard() {
   }
   if (!diagram) return null;
 
-  // return (
-  //   <div
-  //     style={{
-  //       display: "grid",
-  //       gridTemplateRows: "64px 1fr",
-  //       height: "100vh",
-  //       background: "var(--bg, #0b1020)",
-  //       color: "var(--text, #eaeefb)",
-  //     }}
-  //   >
-  //     <HeaderBar
-  //       diagram={diagram}
-  //       email={email}
-  //       theme={theme}
-  //       toggleTheme={toggleTheme}
-  //       insertName={insertName}
-  //       setInsertName={setInsertName}
-  //       insertMode={insertMode}
-  //       setInsertMode={setInsertMode}
-  //       onBack={() => nav("/")}
-  //       onLogout={() => { logout(); nav("/login", { replace: true }); }}
-  //     />
+  
+  const handleUpdateRelation = async (patch) => {
+    try {
+      const updated = await updateRelation(selectedRel.id, patch);
+      setRelations((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+    } catch {
+      alert("No se pudo actualizar la relación");
+    }
+  };
 
-  //     <div style={{ display: "grid", gridTemplateColumns: "420px 1fr 420px", minHeight: 0 }}>
-  //       <LeftPanel />
+  const handleDeleteRelation = async () => {
+    if (!window.confirm("¿Eliminar esta relación?")) return;
+    try {
+      await deleteRelation(selectedRel.id);
+      setRelations((prev) => prev.filter((r) => r.id !== selectedRel.id));
+      setSelectedRelId(null);
+    } catch {
+      alert("No se pudo eliminar la relación");
+    }
+  };
 
-  //       <main style={{ position: "relative" }}>
-  //         <Sheet onCanvasClick={handleCanvasClick} onCameraChange={setCamera}>
-  //           {classes.map((c) => (
-  //             <ClassCard
-  //               key={c.id}
-  //               cls={c}
-  //               selected={c.id === selectedId}
-  //               onSelect={setSelectedId}
-  //               onDragEnd={handleDragEnd}
-  //               onResizeEnd={handleResizeEnd}
-  //               details={detailsByClass[c.id]}
-  //               alwaysShowDetails={true}
-  //               showLinkPortsOnHover={true}
-  //               // durante linking, mostrar puertos en destinos
-  //               forceShowPorts={!!linking && c.id !== linking?.fromId}
-  //               onStartLink={(fromId, side, pt) => {
-  //                 setLinking({ fromId, fromSide: side, cursor: pt });
-  //               }}
-  //             />
-  //           ))}
-  //         </Sheet>
-
-  //         <ConnectionLayer
-  //           classes={classes}
-  //           tempLink={
-  //             linking ? { fromId: linking.fromId, fromSide: linking.fromSide, cursor: linking.cursor } : null
-  //           }
-  //           relations={relations}
-  //           camera={camera}
-  //         />
-  //       </main>
-
-  //       <Inspector
-  //         selected={selected}
-  //         details={selected ? detailsByClass[selected.id] : undefined}
-  //         onRename={async (name) => {
-  //           if (!selected) return;
-  //           setClasses((prev) => prev.map((x) => (x.id === selected.id ? { ...x, name } : x)));
-  //         }}
-  //         onDetailsChange={(patch) => {
-  //           if (!selected) return;
-  //           replaceDetails(selected.id, patch);
-  //         }}
-  //         reloadDetails={() => selected && fetchDetails(selected.id)}
-  //         onDeleteClass={() => selected && handleDelete(selected.id)}
-  //       />
-  //     </div>
-  //   </div>
-  // );
   return (
-  <div
-    style={{
-      display: "grid",
-      gridTemplateRows: "64px 1fr",
-      height: "100vh",
-      background: "var(--bg, #0b1020)",
-      color: "var(--text, #eaeefb)",
-    }}
-  >
-    <HeaderBar
-      diagram={diagram}
-      email={email}
-      theme={theme}
-      toggleTheme={toggleTheme}
-      insertName={insertName}
-      setInsertName={setInsertName}
-      insertMode={insertMode}
-      setInsertMode={setInsertMode}
-      onBack={() => nav("/")}
-      onLogout={() => { logout(); nav("/login", { replace: true }); }}
-    />
+    <div
+      style={{
+        display: "grid",
+        gridTemplateRows: "64px 1fr",
+        height: "100vh",
+        background: "var(--bg, #0b1020)",
+        color: "var(--text, #eaeefb)",
+      }}
+    >
+      <HeaderBar
+        diagram={diagram}
+        email={email}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        insertName={insertName}
+        setInsertName={setInsertName}
+        insertMode={insertMode}
+        setInsertMode={setInsertMode}
+        onBack={() => nav("/")}
+        onLogout={() => { logout(); nav("/login", { replace: true }); }}
+      />
 
-    <div style={{ display: "grid", gridTemplateColumns: "420px 1fr 420px", minHeight: 0 }}>
-      <LeftPanel />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr minmax(300px, 420px)", // 👈 canvas flexible, inspector 300–420px
+          minHeight: 0,
+          height: "100%",
+        }}
+      >
+        {/* Canvas */}
+        <main style={{ position: "relative" }}>
+          <Sheet onCanvasClick={handleCanvasClick} onCameraChange={setCamera}>
+            {classes.map((c) => (
+              <ClassCard
+                key={c.id}
+                cls={c}
+                selected={c.id === selectedId}
+                onSelect={(id) => {
+                  setSelectedId(id);
+                  setSelectedRelId(null);
+                }}
+                onDragEnd={handleDragEnd}
+                onResizeEnd={handleResizeEnd}
+                details={detailsByClass[c.id]}
+                alwaysShowDetails={true}
+                showLinkPortsOnHover={true}
+                forceShowPorts={!!linking && c.id !== linking?.fromId}
+                onStartLink={(fromId, side, pt) => {
+                  setLinking({ fromId, fromSide: side, cursor: pt });
+                }}
+              />
+            ))}
+          </Sheet>
 
-      <main style={{ position: "relative" }}>
-        <Sheet onCanvasClick={handleCanvasClick} onCameraChange={setCamera}>
-          {classes.map((c) => (
-            <ClassCard
-              key={c.id}
-              cls={c}
-              selected={c.id === selectedId}
-              onSelect={(id) => { setSelectedId(id); setSelectedRelId(null); }}
-              onDragEnd={handleDragEnd}
-              onResizeEnd={handleResizeEnd}
-              details={detailsByClass[c.id]}
-              alwaysShowDetails={true}
-              showLinkPortsOnHover={true}
-              forceShowPorts={!!linking && c.id !== linking?.fromId}
-              onStartLink={(fromId, side, pt) => {
-                setLinking({ fromId, fromSide: side, cursor: pt });
-              }}
-            />
-          ))}
-        </Sheet>
-
-        <ConnectionLayer
-          classes={classes}
-          tempLink={
-            linking ? { fromId: linking.fromId, fromSide: linking.fromSide, cursor: linking.cursor } : null
-          }
-          relations={relations}
-          camera={camera}
-          onSelectRelation={(id) => { setSelectedRelId(id); setSelectedId(null); }}
-        />
-      </main>
-
-      {selectedRel ? (
-        <RelationInspector
-          relation={selectedRel}
-          onUpdate={async (patch) => {
-            try {
-              const updated = await updateRelation(selectedRel.id, patch);
-              setRelations(prev => prev.map(r => r.id === updated.id ? updated : r));
-            } catch (e) {
-              alert("No se pudo actualizar la relación");
+          <ConnectionLayer
+            classes={classes}
+            tempLink={
+              linking
+                ? {
+                  fromId: linking.fromId,
+                  fromSide: linking.fromSide,
+                  cursor: linking.cursor,
+                }
+                : null
             }
-          }}
-          onDelete={async () => {
-            if (!window.confirm("¿Eliminar esta relación?")) return;
-            try {
-              await deleteRelation(selectedRel.id);
-              setRelations(prev => prev.filter(r => r.id !== selectedRel.id));
-              setSelectedRelId(null);
-            } catch {
-              alert("No se pudo eliminar la relación");
+            relations={relations}
+            camera={camera}
+            onSelectRelation={(id) => {
+              setSelectedRelId(id);
+              setSelectedId(null);
+            }}
+          />
+        </main>
+
+        {/* Inspector */}
+        {selectedRel ? (
+          <RelationInspector
+            relation={selectedRel}
+            onUpdate={handleUpdateRelation}
+            onDelete={handleDeleteRelation}
+          />
+        ) : (
+          <Inspector
+            selected={selected}
+            details={selected ? detailsByClass[selected.id] : undefined}
+            onRename={(name) =>
+              selected &&
+              setClasses((prev) =>
+                prev.map((x) => (x.id === selected.id ? { ...x, name } : x))
+              )
             }
-          }}
-        />
-      ) : (
-        <Inspector
-          selected={selected}
-          details={selected ? detailsByClass[selected.id] : undefined}
-          onRename={async (name) => {
-            if (!selected) return;
-            setClasses((prev) => prev.map((x) => (x.id === selected.id ? { ...x, name } : x)));
-          }}
-          onDetailsChange={(patch) => {
-            if (!selected) return;
-            replaceDetails(selected.id, patch);
-          }}
-          reloadDetails={() => selected && fetchDetails(selected.id)}
-          onDeleteClass={() => selected && handleDelete(selected.id)}
-        />
-      )}
+            onDetailsChange={(patch) => selected && replaceDetails(selected.id, patch)}
+            reloadDetails={() => selected && fetchDetails(selected.id)}
+            onDeleteClass={() => selected && handleDelete(selected.id)}
+          />
+        )}
+      </div>
+
     </div>
-  </div>
-);
+  );
 
 }

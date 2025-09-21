@@ -267,5 +267,39 @@ def delete_relation(
 
 
 
+@router.get("/relations/{relation_id}", response_model=RelacionOut)
+def get_relation(
+    relation_id: UUID,
+    request: Request,
+    db: Session = Depends(get_db),
+    me: User = Depends(get_current_user),
+):
+    req_id = str(uuid4())
+    log.info("get_relation.start " + _ctx(req=req_id, user_id=me.id, relation_id=relation_id))
+    try:
+        r = (
+            db.query(Relacion)
+            .join(Diagram, Diagram.id == Relacion.diagram_id)
+            .filter(Relacion.id == relation_id, Diagram.owner_id == me.id)
+            .one_or_none()
+        )
+        if not r:
+            log.warning("get_relation.not_found " + _ctx(req=req_id, relation_id=relation_id))
+            raise HTTPException(404, detail="Relación no encontrada")
+
+        origen_nombre = db.query(Clase.nombre).filter(Clase.id == r.origen_id).scalar()
+        destino_nombre = db.query(Clase.nombre).filter(Clase.id == r.destino_id).scalar()
+
+        log.info("get_relation.ok " + _ctx(req=req_id, relation_id=r.id))
+        return RelacionOut.model_validate({
+            **r.__dict__,
+            "origen_nombre": origen_nombre,
+            "destino_nombre": destino_nombre,
+        })
+    except HTTPException:
+        raise
+    except Exception:
+        log.exception("get_relation.error " + _ctx(req=req_id, relation_id=relation_id))
+        raise HTTPException(500, detail="Error interno obteniendo la relación")
 
  
