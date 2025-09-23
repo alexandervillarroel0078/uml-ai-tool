@@ -39,9 +39,12 @@ frontend/
 │  │     ├─ RelationsPanel.jsx
 │  │     └─ Sidebar.jsx
 │  ├─ hooks/
+│  │  ├─ useAttributes.js
 │  │  ├─ useClassesAndDetails.js
 │  │  ├─ useDebouncedCallback.js
 │  │  ├─ useDiagram.js
+│  │  ├─ useMethods.js
+│  │  ├─ useRelations.js
 │  │  └─ useTheme.js
 │  ├─ pages/
 │  │  ├─ DiagramDashboard.jsx

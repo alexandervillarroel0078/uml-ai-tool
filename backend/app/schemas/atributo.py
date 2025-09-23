@@ -18,5 +18,6 @@ class AtributoOut(BaseModel):
     name: str
     type: str
     required: bool
+    
 
     model_config = {"from_attributes": True}

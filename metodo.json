@@ -1,0 +1,49 @@
+[
+    {
+        "url": "/diagrams/classes/{{class_id}}/methods",
+        "method": "POST",
+        "body": {
+            "name": "calcularTotal",
+            "return_type": "decimal"
+        },
+        "response": {
+            "id": "8497c11d-73dc-4995-b528-4720307c1848",
+            "name": "calcularTotal",
+            "return_type": "decimal"
+        }
+    },
+    {
+        "url": "/diagrams/classes/{{class_id}}/methods",
+        "method": "GET",
+        "response": [
+            {
+                "id": "8497c11d-73dc-4995-b528-4720307c1848",
+                "name": "calcularTotal",
+                "return_type": "decimal"
+            },
+            {
+                "id": "812d1d99-224a-4d01-91c7-6729ca95110a",
+                "name": "validar",
+                "return_type": "decimal"
+            }
+        ]
+    },
+    {
+        "url": "/diagrams/methods/{{method_id}}",
+        "method": "PATCH",
+        "body": {
+            "name": "validarActualizada",
+            "return_type": "void"
+        },
+        "response": {
+            "id": "8497c11d-73dc-4995-b528-4720307c1848",
+            "name": "validarActualizada",
+            "return_type": "void"
+        }
+    },
+    {
+        "url": "/diagrams/methods/{{method_id}}",
+        "method": "DELETE",
+        "response": {}
+    }
+]

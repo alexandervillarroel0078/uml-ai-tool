@@ -1,0 +1,232 @@
+[
+    {
+        "url": "/diagrams/classes/{{class_id}}/full",
+        "method": "GET",
+        "response": {
+            "id": "41aa5ffa-b659-4980-bfd2-5d6bd474c7d3",
+            "nombre": "NuevaClasea",
+            "x_grid": 11,
+            "y_grid": 15,
+            "w_grid": 12,
+            "h_grid": 10,
+            "z_index": 1,
+            "atributos": [
+                {
+                    "id": "4233afbc-0290-484a-a555-df817df7b868",
+                    "nombre": "campo",
+                    "tipo": "string",
+                    "requerido": false
+                }
+            ],
+            "metodos": [
+                {
+                    "id": "669a34a6-8779-4625-b003-5f9283bf6852",
+                    "nombre": "operacion",
+                    "tipo_retorno": "void"
+                }
+            ]
+        }
+    },
+    {
+        "url": "/diagrams/{{diagram_id}}/classes/full",
+        "method": "GET",
+        "response": [
+            {
+                "id": "2f0f8fcf-1bab-41ac-92e8-49ddc35757da",
+                "nombre": "NuevaClaseb",
+                "x_grid": 15,
+                "y_grid": 38,
+                "w_grid": 12,
+                "h_grid": 10,
+                "z_index": 1,
+                "atributos": [],
+                "metodos": []
+            },
+            {
+                "id": "41aa5ffa-b659-4980-bfd2-5d6bd474c7d3",
+                "nombre": "NuevaClasea",
+                "x_grid": 11,
+                "y_grid": 15,
+                "w_grid": 12,
+                "h_grid": 10,
+                "z_index": 1,
+                "atributos": [
+                    {
+                        "id": "4233afbc-0290-484a-a555-df817df7b868",
+                        "nombre": "campo",
+                        "tipo": "string",
+                        "requerido": false
+                    }
+                ],
+                "metodos": [
+                    {
+                        "id": "669a34a6-8779-4625-b003-5f9283bf6852",
+                        "nombre": "operacion",
+                        "tipo_retorno": "void"
+                    }
+                ]
+            }
+        ]
+    },
+    {},
+    {},
+    {},
+    {
+        "url": "/diagrams/classes/{{class_id}}/attributes/full",
+        "method": "POST",
+        "body": {
+            "name": "email",
+            "type": "string",
+            "required": true
+        },
+        "response": {
+            "id": "41aa5ffa-b659-4980-bfd2-5d6bd474c7d3",
+            "nombre": "NuevaClasea",
+            "x_grid": 11,
+            "y_grid": 15,
+            "w_grid": 12,
+            "h_grid": 10,
+            "z_index": 1,
+            "atributos": [
+                {
+                    "id": "273c66c5-8443-4e38-8a41-97c9f31494b3",
+                    "nombre": "email",
+                    "tipo": "string",
+                    "requerido": true
+                }
+            ],
+            "metodos": []
+        }
+    },
+    {
+        "url": "/diagrams/attributes/{{attr_id}}/full",
+        "method": "PATCH",
+        "body": {
+            "name": "emailActualizado",
+            "type": "string",
+            "required": true
+        },
+        "response": {
+            "id": "41aa5ffa-b659-4980-bfd2-5d6bd474c7d3",
+            "nombre": "NuevaClasea",
+            "x_grid": 11,
+            "y_grid": 15,
+            "w_grid": 12,
+            "h_grid": 10,
+            "z_index": 1,
+            "atributos": [
+                {
+                    "id": "273c66c5-8443-4e38-8a41-97c9f31494b3",
+                    "nombre": "emailActualizado",
+                    "tipo": "string",
+                    "requerido": true
+                }
+            ],
+            "metodos": []
+        }
+    },
+    {
+        "url": "/diagrams/attributes/{{attr_id}}/full",
+        "method": "DELETE",
+        "response": {
+            "id": "41aa5ffa-b659-4980-bfd2-5d6bd474c7d3",
+            "nombre": "NuevaClasea",
+            "x_grid": 11,
+            "y_grid": 15,
+            "w_grid": 12,
+            "h_grid": 10,
+            "z_index": 1,
+            "atributos": [],
+            "metodos": []
+        }
+    },
+    {},
+    {},
+    {},
+    {
+        "url": "/diagrams/classes/{{class_id}}/methods/full",
+        "method": "POST",
+        "body": {
+            "name": "calcularTotal",
+            "return_type": "decimal"
+        },
+        "response": {
+            "id": "41aa5ffa-b659-4980-bfd2-5d6bd474c7d3",
+            "nombre": "NuevaClasea",
+            "x_grid": 11,
+            "y_grid": 15,
+            "w_grid": 12,
+            "h_grid": 10,
+            "z_index": 1,
+            "atributos": [
+                {
+                    "id": "273c66c5-8443-4e38-8a41-97c9f31494b3",
+                    "nombre": "emailActualizado",
+                    "tipo": "string",
+                    "requerido": true
+                }
+            ],
+            "metodos": [
+                {
+                    "id": "10bdd026-071e-4f6b-a4fc-165167cb21fa",
+                    "nombre": "calcularTotal",
+                    "tipo_retorno": "decimal"
+                }
+            ]
+        }
+    },
+    {
+        "url": "/diagrams/methods/{{method_id}}/full",
+        "method": "PATCH",
+        "body": {
+            "name": "calcularTotalActualizada",
+            "return_type": "decimal"
+        },
+        "response": {
+            "id": "41aa5ffa-b659-4980-bfd2-5d6bd474c7d3",
+            "nombre": "NuevaClasea",
+            "x_grid": 11,
+            "y_grid": 15,
+            "w_grid": 12,
+            "h_grid": 10,
+            "z_index": 1,
+            "atributos": [
+                {
+                    "id": "273c66c5-8443-4e38-8a41-97c9f31494b3",
+                    "nombre": "emailActualizado",
+                    "tipo": "string",
+                    "requerido": true
+                }
+            ],
+            "metodos": [
+                {
+                    "id": "10bdd026-071e-4f6b-a4fc-165167cb21fa",
+                    "nombre": "calcularTotalActualizada",
+                    "tipo_retorno": "decimal"
+                }
+            ]
+        }
+    },
+    {
+        "url": "/diagrams/methods/{{method_id}}/full",
+        "method": "DELETE",
+        "response": {
+            "id": "41aa5ffa-b659-4980-bfd2-5d6bd474c7d3",
+            "nombre": "NuevaClasea",
+            "x_grid": 11,
+            "y_grid": 15,
+            "w_grid": 12,
+            "h_grid": 10,
+            "z_index": 1,
+            "atributos": [
+                {
+                    "id": "273c66c5-8443-4e38-8a41-97c9f31494b3",
+                    "nombre": "emailActualizado",
+                    "tipo": "string",
+                    "requerido": true
+                }
+            ],
+            "metodos": []
+        }
+    }
+]

@@ -1,0 +1,55 @@
+[
+    {
+        "url": "/diagrams/classes/{{class_id}}/attributes",
+        "method": "POST",
+        "body": {
+            "name": "email",
+            "type": "string",
+            "required": true
+        },
+        "response": {
+            "id": "30cf4f45-3f2b-4c16-b123-e5f1630ee407",
+            "name": "email",
+            "type": "string",
+            "required": true
+        }
+    },
+    {
+        "url": "/diagrams/classes/{{class_id}}/attributes",
+        "method": "GET",
+        "response": [
+            {
+                "id": "be624822-0d54-4f76-9856-6597a182ab02",
+                "name": "campos",
+                "type": "string",
+                "required": false
+            },
+            {
+                "id": "30cf4f45-3f2b-4c16-b123-e5f1630ee407",
+                "name": "email",
+                "type": "string",
+                "required": true
+            }
+        ]
+    },
+    {
+        "url": "/diagrams/attributes/{{attr_id}}",
+        "method": "PATCH",
+        "body": {
+            "name": "emailActualizado",
+            "type": "text",
+            "required": false
+        },
+        "response": {
+            "id": "30cf4f45-3f2b-4c16-b123-e5f1630ee407",
+            "name": "emailActualizado",
+            "type": "text",
+            "required": false
+        }
+    },
+    {
+        "url": "/diagrams/attributes/{{attr_id}}",
+        "method": "DELETE",
+        "response": {}
+    }
+]

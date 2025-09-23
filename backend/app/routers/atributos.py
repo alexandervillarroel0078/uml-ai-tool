@@ -93,7 +93,7 @@ from app.models.uml import Atributo, Clase, Diagram
 from app.schemas.atributo import AtributoCreate, AtributoUpdate, AtributoOut
 from ._helpers import get_my_class
 from app.utils import realtime_events  # 👈 para emitir notificaciones
-
+ 
 router = APIRouter(prefix="/diagrams", tags=["attributes"])
 
 

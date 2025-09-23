@@ -1,6 +1,9 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from uuid import UUID
+from typing import List
+from .atributo import AtributoOut
+from .metodo import MetodoOut
 
 class ClaseCreate(BaseModel):
     # nombre visible en la API
@@ -34,7 +37,7 @@ class ClaseOut(BaseModel):
     w_grid: int
     h_grid: int
     z_index: int
-
+ 
     model_config = {
         "from_attributes": True,
         "populate_by_name": True,  # por si un día quieres construir desde "name"
