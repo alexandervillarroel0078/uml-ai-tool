@@ -3,6 +3,7 @@ frontend/
 ├─ public/
 ├─ src/
 │  ├─ api/
+│  │  ├─ realtime.js
 │  │  ├─ classes.js
 │  │  ├─ client.js
 │  │  ├─ diagrams.js
@@ -34,6 +35,7 @@ frontend/
 │  │  │  └─ LeftPanel.jsx
 │  │  └─ panels/
 │  │     ├─ Inspector.jsx
+│  │     ├─ RelationInspector.jsx
 │  │     ├─ RelationsPanel.jsx
 │  │     └─ Sidebar.jsx
 │  ├─ hooks/

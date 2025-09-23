@@ -79,7 +79,6 @@ export default function Inspector({ selected, details, onRename, onDetailsChange
     }
   }, 600);
 
-
   function onChangeName(val) {
     setName(val);
     debouncedSaveName(val);
@@ -102,7 +101,6 @@ export default function Inspector({ selected, details, onRename, onDetailsChange
     const next = (details?.attrs || []).filter((x) => x.id !== aid);
     onDetailsChange?.({ attrs: next });
   }
-
   // ===== Métodos CRUD =====
   async function addMeth() {
     if (!selected?.id) return;

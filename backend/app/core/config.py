@@ -1,3 +1,4 @@
+#app/core/config.py
 from pydantic_settings import BaseSettings
 from typing import List
 
@@ -7,7 +8,12 @@ class Settings(BaseSettings):
     JWT_ALG: str = "HS256"
     ACCESS_EXPIRE_MIN: int = 480
     REFRESH_EXPIRE_DAYS: int = 14
-    CORS_ORIGINS: str = "http://localhost:5173,http://192.168.0.12:5173,http://192.168.0.12:4173"
+    CORS_ORIGINS: str = (
+        "http://localhost:5173,"
+        "http://127.0.0.1:5173,"
+        "http://192.168.0.12:5173,"
+        "http://192.168.0.12:4173"
+    )
     DEBUG: bool = False
 
     class Config:

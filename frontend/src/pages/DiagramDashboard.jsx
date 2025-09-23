@@ -180,10 +180,13 @@ export default function DiagramDashboard() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr minmax(300px, 420px)",  
+          // gridTemplateColumns: "1fr minmax(300px, 420px)",  
+          gridTemplateColumns: "260px 1fr minmax(300px, 420px)",
+
           height: "100%",
         }}
       >
+        <LeftPanel />
         {/* Canvas diagrama de clase relaciones */}
         <main style={{ position: "relative" }}>
           <Sheet onCanvasClick={handleCanvasClick} onCameraChange={setCamera}>

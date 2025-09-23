@@ -1,5 +1,122 @@
+# # app/routers/classes.py
+# from uuid import UUID
+# from fastapi import APIRouter, Depends, status, HTTPException
+# from sqlalchemy.orm import Session
+
+# from app.db import get_db
+# from app.core.security import get_current_user
+# from app.models.user import User
+# from app.models.uml import Clase
+# from app.schemas.clase import ClaseCreate, ClaseUpdate, ClaseOut
+# from ._helpers import get_my_diagram, get_my_class
+
+# router = APIRouter(prefix="/diagrams", tags=["classes"])
+
+
+# def _ensure_unique_class_name(db: Session, diagram_id: UUID, name: str, exclude_id: UUID | None = None):
+#     """Valida que no exista otra clase con el mismo nombre en el diagrama."""
+#     q = db.query(Clase).filter(
+#         Clase.diagram_id == diagram_id,
+#         Clase.nombre == name,
+#     )
+#     if exclude_id:
+#         q = q.filter(Clase.id != exclude_id)
+#     if q.first():
+#         raise HTTPException(
+#             status_code=400,
+#             detail=f"La clase '{name}' ya existe en este diagrama"
+#         )
+
+
+# @router.post("/{diagram_id}/classes", response_model=ClaseOut, status_code=status.HTTP_201_CREATED)
+# def create_class(
+#     diagram_id: UUID,
+#     body: ClaseCreate,
+#     db: Session = Depends(get_db),
+#     me: User = Depends(get_current_user),
+# ):
+#     d = get_my_diagram(db, me, diagram_id)
+
+#     # 🚨 Validar nombre único
+#     _ensure_unique_class_name(db, d.id, body.name)
+
+#     c = Clase(
+#         nombre=body.name,
+#         diagram_id=d.id,
+#         # opcionales de layout si vienen:
+#         x_grid=body.x_grid or 0,
+#         y_grid=body.y_grid or 0,
+#         w_grid=body.w_grid or 12,
+#         h_grid=body.h_grid or 6,
+#         z_index=body.z_index or 0,
+#     )
+#     db.add(c); db.commit(); db.refresh(c)
+#     return c  # ClaseOut usa alias para mapear nombre->name y trae layout
+
+
+# #devuelve una clase por su id
+# @router.get("/classes/{class_id}", response_model=ClaseOut)
+# def get_class(
+#     class_id: UUID,
+#     db: Session = Depends(get_db),
+#     me: User = Depends(get_current_user),
+# ):
+#     c = get_my_class(db, me, class_id)
+#     return c
+
+# #devulve todas las clases de un diagrama
+# @router.get("/{diagram_id}/classes", response_model=list[ClaseOut])
+# def list_classes(
+#     diagram_id: UUID,
+#     db: Session = Depends(get_db),
+#     me: User = Depends(get_current_user),
+# ):
+#     d = get_my_diagram(db, me, diagram_id)
+#     items = db.query(Clase).filter(Clase.diagram_id == d.id).all()
+#     return items
+
+
+# @router.patch("/classes/{class_id}", response_model=ClaseOut)
+# def update_class(
+#     class_id: UUID,
+#     body: ClaseUpdate,
+#     db: Session = Depends(get_db),
+#     me: User = Depends(get_current_user),
+# ):
+#     c = get_my_class(db, me, class_id)
+
+#     # 🚨 Validar nombre único si se quiere renombrar
+#     if body.name is not None and body.name != c.nombre:
+#         _ensure_unique_class_name(db, c.diagram_id, body.name, exclude_id=c.id)
+#         c.nombre = body.name
+
+#     if body.x_grid is not None:  c.x_grid  = body.x_grid
+#     if body.y_grid is not None:  c.y_grid  = body.y_grid
+#     if body.w_grid is not None:  c.w_grid  = body.w_grid
+#     if body.h_grid is not None:  c.h_grid  = body.h_grid
+#     if body.z_index is not None: c.z_index = body.z_index
+
+#     db.commit(); db.refresh(c)
+#     return c
+
+
+# @router.delete("/classes/{class_id}", status_code=204)
+# def delete_class(
+#     class_id: UUID,
+#     db: Session = Depends(get_db),
+#     me: User = Depends(get_current_user),
+# ):
+#     c = get_my_class(db, me, class_id)
+#     db.delete(c); db.commit()
+#     return
+
+
+
+
+ 
 # app/routers/classes.py
 from uuid import UUID
+import asyncio
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 
@@ -9,6 +126,7 @@ from app.models.user import User
 from app.models.uml import Clase
 from app.schemas.clase import ClaseCreate, ClaseUpdate, ClaseOut
 from ._helpers import get_my_diagram, get_my_class
+from app.utils import realtime_events  # 👈 para emitir eventos en tiempo real
 
 router = APIRouter(prefix="/diagrams", tags=["classes"])
 
@@ -28,8 +146,9 @@ def _ensure_unique_class_name(db: Session, diagram_id: UUID, name: str, exclude_
         )
 
 
+# 🔹 Crear clase (ahora async para emitir notify)
 @router.post("/{diagram_id}/classes", response_model=ClaseOut, status_code=status.HTTP_201_CREATED)
-def create_class(
+async def create_class(
     diagram_id: UUID,
     body: ClaseCreate,
     db: Session = Depends(get_db),
@@ -43,7 +162,6 @@ def create_class(
     c = Clase(
         nombre=body.name,
         diagram_id=d.id,
-        # opcionales de layout si vienen:
         x_grid=body.x_grid or 0,
         y_grid=body.y_grid or 0,
         w_grid=body.w_grid or 12,
@@ -51,10 +169,14 @@ def create_class(
         z_index=body.z_index or 0,
     )
     db.add(c); db.commit(); db.refresh(c)
-    return c  # ClaseOut usa alias para mapear nombre->name y trae layout
+
+    # 🔔 Notificar al frontend
+    asyncio.create_task(realtime_events.notify_class_created(d.id, c))
+
+    return c
 
 
-#devuelve una clase por su id
+# 🔹 Obtener clase por ID (queda síncrono, no notifica)
 @router.get("/classes/{class_id}", response_model=ClaseOut)
 def get_class(
     class_id: UUID,
@@ -64,7 +186,8 @@ def get_class(
     c = get_my_class(db, me, class_id)
     return c
 
-#devulve todas las clases de un diagrama
+
+# 🔹 Listar clases de un diagrama (queda síncrono, no notifica)
 @router.get("/{diagram_id}/classes", response_model=list[ClaseOut])
 def list_classes(
     diagram_id: UUID,
@@ -76,8 +199,9 @@ def list_classes(
     return items
 
 
+# 🔹 Actualizar clase (ahora async para emitir notify)
 @router.patch("/classes/{class_id}", response_model=ClaseOut)
-def update_class(
+async def update_class(
     class_id: UUID,
     body: ClaseUpdate,
     db: Session = Depends(get_db),
@@ -85,7 +209,6 @@ def update_class(
 ):
     c = get_my_class(db, me, class_id)
 
-    # 🚨 Validar nombre único si se quiere renombrar
     if body.name is not None and body.name != c.nombre:
         _ensure_unique_class_name(db, c.diagram_id, body.name, exclude_id=c.id)
         c.nombre = body.name
@@ -97,20 +220,24 @@ def update_class(
     if body.z_index is not None: c.z_index = body.z_index
 
     db.commit(); db.refresh(c)
+
+    # 🔔 Notificar al frontend
+    asyncio.create_task(realtime_events.notify_class_updated(c.diagram_id, c))
+
     return c
 
 
+# 🔹 Eliminar clase (ahora async para emitir notify)
 @router.delete("/classes/{class_id}", status_code=204)
-def delete_class(
+async def delete_class(
     class_id: UUID,
     db: Session = Depends(get_db),
     me: User = Depends(get_current_user),
 ):
     c = get_my_class(db, me, class_id)
     db.delete(c); db.commit()
+
+    # 🔔 Notificar al frontend
+    asyncio.create_task(realtime_events.notify_class_deleted(c.diagram_id, c.id))
+
     return
-
-
-
-
- 
