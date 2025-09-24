@@ -34,40 +34,18 @@
 //     // eslint-disable-next-line react-hooks/exhaustive-deps
 //   }, [classId]);
 
-//   // ====== CRUD ======
+//   // ====== CRUD (solo API, sin tocar state) ======
 //   async function createMethod(body) {
-//     try {
-//       const m = await apiCreateMethod(classId, body);
-//       setMethods((prev) => [...prev, m]);
-//       return m;
-//     } catch (e) {
-//       alert(e?.response?.data?.detail || "No se pudo crear el método");
-//       throw e;
-//     }
+//     return await apiCreateMethod(classId, body);
 //   }
 
 //   async function updateMethod(methodId, patch) {
-//     try {
-//       const updated = await apiUpdateMethod(methodId, patch);
-//       setMethods((prev) =>
-//         prev.map((m) => (m.id === methodId ? updated : m))
-//       );
-//       return updated;
-//     } catch (e) {
-//       alert(e?.response?.data?.detail || "No se pudo actualizar el método");
-//       throw e;
-//     }
+//     return await apiUpdateMethod(methodId, patch);
 //   }
 
 //   async function deleteMethod(methodId) {
 //     if (!confirm("¿Eliminar este método?")) return;
-//     try {
-//       await apiDeleteMethod(methodId);
-//       setMethods((prev) => prev.filter((m) => m.id !== methodId));
-//       if (selectedMethodId === methodId) setSelectedMethodId(null);
-//     } catch (e) {
-//       alert(e?.response?.data?.detail || "No se pudo eliminar el método");
-//     }
+//     return await apiDeleteMethod(methodId);
 //   }
 
 //   // ====== EVENTOS EN TIEMPO REAL ======
@@ -109,7 +87,6 @@
 //     deleteMethod,
 //   };
 // }
-// src/hooks/useMethods.js
 import { useEffect, useState } from "react";
 import {
   listMethods,
@@ -117,7 +94,6 @@ import {
   updateMethod as apiUpdateMethod,
   deleteMethod as apiDeleteMethod,
 } from "../api/classes";
-import { onEvent } from "../api/realtime";
 
 export default function useMethods(classId) {
   const [methods, setMethods] = useState([]);
@@ -126,7 +102,6 @@ export default function useMethods(classId) {
   const selectedMethod =
     methods.find((m) => m.id === selectedMethodId) || null;
 
-  // ====== CARGA INICIAL ======
   async function loadMethods() {
     if (!classId) return;
     try {
@@ -145,7 +120,6 @@ export default function useMethods(classId) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classId]);
 
-  // ====== CRUD (solo API, sin tocar state) ======
   async function createMethod(body) {
     return await apiCreateMethod(classId, body);
   }
@@ -158,33 +132,6 @@ export default function useMethods(classId) {
     if (!confirm("¿Eliminar este método?")) return;
     return await apiDeleteMethod(methodId);
   }
-
-  // ====== EVENTOS EN TIEMPO REAL ======
-  useEffect(() => {
-    if (!classId) return;
-
-    // crear
-    onEvent("method.created", (m) => {
-      if (m.clase_id === classId) {
-        setMethods((prev) => [...prev, m]);
-      }
-    });
-
-    // actualizar
-    onEvent("method.updated", (m) => {
-      if (m.clase_id === classId) {
-        setMethods((prev) =>
-          prev.map((x) => (x.id === m.id ? { ...x, ...m } : x))
-        );
-      }
-    });
-
-    // eliminar
-    onEvent("method.deleted", ({ id }) => {
-      setMethods((prev) => prev.filter((x) => x.id !== id));
-      if (selectedMethodId === id) setSelectedMethodId(null);
-    });
-  }, [classId, selectedMethodId]);
 
   return {
     methods,

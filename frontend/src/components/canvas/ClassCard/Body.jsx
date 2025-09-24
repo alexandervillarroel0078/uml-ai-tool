@@ -1,3 +1,4 @@
+
 export default function Body({ innerRef, showDetails, details, size }) {
   return (
     <div

@@ -1,5 +1,6 @@
-# #app/routers/atributos.py
+# # app/routes/atributos.py
 # from uuid import UUID
+# import logging, asyncio
 # from fastapi import APIRouter, Depends, HTTPException, status
 # from sqlalchemy.orm import Session
 
@@ -8,81 +9,124 @@
 # from app.models.user import User
 # from app.models.uml import Atributo, Clase, Diagram
 # from app.schemas.atributo import AtributoCreate, AtributoUpdate, AtributoOut
+# from app.schemas.clase_completa import ClaseCompletaOut
 # from ._helpers import get_my_class
+# from app.utils import realtime_events
+
+# logger = logging.getLogger(__name__)
 
 # router = APIRouter(prefix="/diagrams", tags=["attributes"])
 
-# @router.post("/classes/{class_id}/attributes", response_model=AtributoOut, status_code=status.HTTP_201_CREATED)
-# def create_attribute(
-#     class_id: UUID,
-#     body: AtributoCreate,
-#     db: Session = Depends(get_db),
-#     me: User = Depends(get_current_user),
-# ):
-#     c = get_my_class(db, me, class_id)
-#     a = Atributo(
-#         nombre=body.name,
-#         tipo=body.type,
-#         requerido=bool(body.required),
-#         clase_id=c.id,
-#     )
-#     db.add(a); db.commit(); db.refresh(a)
-#     return AtributoOut(id=a.id, name=a.nombre, type=a.tipo, required=a.requerido)
 
+# # 🔹 Listar atributos (solo lectura, no notifica)
 # @router.get("/classes/{class_id}/attributes", response_model=list[AtributoOut])
 # def list_attributes(
 #     class_id: UUID,
 #     db: Session = Depends(get_db),
 #     me: User = Depends(get_current_user),
 # ):
+#     logger.info(f"📥 [LIST] atributos -> class_id={class_id}, user={me.id}")
 #     c = get_my_class(db, me, class_id)
 #     items = db.query(Atributo).filter(Atributo.clase_id == c.id).all()
+#     logger.info(f"✅ {len(items)} atributos encontrados en class_id={class_id}")
 #     return [AtributoOut(id=i.id, name=i.nombre, type=i.tipo, required=i.requerido) for i in items]
 
-# @router.patch("/attributes/{attr_id}", response_model=AtributoOut)
-# def update_attribute(
+
+# # 🔹 Crear atributo
+# @router.post("/classes/{class_id}/attributes", response_model=ClaseCompletaOut, status_code=status.HTTP_201_CREATED)
+# async def create_attribute(
+#     class_id: UUID,
+#     body: AtributoCreate,
+#     db: Session = Depends(get_db),
+#     me: User = Depends(get_current_user),
+# ):
+#     logger.info(f"➕ [CREATE] atributo -> class_id={class_id}, user={me.id}, body={body}")
+#     c = get_my_class(db, me, class_id)
+
+#     try:
+#         a = Atributo(nombre=body.name, tipo=body.type, requerido=bool(body.required), clase_id=c.id)
+#         db.add(a); db.commit(); db.refresh(a)
+#         logger.info(f"✅ Atributo creado -> attr_id={a.id}, class_id={c.id}")
+
+#         # 🔔 Notificar clase actualizada
+#         asyncio.create_task(realtime_events.notify_class_updated(
+#             c.diagram_id, c))
+#         return c
+#     except Exception as e:
+#         logger.error(f"❌ Error creando atributo -> class_id={class_id}, user={me.id}, error={str(e)}")
+#         raise
+
+
+# # 🔹 Actualizar atributo
+# @router.patch("/attributes/{attr_id}", response_model=ClaseCompletaOut)
+# async def update_attribute(
 #     attr_id: UUID,
 #     body: AtributoUpdate,
 #     db: Session = Depends(get_db),
 #     me: User = Depends(get_current_user),
 # ):
-#     q = (
+#     logger.info(f"✏️ [UPDATE] atributo -> attr_id={attr_id}, user={me.id}, body={body}")
+#     a = (
 #         db.query(Atributo)
 #         .join(Clase, Clase.id == Atributo.clase_id)
 #         .join(Diagram, Diagram.id == Clase.diagram_id)
 #         .filter(Atributo.id == attr_id, Diagram.owner_id == me.id)
+#         .one_or_none()
 #     )
-#     a = q.one_or_none()
 #     if not a:
+#         logger.warning(f"⚠️ Atributo no encontrado -> attr_id={attr_id}, user={me.id}")
 #         raise HTTPException(404, "Atributo no encontrado")
 
-#     if body.name is not None:     a.nombre    = body.name
-#     if body.type is not None:     a.tipo      = body.type
-#     if body.required is not None: a.requerido = bool(body.required)
+#     try:
+#         if body.name is not None: a.nombre = body.name
+#         if body.type is not None: a.tipo = body.type
+#         if body.required is not None: a.requerido = body.required
 
-#     db.commit(); db.refresh(a)
-#     return AtributoOut(id=a.id, name=a.nombre, type=a.tipo, required=a.requerido)
+#         db.commit(); db.refresh(a)
+#         c = a.clase
+#         logger.info(f"✅ Atributo actualizado -> attr_id={a.id}, class_id={c.id}")
 
-# @router.delete("/attributes/{attr_id}", status_code=204)
-# def delete_attribute(
+#         # 🔔 Notificar clase actualizada
+#         asyncio.create_task(realtime_events.notify_class_updated(c.diagram_id, c))
+#         return c
+#     except Exception as e:
+#         logger.error(f"❌ Error actualizando atributo -> attr_id={attr_id}, error={str(e)}")
+#         raise
+
+
+# # 🔹 Eliminar atributo
+# @router.delete("/attributes/{attr_id}", response_model=ClaseCompletaOut)
+# async def delete_attribute(
 #     attr_id: UUID,
 #     db: Session = Depends(get_db),
 #     me: User = Depends(get_current_user),
 # ):
-#     q = (
+#     logger.info(f"🗑️ [DELETE] atributo -> attr_id={attr_id}, user={me.id}")
+#     a = (
 #         db.query(Atributo)
 #         .join(Clase, Clase.id == Atributo.clase_id)
 #         .join(Diagram, Diagram.id == Clase.diagram_id)
 #         .filter(Atributo.id == attr_id, Diagram.owner_id == me.id)
+#         .one_or_none()
 #     )
-#     a = q.one_or_none()
 #     if not a:
+#         logger.warning(f"⚠️ Atributo no encontrado -> attr_id={attr_id}, user={me.id}")
 #         raise HTTPException(404, "Atributo no encontrado")
-#     db.delete(a); db.commit()
-#     return
+
+#     try:
+#         c = a.clase
+#         db.delete(a); db.commit()
+#         logger.info(f"✅ Atributo eliminado -> attr_id={attr_id}, class_id={c.id}")
+
+#         # 🔔 Notificar clase actualizada
+#         asyncio.create_task(realtime_events.notify_class_updated(c.diagram_id, c))
+#         return c
+#     except Exception as e:
+#         logger.error(f"❌ Error eliminando atributo -> attr_id={attr_id}, error={str(e)}")
+#         raise
 # app/routers/atributos.py
 from uuid import UUID
-import asyncio
+import logging, asyncio
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -92,12 +136,28 @@ from app.models.user import User
 from app.models.uml import Atributo, Clase, Diagram
 from app.schemas.atributo import AtributoCreate, AtributoUpdate, AtributoOut
 from ._helpers import get_my_class
-from app.utils import realtime_events  # 👈 para emitir notificaciones
- 
+from app.utils import realtime_events
+
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/diagrams", tags=["attributes"])
 
 
-# 🔹 Crear atributo (async para notificar)
+# 🔹 Listar atributos
+@router.get("/classes/{class_id}/attributes", response_model=list[AtributoOut])
+def list_attributes(
+    class_id: UUID,
+    db: Session = Depends(get_db),
+    me: User = Depends(get_current_user),
+):
+    logger.info(f"📥 [LIST] atributos -> class_id={class_id}, user={me.id}")
+    c = get_my_class(db, me, class_id)
+    items = db.query(Atributo).filter(Atributo.clase_id == c.id).all()
+    logger.info(f"✅ {len(items)} atributos encontrados en class_id={class_id}")
+    return [AtributoOut(id=i.id, name=i.nombre, type=i.tipo, required=i.requerido) for i in items]
+
+
+# 🔹 Crear atributo
 @router.post("/classes/{class_id}/attributes", response_model=AtributoOut, status_code=status.HTTP_201_CREATED)
 async def create_attribute(
     class_id: UUID,
@@ -105,34 +165,24 @@ async def create_attribute(
     db: Session = Depends(get_db),
     me: User = Depends(get_current_user),
 ):
+    logger.info(f"➕ [CREATE] atributo -> class_id={class_id}, user={me.id}, body={body}")
     c = get_my_class(db, me, class_id)
-    a = Atributo(
-        nombre=body.name,
-        tipo=body.type,
-        requerido=bool(body.required),
-        clase_id=c.id,
-    )
-    db.add(a); db.commit(); db.refresh(a)
 
-    # 🔔 Notificar
-    asyncio.create_task(realtime_events.notify_attribute_created(c.diagram_id, a))
+    try:
+        a = Atributo(nombre=body.name, tipo=body.type, requerido=bool(body.required), clase_id=c.id)
+        db.add(a); db.commit(); db.refresh(a)
+        logger.info(f"✅ Atributo creado -> attr_id={a.id}, class_id={c.id}")
 
-    return AtributoOut(id=a.id, name=a.nombre, type=a.tipo, required=a.requerido)
-
-
-# 🔹 Listar atributos (queda síncrono, no notifica)
-@router.get("/classes/{class_id}/attributes", response_model=list[AtributoOut])
-def list_attributes(
-    class_id: UUID,
-    db: Session = Depends(get_db),
-    me: User = Depends(get_current_user),
-):
-    c = get_my_class(db, me, class_id)
-    items = db.query(Atributo).filter(Atributo.clase_id == c.id).all()
-    return [AtributoOut(id=i.id, name=i.nombre, type=i.tipo, required=i.requerido) for i in items]
+        # 🔔 Notificar en tiempo real
+        asyncio.create_task(realtime_events.notify_attribute_created(c.diagram_id, a))
+        asyncio.create_task(realtime_events.notify_class_updated(c.diagram_id, c))
+        return AtributoOut(id=a.id, name=a.nombre, type=a.tipo, required=a.requerido)
+    except Exception as e:
+        logger.error(f"❌ Error creando atributo -> class_id={class_id}, user={me.id}, error={str(e)}")
+        raise
 
 
-# 🔹 Actualizar atributo (async para notificar)
+# 🔹 Actualizar atributo
 @router.patch("/attributes/{attr_id}", response_model=AtributoOut)
 async def update_attribute(
     attr_id: UUID,
@@ -140,52 +190,65 @@ async def update_attribute(
     db: Session = Depends(get_db),
     me: User = Depends(get_current_user),
 ):
-    q = (
+    logger.info(f"✏️ [UPDATE] atributo -> attr_id={attr_id}, user={me.id}, body={body}")
+    a = (
         db.query(Atributo)
         .join(Clase, Clase.id == Atributo.clase_id)
         .join(Diagram, Diagram.id == Clase.diagram_id)
         .filter(Atributo.id == attr_id, Diagram.owner_id == me.id)
+        .one_or_none()
     )
-    a = q.one_or_none()
     if not a:
+        logger.warning(f"⚠️ Atributo no encontrado -> attr_id={attr_id}, user={me.id}")
         raise HTTPException(404, "Atributo no encontrado")
 
-    if body.name is not None:     a.nombre    = body.name
-    if body.type is not None:     a.tipo      = body.type
-    if body.required is not None: a.requerido = bool(body.required)
+    try:
+        if body.name is not None: a.nombre = body.name
+        if body.type is not None: a.tipo = body.type
+        if body.required is not None: a.requerido = body.required
 
-    db.commit(); db.refresh(a)
+        db.commit(); db.refresh(a)
+        c = a.clase
+        logger.info(f"✅ Atributo actualizado -> attr_id={a.id}, class_id={c.id}")
 
-    # 🔔 Notificar
-    asyncio.create_task(realtime_events.notify_attribute_updated(a.clase.diagram_id, a))
+        # 🔔 Notificar en tiempo real
+        asyncio.create_task(realtime_events.notify_attribute_updated(c.diagram_id, a))
+        asyncio.create_task(realtime_events.notify_class_updated(c.diagram_id, c))
+        return AtributoOut(id=a.id, name=a.nombre, type=a.tipo, required=a.requerido)
+    except Exception as e:
+        logger.error(f"❌ Error actualizando atributo -> attr_id={attr_id}, error={str(e)}")
+        raise
 
-    return AtributoOut(id=a.id, name=a.nombre, type=a.tipo, required=a.requerido)
 
-
-# 🔹 Eliminar atributo (async para notificar)
-@router.delete("/attributes/{attr_id}", status_code=204)
+# 🔹 Eliminar atributo
+@router.delete("/attributes/{attr_id}", response_model=dict)
 async def delete_attribute(
     attr_id: UUID,
     db: Session = Depends(get_db),
     me: User = Depends(get_current_user),
 ):
-    q = (
+    logger.info(f"🗑️ [DELETE] atributo -> attr_id={attr_id}, user={me.id}")
+    a = (
         db.query(Atributo)
         .join(Clase, Clase.id == Atributo.clase_id)
         .join(Diagram, Diagram.id == Clase.diagram_id)
         .filter(Atributo.id == attr_id, Diagram.owner_id == me.id)
+        .one_or_none()
     )
-    a = q.one_or_none()
     if not a:
+        logger.warning(f"⚠️ Atributo no encontrado -> attr_id={attr_id}, user={me.id}")
         raise HTTPException(404, "Atributo no encontrado")
 
-    # 👇 Guardar el diagram_id ANTES de borrar
-    diagram_id = a.clase.diagram_id
+    try:
+        c = a.clase
+        attr_id = a.id
+        db.delete(a); db.commit()
+        logger.info(f"✅ Atributo eliminado -> attr_id={attr_id}, class_id={c.id}")
 
-    db.delete(a)
-    db.commit()
-
-    # 🔔 Notificar con los datos guardados
-    asyncio.create_task(realtime_events.notify_attribute_deleted(diagram_id, attr_id))
-
-    return
+        # 🔔 Notificar en tiempo real
+        asyncio.create_task(realtime_events.notify_attribute_deleted(c.diagram_id,  attr_id, c.id))
+        asyncio.create_task(realtime_events.notify_class_updated(c.diagram_id, c))
+        return {"id": str(attr_id), "class_id": str(c.id)}
+    except Exception as e:
+        logger.error(f"❌ Error eliminando atributo -> attr_id={attr_id}, error={str(e)}")
+        raise

@@ -1,0 +1,144 @@
+[
+    {
+        "url": "/diagrams/{{diagram_id}}/classes",
+        "method": "POST",
+        "body": {
+            "name": "Usuario",
+            "x_grid": 0,
+            "y_grid": 0,
+            "w_grid": 12,
+            "h_grid": 6,
+            "z_index": 0
+        },
+        "response": {
+            "id": "10637ac9-a87e-4a0f-a3f3-666bd21e0d9b",
+            "nombre": "Cliente",
+            "x_grid": 0,
+            "y_grid": 0,
+            "w_grid": 12,
+            "h_grid": 6,
+            "z_index": 1,
+            "atributos": [],
+            "metodos": []
+        }
+    },
+    {},
+    {},
+    {},
+    {
+        "url": "/diagrams/{{diagram_id}}/classes",
+        "method": "GET",
+        "response": [
+            {
+                "id": "2f0f8fcf-1bab-41ac-92e8-49ddc35757da",
+                "nombre": "NuevaClaseb",
+                "x_grid": 7,
+                "y_grid": 47,
+                "w_grid": 12,
+                "h_grid": 10,
+                "z_index": 1,
+                "atributos": [
+                    {
+                        "id": "31656ecf-7d52-49c3-96f2-727ba8b17fa8",
+                        "nombre": "campo",
+                        "tipo": "string",
+                        "requerido": false
+                    }
+                ],
+                "metodos": []
+            },
+            {
+                "id": "41aa5ffa-b659-4980-bfd2-5d6bd474c7d3",
+                "nombre": "NuevaClaseA",
+                "x_grid": 4,
+                "y_grid": 11,
+                "w_grid": 12,
+                "h_grid": 11,
+                "z_index": 1,
+                "atributos": [
+                    {
+                        "id": "887a3ea8-53f3-4dbf-8cb0-bd2dae5dbf14",
+                        "nombre": "campo",
+                        "tipo": "string",
+                        "requerido": false
+                    },
+                    {
+                        "id": "409e820e-b7f5-4ba7-b3b5-ce8ba2e77d82",
+                        "nombre": "campo",
+                        "tipo": "string",
+                        "requerido": false
+                    }
+                ],
+                "metodos": []
+            },
+            {
+                "id": "10637ac9-a87e-4a0f-a3f3-666bd21e0d9b",
+                "nombre": "Cliente",
+                "x_grid": 0,
+                "y_grid": 0,
+                "w_grid": 12,
+                "h_grid": 6,
+                "z_index": 1,
+                "atributos": [],
+                "metodos": []
+            }
+        ]
+    },
+    {
+        "url": "/diagrams/classes/{{class_id}}",
+        "method": "GET",
+        "response": {
+            "id": "2f0f8fcf-1bab-41ac-92e8-49ddc35757da",
+            "nombre": "NuevaClaseb",
+            "x_grid": 7,
+            "y_grid": 47,
+            "w_grid": 12,
+            "h_grid": 10,
+            "z_index": 1,
+            "atributos": [
+                {
+                    "id": "31656ecf-7d52-49c3-96f2-727ba8b17fa8",
+                    "nombre": "campo",
+                    "tipo": "string",
+                    "requerido": false
+                }
+            ],
+            "metodos": []
+        }
+    },
+    {
+        "url": "/diagrams/classes/{{class_id}}",
+        "method": "PATCH",
+        "body": {
+            "name": "ClienteVIP",
+            "x_grid": 2,
+            "y_grid": 3,
+            "w_grid": 14,
+            "h_grid": 8,
+            "z_index": 2
+        },
+        "response": {
+            "id": "2f0f8fcf-1bab-41ac-92e8-49ddc35757da",
+            "nombre": "ClienteVIP",
+            "x_grid": 2,
+            "y_grid": 3,
+            "w_grid": 14,
+            "h_grid": 8,
+            "z_index": 2,
+            "atributos": [
+                {
+                    "id": "31656ecf-7d52-49c3-96f2-727ba8b17fa8",
+                    "nombre": "campo",
+                    "tipo": "string",
+                    "requerido": false
+                }
+            ],
+            "metodos": []
+        }
+    },
+    {
+        "url": "/diagrams/classes/{{class_id}}",
+        "method": "DELETE",
+        "response": null
+    }
+]

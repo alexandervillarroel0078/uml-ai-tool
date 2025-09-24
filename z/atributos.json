@@ -1,0 +1,126 @@
+[
+    {
+        "url": "/diagrams/classes/{{class_id}}/attributes",
+        "method": "GET",
+        "response": [
+            {
+                "id": "887a3ea8-53f3-4dbf-8cb0-bd2dae5dbf14",
+                "name": "campo",
+                "type": "string",
+                "required": false
+            },
+            {
+                "id": "409e820e-b7f5-4ba7-b3b5-ce8ba2e77d82",
+                "name": "campo",
+                "type": "string",
+                "required": false
+            }
+        ]
+    },
+    {
+        "url": "/diagrams/classes/{{class_id}}/attributes",
+        "method": "POST",
+        "body": {
+            "name": "email",
+            "type": "string",
+            "required": true
+        },
+        "response": {
+            "id": "41aa5ffa-b659-4980-bfd2-5d6bd474c7d3",
+            "nombre": "NuevaClaseA",
+            "x_grid": 4,
+            "y_grid": 11,
+            "w_grid": 12,
+            "h_grid": 11,
+            "z_index": 1,
+            "atributos": [
+                {
+                    "id": "887a3ea8-53f3-4dbf-8cb0-bd2dae5dbf14",
+                    "nombre": "campo",
+                    "tipo": "string",
+                    "requerido": false
+                },
+                {
+                    "id": "409e820e-b7f5-4ba7-b3b5-ce8ba2e77d82",
+                    "nombre": "campo",
+                    "tipo": "string",
+                    "requerido": false
+                },
+                {
+                    "id": "385d2245-53e9-4059-8d41-cd31ed675f38",
+                    "nombre": "email",
+                    "tipo": "string",
+                    "requerido": true
+                }
+            ],
+            "metodos": []
+        }
+    },
+    {
+        "url": "/diagrams/attributes/{{attr_id}}",
+        "method": "PATCH",
+        "body": {
+            "name": "emailActualizado",
+            "type": "text",
+            "required": false
+        },
+        "response": {
+            "id": "41aa5ffa-b659-4980-bfd2-5d6bd474c7d3",
+            "nombre": "NuevaClaseA",
+            "x_grid": 4,
+            "y_grid": 11,
+            "w_grid": 12,
+            "h_grid": 11,
+            "z_index": 1,
+            "atributos": [
+                {
+                    "id": "887a3ea8-53f3-4dbf-8cb0-bd2dae5dbf14",
+                    "nombre": "campo",
+                    "tipo": "string",
+                    "requerido": false
+                },
+                {
+                    "id": "409e820e-b7f5-4ba7-b3b5-ce8ba2e77d82",
+                    "nombre": "campo",
+                    "tipo": "string",
+                    "requerido": false
+                },
+                {
+                    "id": "385d2245-53e9-4059-8d41-cd31ed675f38",
+                    "nombre": "emailActualizado",
+                    "tipo": "text",
+                    "requerido": false
+                }
+            ],
+            "metodos": []
+        }
+    },
+    {
+        "url": "/diagrams/attributes/{{attr_id}}",
+        "method": "DELETE",
+        "response": {
+            "id": "41aa5ffa-b659-4980-bfd2-5d6bd474c7d3",
+            "nombre": "NuevaClaseA",
+            "x_grid": 4,
+            "y_grid": 11,
+            "w_grid": 12,
+            "h_grid": 11,
+            "z_index": 1,
+            "atributos": [
+                {
+                    "id": "887a3ea8-53f3-4dbf-8cb0-bd2dae5dbf14",
+                    "nombre": "campo",
+                    "tipo": "string",
+                    "requerido": false
+                },
+                {
+                    "id": "409e820e-b7f5-4ba7-b3b5-ce8ba2e77d82",
+                    "nombre": "campo",
+                    "tipo": "string",
+                    "requerido": false
+                }
+            ],
+            "metodos": []
+        }
+    }
+]

@@ -1,46 +1,70 @@
+// frontend/src/pages/Diagram.jsx
 
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-// enpoints API
+
+// ===== API endpoints (backend REST) =====
 import { listRelations, createRelation } from "../api/relations";
 import { updateRelation, deleteRelation } from "../api/relations";
-//hacen cálculos geométricos
+
+// ===== utilidades geométricas para canvas =====
 import { hitTestClasses, inferClosestSide } from "../components/canvas/utils/geometry";
-//funcion global
+
+// ===== estado global (auth) =====
 import useAuth from "../store/auth";
-//funciones personalizadas
+
+// ===== hooks personalizados (lógica de negocio) =====
 import useTheme from "../hooks/useTheme";
 import useDiagram from "../hooks/useDiagram";
 import useClassesAndDetails from "../hooks/useClassesAndDetails";
+import useRelations from "../hooks/useRelations";
 
-//componentes UI
+// ===== componentes de UI =====
 import Sheet from "../components/canvas/Sheet";
 import ClassCard from "../components/canvas/ClassCard";
 import ConnectionLayer from "../components/canvas/ConnectionLayer";
 import Inspector from "../components/panels/Inspector";
 import RelationInspector from "../components/panels/RelationInspector";
- 
-//parte superior de la pagina
+
+// ===== layout =====
 import HeaderBar from "../components/layout/HeaderBar";
-//panel lateral izquierdo
 import LeftPanel from "../components/layout/LeftPanel";
 
 
+// =====================================================
+// 🔹 Componente principal: Dashboard de diagramas UML
+// =====================================================
 export default function DiagramDashboard() {
-  const { id } = useParams(); // diagramId
+  const { id } = useParams();       // Obtiene el diagramId desde la URL
   const nav = useNavigate();
+
+  // 🔐 Estado global de autenticación
   const logout = useAuth((s) => s.logout);
   const email = useAuth((s) => s.email);
+
+  // 🎨 Tema claro/oscuro
   const { theme, toggleTheme } = useTheme();
 
+  // 📄 Hook que carga los datos del diagrama actual
   const { diagram, loading, err } = useDiagram(id);
-  const [relations, setRelations] = useState([]);
-  const [linking, setLinking] = useState(null);
-  const [camera, setCamera] = useState({ x: 0, y: 0, z: 1 });
 
-  const [selectedRelId, setSelectedRelId] = useState(null);
-  const selectedRel = relations.find(r => r.id === selectedRelId) || null;
+  // 🔗 Relaciones entre clases
+  // const [relations, setRelations] = useState([]);
+  const [linking, setLinking] = useState(null); // si el usuario está creando relación
+  const [camera, setCamera] = useState({ x: 0, y: 0, z: 1 }); // zoom/pan del canvas
 
+  // 🎯 Selección actual (relación/clase)
+  // const [selectedRelId, setSelectedRelId] = useState(null);
+  // const selectedRel = relations.find(r => r.id === selectedRelId) || null;
+  const {
+    relations,
+    selectedRelId, setSelectedRelId,
+    selectedRelation: selectedRel,
+    createRelation, updateRelation, deleteRelation
+  } = useRelations(diagram);
+  const [setRelations] = useState([]);
+
+  // 📦 Hook centralizado para manejar clases y detalles
   const {
     classes, setClasses,
     selectedId, setSelectedId, selected,
@@ -52,14 +76,21 @@ export default function DiagramDashboard() {
     debouncedSave, onBlurName,
     handleDragEnd, handleResizeEnd,
     handleDelete,
+    // 🔹 Atributos
+    addAttr, patchAttr, removeAttr,
+    // 🔹 Métodos
+    addMeth, patchMeth, removeMeth,
   } = useClassesAndDetails(diagram);
 
-  //carla las relaciones del diagrama
+
+  // =====================================================
+  // 🔹 Cargar relaciones del diagrama al montar
+  // =====================================================
   useEffect(() => {
     if (!diagram) return;
     (async () => {
       try {
-        const items = await listRelations(diagram.id); //API
+        const items = await listRelations(diagram.id); // API
         setRelations(items || []);
       } catch {
         setRelations([]);
@@ -67,43 +98,51 @@ export default function DiagramDashboard() {
     })();
   }, [diagram]);
 
+
+  // =====================================================
+  // 🔹 Manejar "linking" (cuando el usuario conecta clases)
+  // =====================================================
   useEffect(() => {
     if (!linking) return;
 
-    // ✅ UUID fix: devolvemos el string del data-attr tal cual
+    // Detecta si el mouse está sobre una clase (DOM → dataset)
     const hitTestByDom = (pt) => {
       const stack = document.elementsFromPoint(pt.x, pt.y) || [];
       const el = stack.find((n) => n?.getAttribute && n.getAttribute("data-class-id"));
       if (el) {
-        const raw = el.getAttribute("data-class-id");
-        return raw || null; // ← NO Number(...)
+        return el.getAttribute("data-class-id") || null;
       }
       return null;
     };
 
+    // Mientras se mueve el mouse, actualiza cursor
     const onMove = (e) => {
-      setLinking((prev) => (prev ? { ...prev, cursor: { x: e.clientX, y: e.clientY } } : prev));
+      setLinking((prev) => prev ? { ...prev, cursor: { x: e.clientX, y: e.clientY } } : prev);
     };
-    // al soltar el ratón, si estamos sobre otra clase, creamos la relación por defecto 
+
+    // Al soltar el mouse → intenta crear relación
     const onUp = async (e) => {
       const pt = { x: e.clientX, y: e.clientY };
-      let toId = hitTestByDom(pt);
-      if (!toId) toId = hitTestClasses(pt, classes);
+      let toId = hitTestByDom(pt) || hitTestClasses(pt, classes);
+
       if (toId && toId !== linking.fromId) {
         const dstSide = inferClosestSide(toId, pt);
         try {
-          //API
-          const r = await createRelation(diagram.id, {
+          // const r = await createRelation(diagram.id, {
+          //   from_class: linking.fromId,
+          //   to_class: toId,
+          //   type: "ASSOCIATION", // tipo por defecto
+          //   src_anchor: linking.fromSide,
+          //   dst_anchor: dstSide,
+          // });
+          // setRelations((prev) => [...prev, r]);
+          await createRelation({
             from_class: linking.fromId,
             to_class: toId,
             type: "ASSOCIATION",
             src_anchor: linking.fromSide,
             dst_anchor: dstSide,
-            // multiplicidad por defecto (si quieres enviarla desde ya):
-            // src_mult_min: 1, src_mult_max: "*",
-            // dst_mult_min: 1, dst_mult_max: 1,
           });
-          setRelations((prev) => [...prev, r]);
         } catch (err) {
           alert(err?.response?.data?.detail || "No se pudo crear la relación");
         }
@@ -111,14 +150,20 @@ export default function DiagramDashboard() {
       setLinking(null);
     };
 
+    // Suscribir listeners globales
     window.addEventListener("mousemove", onMove, true);
     window.addEventListener("mouseup", onUp, true);
+
     return () => {
       window.removeEventListener("mousemove", onMove, true);
       window.removeEventListener("mouseup", onUp, true);
     };
   }, [linking, classes, diagram?.id]);
 
+
+  // =====================================================
+  // 🔹 Manejo de estados de carga y errores
+  // =====================================================
   if (loading) return <div style={{ padding: 16 }}>Cargando…</div>;
   if (err) {
     return (
@@ -132,7 +177,10 @@ export default function DiagramDashboard() {
   }
   if (!diagram) return null;
 
-  // actualizar una relacion, patch = cambios a aplicar
+
+  // =====================================================
+  // 🔹 Handlers para actualizar / eliminar relaciones
+  // =====================================================
   const handleUpdateRelation = async (patch) => {
     try {
       const updated = await updateRelation(selectedRel.id, patch);
@@ -141,7 +189,7 @@ export default function DiagramDashboard() {
       alert("No se pudo actualizar la relación");
     }
   };
-  // eliminar una relacion
+
   const handleDeleteRelation = async () => {
     if (!window.confirm("¿Eliminar esta relación?")) return;
     try {
@@ -153,17 +201,21 @@ export default function DiagramDashboard() {
     }
   };
 
+
+  // =====================================================
+  // 🔹 Render principal (UI)
+  // =====================================================
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateRows: "64px 1fr",
+        gridTemplateRows: "64px 1fr",   // header arriba, resto abajo
         height: "100vh",
         background: "var(--bg, #0b1020)",
         color: "var(--text, #eaeefb)",
       }}
     >
-      {/* // Barra superior */}
+      {/* Barra superior con acciones */}
       <HeaderBar
         diagram={diagram}
         email={email}
@@ -180,14 +232,14 @@ export default function DiagramDashboard() {
       <div
         style={{
           display: "grid",
-          // gridTemplateColumns: "1fr minmax(300px, 420px)",  
-          gridTemplateColumns: "260px 1fr minmax(300px, 420px)",
-
+          gridTemplateColumns: "260px 1fr minmax(300px, 420px)", // panel izq - canvas - panel der
           height: "100%",
         }}
       >
+        {/* Panel lateral izquierdo */}
         <LeftPanel />
-        {/* Canvas diagrama de clase relaciones */}
+
+        {/* Área central: canvas con clases y relaciones */}
         <main style={{ position: "relative" }}>
           <Sheet onCanvasClick={handleCanvasClick} onCameraChange={setCamera}>
             {classes.map((c) => (
@@ -195,10 +247,7 @@ export default function DiagramDashboard() {
                 key={c.id}
                 cls={c}
                 selected={c.id === selectedId}
-                onSelect={(id) => {
-                  setSelectedId(id);
-                  setSelectedRelId(null);
-                }}
+                onSelect={(id) => { setSelectedId(id); setSelectedRelId(null); }}
                 onDragEnd={handleDragEnd}
                 onResizeEnd={handleResizeEnd}
                 details={detailsByClass[c.id]}
@@ -212,27 +261,22 @@ export default function DiagramDashboard() {
             ))}
           </Sheet>
 
+          {/* Capa de conexiones entre clases */}
           <ConnectionLayer
             classes={classes}
-            tempLink={
-              linking
-                ? {
-                  fromId: linking.fromId,
-                  fromSide: linking.fromSide,
-                  cursor: linking.cursor,
-                }
-                : null
+            tempLink={linking ? {
+              fromId: linking.fromId,
+              fromSide: linking.fromSide,
+              cursor: linking.cursor,
+            } : null
             }
             relations={relations}
             camera={camera}
-            onSelectRelation={(id) => {
-              setSelectedRelId(id);
-              setSelectedId(null);
-            }}
+            onSelectRelation={(id) => { setSelectedRelId(id); setSelectedId(null); }}
           />
         </main>
 
-        {/* Inspector */}
+        {/* Panel lateral derecho: inspector de clase o relación */}
         {selectedRel ? (
           <RelationInspector
             relation={selectedRel}
@@ -240,23 +284,38 @@ export default function DiagramDashboard() {
             onDelete={handleDeleteRelation}
           />
         ) : (
+          // <Inspector
+          //   selected={selected}
+          //   details={selected ? detailsByClass[selected.id] : undefined}
+          //   onRename={(name) =>
+          //     selected &&
+          //     setClasses((prev) =>
+          //       prev.map((x) => (x.id === selected.id ? { ...x, name } : x))
+          //     )
+          //   }
+          //   onDetailsChange={(patch) => selected && replaceDetails(selected.id, patch)}
+          //   reloadDetails={() => selected && fetchDetails(selected.id)}
+          //   onDeleteClass={() => selected && handleDelete(selected.id)}
+          // />
           <Inspector
             selected={selected}
             details={selected ? detailsByClass[selected.id] : undefined}
-            onRename={(name) =>
-              selected &&
-              setClasses((prev) =>
-                prev.map((x) => (x.id === selected.id ? { ...x, name } : x))
-              )
-            }
+            onRename={(name) => selected && handleRename(selected.id, name)}
             onDetailsChange={(patch) => selected && replaceDetails(selected.id, patch)}
             reloadDetails={() => selected && fetchDetails(selected.id)}
             onDeleteClass={() => selected && handleDelete(selected.id)}
+
+            // 🔹 nuevas props (vienen del hook)
+            onAddAttr={(cid) => addAttr(cid)}
+            onPatchAttr={(cid, aid, patch) => patchAttr(cid, aid, patch)}
+            onRemoveAttr={(cid, aid) => removeAttr(cid, aid)}
+            onAddMeth={(cid) => addMeth(cid)}
+            onPatchMeth={(cid, mid, patch) => patchMeth(cid, mid, patch)}
+            onRemoveMeth={(cid, mid) => removeMeth(cid, mid)}
           />
+
         )}
       </div>
-
     </div>
   );
-
 }

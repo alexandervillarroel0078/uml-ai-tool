@@ -3,7 +3,7 @@ import LoginPage from "./pages/Login.jsx";
 import HomePage from "./pages/Home.jsx";
 import useAuth from "./store/auth.js";
 import { shallow } from "zustand/shallow";
-import DiagramDashboard from "./pages/DiagramDashboard.jsx";
+import Diagram from "./pages/Diagram.jsx";
 
 function Protected({ children }) {
   const token = useAuth(s => s.token);  // selector estable
@@ -26,7 +26,7 @@ export default function App() {
         path="/diagram/:id"
         element={
           <Protected>
-            <DiagramDashboard />
+            <Diagram />
           </Protected>
         }
       />
