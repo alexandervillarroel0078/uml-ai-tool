@@ -138,7 +138,7 @@ async def notify_method_deleted(diagram_id: UUID, metodo_id: UUID, clase_id: UUI
     await ws_manager.broadcast(str(diagram_id), payload)
 
 # =========================
-# Relaciones
+# Relaciones de realtime_events.py
 # =========================
 async def notify_relation_created(diagram_id: UUID, relation: RelacionOut):
     payload = {

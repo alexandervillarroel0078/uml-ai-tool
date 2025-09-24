@@ -82,18 +82,21 @@ export default function useClassesAndDetails(diagram) {
         setDetailsByClass((prev) => ({ ...prev, [c.id]: { attrs: [], meths: [] } }));
       });
 
+      // onEvent("class.updated", (c) => {
+      //   setClasses((prev) => prev.map((x) => (x.id === c.id ? { ...x, ...c } : x)));
+
+      // });
       onEvent("class.updated", (c) => {
-        setClasses((prev) => prev.map((x) => (x.id === c.id ? { ...x, ...c } : x)));
-        // prev.map((x) => (x.id === c.id ? { ...x, ...c } : x))
-        // setClasses((prev) => prev.map((x) => (x.id === c.id ? c : x)));
-        // // setDetailsByClass((prev) => ({
-        //   ...prev,
-        //   [c.id]: {
-        //     attrs: c.atributos ?? prev[c.id]?.attrs ?? [],
-        //     meths: c.metodos ?? prev[c.id]?.meths ?? [],
-        //   },
-        // }));
+        const normalized = {
+          ...c,
+          name: c.name ?? c.nombre, // 👈 si viene "nombre", lo copiamos a "name"
+        };
+
+        setClasses((prev) =>
+          prev.map((x) => (x.id === normalized.id ? { ...x, ...normalized } : x))
+        );
       });
+
 
       onEvent("class.deleted", ({ id }) => {
         setClasses((prev) => prev.filter((x) => x.id !== id));
@@ -111,16 +114,72 @@ export default function useClassesAndDetails(diagram) {
       //     attrs: [a, ...(detailsByClass[a.clase_id || a.class_id]?.attrs || [])],
       //   });
       // });
+      // // ✅ CREAR
+      // onEvent("attribute.created", (a) => {
+      //   console.log("📩 WS atributo creado:", a);
+      //   setDetailsByClass((prev) => {
+      //     const current = prev[a.clase_id]?.attrs || [];
+      //     return {
+      //       ...prev,
+      //       [a.clase_id]: {
+      //         ...(prev[a.clase_id] || { attrs: [], meths: [] }),
+      //         attrs: [...current, a], // acumula
+      //       },
+      //     };
+      //   });
+      // });
+
+      // // ✅ ACTUALIZAR
+      // onEvent("attribute.updated", (a) => {
+      //   console.log("✏️ WS atributo actualizado:", a);
+      //   setDetailsByClass((prev) => {
+      //     const next = (prev[a.clase_id]?.attrs || []).map((x) =>
+      //       x.id === a.id ? a : x
+      //     );
+      //     return {
+      //       ...prev,
+      //       [a.clase_id]: {
+      //         ...(prev[a.clase_id] || { attrs: [], meths: [] }),
+      //         attrs: next,
+      //       },
+      //     };
+      //   });
+      // });
+
+      // // ✅ ELIMINAR
+      // onEvent("attribute.deleted", ({ id, clase_id }) => {
+      //   console.log("🗑️ WS atributo eliminado:", id);
+      //   setDetailsByClass((prev) => {
+      //     const next = (prev[clase_id]?.attrs || []).filter((x) => x.id !== id);
+      //     return {
+      //       ...prev,
+      //       [clase_id]: {
+      //         ...(prev[clase_id] || { attrs: [], meths: [] }),
+      //         attrs: next,
+      //       },
+      //     };
+      //   });
+      // });
+      function normalizeAttr(a) {
+        return {
+          ...a,
+          name: a.name ?? a.nombre,
+          type: a.type ?? a.tipo,
+          required: a.required ?? a.requerido,
+        };
+      }
+
       // ✅ CREAR
       onEvent("attribute.created", (a) => {
-        console.log("📩 WS atributo creado:", a);
+        const attr = normalizeAttr(a);
+        console.log("📩 WS atributo creado:", attr);
         setDetailsByClass((prev) => {
-          const current = prev[a.clase_id]?.attrs || [];
+          const current = prev[attr.clase_id]?.attrs || [];
           return {
             ...prev,
-            [a.clase_id]: {
-              ...(prev[a.clase_id] || { attrs: [], meths: [] }),
-              attrs: [...current, a], // acumula
+            [attr.clase_id]: {
+              ...(prev[attr.clase_id] || { attrs: [], meths: [] }),
+              attrs: [...current, attr],
             },
           };
         });
@@ -128,15 +187,16 @@ export default function useClassesAndDetails(diagram) {
 
       // ✅ ACTUALIZAR
       onEvent("attribute.updated", (a) => {
-        console.log("✏️ WS atributo actualizado:", a);
+        const attr = normalizeAttr(a);
+        console.log("✏️ WS atributo actualizado:", attr);
         setDetailsByClass((prev) => {
-          const next = (prev[a.clase_id]?.attrs || []).map((x) =>
-            x.id === a.id ? a : x
+          const next = (prev[attr.clase_id]?.attrs || []).map((x) =>
+            x.id === attr.id ? attr : x
           );
           return {
             ...prev,
-            [a.clase_id]: {
-              ...(prev[a.clase_id] || { attrs: [], meths: [] }),
+            [attr.clase_id]: {
+              ...(prev[attr.clase_id] || { attrs: [], meths: [] }),
               attrs: next,
             },
           };
@@ -181,53 +241,108 @@ export default function useClassesAndDetails(diagram) {
       //     .filter((x) => x.id !== id);
       //   replaceDetails(cid, { meths: next });
       // });
-      // ✅ CREAR MÉTODO
+      // // ✅ CREAR MÉTODO
+      // onEvent("method.created", (m) => {
+      //   console.log("📩 WS método creado:", m);
+      //   setDetailsByClass((prev) => {
+      //     const current = prev[m.clase_id]?.meths || [];
+      //     return {
+      //       ...prev,
+      //       [m.clase_id]: {
+      //         ...(prev[m.clase_id] || { attrs: [], meths: [] }),
+      //         meths: [...current, m], // acumula
+      //       },
+      //     };
+      //   });
+      // });
+
+      // // ✅ ACTUALIZAR MÉTODO
+      // onEvent("method.updated", (m) => {
+      //   console.log("✏️ WS método actualizado:", m);
+      //   setDetailsByClass((prev) => {
+      //     const next = (prev[m.clase_id]?.meths || []).map((x) =>
+      //       x.id === m.id ? m : x
+      //     );
+      //     return {
+      //       ...prev,
+      //       [m.clase_id]: {
+      //         ...(prev[m.clase_id] || { attrs: [], meths: [] }),
+      //         meths: next,
+      //       },
+      //     };
+      //   });
+      // });
+
+      // // ✅ ELIMINAR MÉTODO
+      // onEvent("method.deleted", ({ id, clase_id }) => {
+      //   console.log("🗑️ WS método eliminado:", { clase_id, id });
+      //   setDetailsByClass((prev) => {
+      //     const next = (prev[clase_id]?.meths || []).filter((x) => x.id !== id);
+      //     return {
+      //       ...prev,
+      //       [clase_id]: {
+      //         ...(prev[clase_id] || { attrs: [], meths: [] }),
+      //         meths: next,
+      //       },
+      //     };
+      //   });
+      // });
+
+      function normalizeMeth(m) {
+        return {
+          ...m,
+          name: m.name ?? m.nombre,
+          return_type: m.return_type ?? m.tipo_retorno,
+        };
+      }
+      // ✅ CREAR
       onEvent("method.created", (m) => {
-        console.log("📩 WS método creado:", m);
+        const meth = normalizeMeth(m);
+        console.log("📩 WS método creado:", meth);
         setDetailsByClass((prev) => {
-          const current = prev[m.clase_id]?.meths || [];
+          const current = prev[meth.clase_id]?.meths || [];
           return {
             ...prev,
-            [m.clase_id]: {
-              ...(prev[m.clase_id] || { attrs: [], meths: [] }),
-              meths: [...current, m], // acumula
+            [meth.clase_id]: {
+              ...(prev[meth.clase_id] || { attrs: [], meths: [] }),
+              meths: [...current, meth],
             },
           };
         });
       });
 
-      // ✅ ACTUALIZAR MÉTODO
+      // ✅ ACTUALIZAR
       onEvent("method.updated", (m) => {
-        console.log("✏️ WS método actualizado:", m);
+        const meth = normalizeMeth(m);
+        console.log("✏️ WS método actualizado:", meth);
         setDetailsByClass((prev) => {
-          const next = (prev[m.clase_id]?.meths || []).map((x) =>
-            x.id === m.id ? m : x
+          const next = (prev[meth.clase_id]?.meths || []).map((x) =>
+            x.id === meth.id ? meth : x
           );
           return {
             ...prev,
-            [m.clase_id]: {
-              ...(prev[m.clase_id] || { attrs: [], meths: [] }),
+            [meth.clase_id]: {
+              ...(prev[meth.clase_id] || { attrs: [], meths: [] }),
               meths: next,
             },
           };
         });
       });
 
-      // ✅ ELIMINAR MÉTODO
-onEvent("method.deleted", ({ id, clase_id }) => {
-  console.log("🗑️ WS método eliminado:", { clase_id, id });
-  setDetailsByClass((prev) => {
-    const next = (prev[clase_id]?.meths || []).filter((x) => x.id !== id);
-    return {
-      ...prev,
-      [clase_id]: {
-        ...(prev[clase_id] || { attrs: [], meths: [] }),
-        meths: next,
-      },
-    };
-  });
-});
-
+      // ✅ ELIMINAR
+      onEvent("method.deleted", ({ id, clase_id }) => {
+        console.log("🗑️ WS método eliminado:", id);
+        setDetailsByClass((prev) => {
+          const next = (prev[clase_id]?.meths || []).filter((x) => x.id !== id);
+          return {
+            ...prev,
+            [clase_id]: {
+              ...(prev[clase_id] || { attrs: [], meths: [] }),
+              meths: next,
+            },
+          };
+        });
+      });
 
 
 

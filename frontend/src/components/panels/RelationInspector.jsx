@@ -42,95 +42,98 @@ export default function RelationInspector({ relation, onUpdate, onDelete }) {
   //    Esto permite escribir fluido aunque el padre no se actualice aún
   // Estado local de la etiqueta
   const [localLabel, setLocalLabel] = useState(relation.etiqueta ?? "");
-
+  //EMPESANDO EDICION
+  //const [localLabel, setLocalLabel] = useState(relation.label ?? "");
   // Estados locales de la multiplicidad
-  const [localMultOrigenMin, setLocalMultOrigenMin] = useState(relation.mult_origen_min ?? "");
-  const [localMultOrigenMax, setLocalMultOrigenMax] = useState(relation.mult_origen_max ?? "");
-  const [localMultDestinoMin, setLocalMultDestinoMin] = useState(relation.mult_destino_min ?? "");
-  const [localMultDestinoMax, setLocalMultDestinoMax] = useState(relation.mult_destino_max ?? "");
-
+  // const [localMultOrigenMin, setLocalMultOrigenMin] = useState(relation.mult_origen_min ?? "");
+  // const [localMultOrigenMax, setLocalMultOrigenMax] = useState(relation.mult_origen_max ?? "");
+  // const [localMultDestinoMin, setLocalMultDestinoMin] = useState(relation.mult_destino_min ?? "");
+  // const [localMultDestinoMax, setLocalMultDestinoMax] = useState(relation.mult_destino_max ?? "");
+  const [localMultOrigenMin, setLocalMultOrigenMin] = useState(relation.src_mult_min ?? "");
+  const [localMultOrigenMax, setLocalMultOrigenMax] = useState(
+    relation.src_mult_max === null ? "" : relation.src_mult_max
+  );
+  const [localMultDestinoMin, setLocalMultDestinoMin] = useState(relation.dst_mult_min ?? "");
+  const [localMultDestinoMax, setLocalMultDestinoMax] = useState(relation.dst_mult_max ?? "");
   // 🔹 Cada vez que cambie la relación seleccionada (id) o alguno de sus valores,
   //    reseteamos los estados locales
   useEffect(() => {
-    setLocalLabel(relation.etiqueta ?? "");
-    setLocalMultOrigenMin(relation.mult_origen_min ?? "");
-    setLocalMultOrigenMax(relation.mult_origen_max ?? "");
-    setLocalMultDestinoMin(relation.mult_destino_min ?? "");
-    setLocalMultDestinoMax(relation.mult_destino_max ?? "");
+    // setLocalLabel(relation.etiqueta ?? "");
+    setLocalLabel(relation.label ?? "");
+    // setLocalMultOrigenMin(relation.src_mult_min ?? "");
+    //   setLocalMultOrigenMax(relation.src_mult_max ?? "");
+    //   setLocalMultDestinoMin(relation.dst_mult_min ?? "");
+    //  setLocalMultDestinoMax(relation.dst_mult_max ?? "");
+
+    // setLocalMultOrigenMin(relation.mult_origen_min ?? "");
+    // setLocalMultOrigenMax(relation.mult_origen_max ?? "");
+    // setLocalMultDestinoMin(relation.mult_destino_min ?? "");
+    // setLocalMultDestinoMax(relation.mult_destino_max ?? "");
+    setLocalMultOrigenMin(relation.src_mult_min ?? "");
+    setLocalMultOrigenMax(
+      relation.src_mult_max === null ? "*" : relation.src_mult_max
+    );
+    setLocalMultDestinoMin(relation.dst_mult_min ?? "");
+    setLocalMultDestinoMax(
+      relation.dst_mult_max === null ? "*" : relation.dst_mult_max
+    );
   }, [
+    // relation?.id,
+    // relation?.etiqueta,
+    // relation?.mult_origen_min,
+    // relation?.mult_origen_max,
+    // relation?.mult_destino_min,
+    // relation?.mult_destino_max,
     relation?.id,
-    relation?.etiqueta,
-    relation?.mult_origen_min,
-    relation?.mult_origen_max,
-    relation?.mult_destino_min,
-    relation?.mult_destino_max,
+    relation?.label,          // 👈 ahora sí
+    relation?.src_mult_min,
+    relation?.src_mult_max,
+    relation?.dst_mult_min,
+    relation?.dst_mult_max,
   ]);
 
-  // 🔹 Función para enviar siempre el objeto completo al padre/back
-  //    (combina valores actuales de la relación con el patch que mandamos)
-  // const fullUpdate = (patch) => {
-  //   onUpdate({
-  //     // 🚨 Ojo: aquí usas "type" y "label" pero tu backend espera "tipo" y "etiqueta"
-  //     type: relation.tipo,
-  //     label: patch.label ?? relation.etiqueta ?? "",
 
-  //     // Anchors
-  //     src_anchor: relation.src_anchor ?? "right",
-  //     dst_anchor: relation.dst_anchor ?? "left",
-  //     src_offset: relation.src_offset ?? 0,
-  //     dst_offset: relation.dst_offset ?? 0,
-  //     src_lane: relation.src_lane ?? 0,
-  //     dst_lane: relation.dst_lane ?? 0,
+  const fullUpdate = (patch) => {
+    const body = {
+      // lo que el backend espera en el PATCH
+      // type: patch.type ?? relation.tipo,   // usamos relation.tipo para leer
+      // label: patch.label ?? localLabel ?? relation.etiqueta ?? "",
+      type: patch.type ?? relation.type,
+      label: patch.label ?? localLabel ?? relation.label ?? "",
 
-  //     // Multiplicidades 🚨 estos están atados directo a relation.*
-  //     // src_mult_min: relation.mult_origen_min ?? 0,
-  //     // src_mult_max: relation.src_mult_max,
-  //     // dst_mult_min: relation.dst_mult_min ?? 0,
-  //     // dst_mult_max: relation.dst_mult_max,
+      src_anchor: patch.src_anchor ?? relation.src_anchor ?? "right",
+      dst_anchor: patch.dst_anchor ?? relation.dst_anchor ?? "left",
+      src_offset: patch.src_offset ?? relation.src_offset ?? 0,
+      dst_offset: patch.dst_offset ?? relation.dst_offset ?? 0,
+      src_lane: patch.src_lane ?? relation.src_lane ?? 0,
+      dst_lane: patch.dst_lane ?? relation.dst_lane ?? 0,
 
-  //     src_mult_min: relation.mult_origen_min ?? 0,
-  //     src_mult_max: relation.src_mult_max,
-  //     dst_mult_min: relation.dst_mult_min ?? 0,
-  //     dst_mult_max: relation.dst_mult_max,
+      // ⚠️ aquí convertimos de los nombres que usa el backend al enviar
+      // src_mult_min:
+      //   patch.src_mult_min ??
+      //   (localMultOrigenMin === "" ? null : Number(localMultOrigenMin)),
+      // src_mult_max:
+      //   patch.src_mult_max ??
+      //   (localMultOrigenMax === "" || localMultOrigenMax === "*"
+      //     ? null
+      //     : Number(localMultOrigenMax)),
+      // dst_mult_min:
+      //   patch.dst_mult_min ??
+      //   (localMultDestinoMin === "" ? null : Number(localMultDestinoMin)),
+      // dst_mult_max:
+      //   patch.dst_mult_max ??
+      //   (localMultDestinoMax === "" || localMultDestinoMax === "*"
+      //     ? null
+      //     : Number(localMultDestinoMax)),
+      src_mult_min: patch.src_mult_min ?? (localMultOrigenMin === "" ? null : Number(localMultOrigenMin)),
+      src_mult_max: patch.src_mult_max ?? (localMultOrigenMax === "*" || localMultOrigenMax === "*" ? null : Number(localMultOrigenMax)),
+      dst_mult_min: patch.dst_mult_min ?? (localMultDestinoMin === "" ? null : Number(localMultDestinoMin)),
+      dst_mult_max: patch.dst_mult_max ?? (localMultDestinoMax === "*" || localMultDestinoMax === "*" ? null : Number(localMultDestinoMax)),
+    };
 
-  //     ...patch, // sobrescribe lo que venga en el cambio puntual
-  //   });
-  // };
-const fullUpdate = (patch) => {
-  const body = {
-    // lo que el backend espera en el PATCH
-    type: patch.type ?? relation.tipo,   // usamos relation.tipo para leer
-    label: patch.label ?? localLabel ?? relation.etiqueta ?? "",
-
-    src_anchor: patch.src_anchor ?? relation.src_anchor ?? "right",
-    dst_anchor: patch.dst_anchor ?? relation.dst_anchor ?? "left",
-    src_offset: patch.src_offset ?? relation.src_offset ?? 0,
-    dst_offset: patch.dst_offset ?? relation.dst_offset ?? 0,
-    src_lane: patch.src_lane ?? relation.src_lane ?? 0,
-    dst_lane: patch.dst_lane ?? relation.dst_lane ?? 0,
-
-    // ⚠️ aquí convertimos de los nombres que usa el backend al enviar
-    src_mult_min:
-      patch.src_mult_min ??
-      (localMultOrigenMin === "" ? null : Number(localMultOrigenMin)),
-    src_mult_max:
-      patch.src_mult_max ??
-      (localMultOrigenMax === "" || localMultOrigenMax === "*"
-        ? null
-        : Number(localMultOrigenMax)),
-    dst_mult_min:
-      patch.dst_mult_min ??
-      (localMultDestinoMin === "" ? null : Number(localMultDestinoMin)),
-    dst_mult_max:
-      patch.dst_mult_max ??
-      (localMultDestinoMax === "" || localMultDestinoMax === "*"
-        ? null
-        : Number(localMultDestinoMax)),
+    console.log("PATCH BODY =>", body); // 👀 para ver qué se manda
+    onUpdate(body);
   };
-
-  console.log("PATCH BODY =>", body); // 👀 para ver qué se manda
-  onUpdate(body);
-};
 
   // 🔹 Versión con debounce para actualizar etiqueta
   const debouncedUpdate = useDebouncedCallback(
@@ -168,7 +171,8 @@ const fullUpdate = (patch) => {
       <div style={label}>Tipo</div>
       <select
         style={input}
-        value={relation.tipo}
+        // value={relation.tipo}
+        value={relation.type}
         onChange={(e) => fullUpdate({ type: e.target.value })} // 🚨 debería ser { tipo: ... }
       >
         <option value="ASSOCIATION">Asociación</option>
@@ -227,7 +231,8 @@ const fullUpdate = (patch) => {
           onChange={(e) => {
             const val = e.target.value === "" ? null : Number(e.target.value);
             setLocalMultOrigenMin(e.target.value);   // 👉 actualiza UI en tiempo real
-            fullUpdate({ mult_origen_min: val });    // 👉 manda al padre/backend
+            // fullUpdate({ mult_origen_min: val });    // 👉 manda al padre/backend
+            fullUpdate({ src_mult_min: val });
           }}
         />
 
@@ -237,9 +242,13 @@ const fullUpdate = (patch) => {
           type="text"
           value={localMultOrigenMax === null ? "*" : localMultOrigenMax}
           onChange={(e) => {
-            const val = e.target.value === "*" ? null : Number(e.target.value);
+            // const val = e.target.value === "*" ? null : Number(e.target.value);
+            const val = e.target.value === "*" || e.target.value === ""
+              ? null
+              : Number(e.target.value);
             setLocalMultOrigenMax(e.target.value);   // 👉 actualiza local
-            fullUpdate({ mult_origen_max: val });    // 👉 manda al padre
+            // fullUpdate({ mult_origen_max: val });    // 👉 manda al padre
+            fullUpdate({ src_mult_max: val });
           }}
         />
 
@@ -252,7 +261,8 @@ const fullUpdate = (patch) => {
           onChange={(e) => {
             const val = e.target.value === "" ? null : Number(e.target.value);
             setLocalMultDestinoMin(e.target.value);
-            fullUpdate({ mult_destino_min: val });
+            // fullUpdate({ mult_destino_min: val });
+            fullUpdate({ dst_mult_min: val });
           }}
         />
 
@@ -262,68 +272,16 @@ const fullUpdate = (patch) => {
           type="text"
           value={localMultDestinoMax === null ? "*" : localMultDestinoMax}
           onChange={(e) => {
-            const val = e.target.value === "*" ? null : Number(e.target.value);
+            // const val = e.target.value === "*" ? null : Number(e.target.value);
+            const val = e.target.value === "*" || e.target.value === ""
+              ? null
+              : Number(e.target.value);
             setLocalMultDestinoMax(e.target.value);
-            fullUpdate({ mult_destino_max: val });
+            // fullUpdate({ mult_destino_max: val });
+            fullUpdate({ dst_mult_max: val });
           }}
         />
 
-        {/* <div>
-          <div style={label}>Origen mín</div>
-          <input
-            style={input}
-            type="number"
-            min={0}
-            value={relation.mult_origen_min ?? ""} // 🚨 bloquea edición porque depende de relation
-            onChange={(e) =>
-              fullUpdate({ mult_origen_min: e.target.value === "" ? null : Number(e.target.value) })
-            }
-          />
-        </div>
-
-        
-        <div>
-          <div style={label}>Origen máx</div>
-          <input
-            style={input}
-            type="text"
-            value={relation.mult_origen_max == null ? "*" : relation.mult_origen_max}
-            onChange={(e) =>
-              fullUpdate({
-                mult_origen_max: e.target.value === "*" ? null : Number(e.target.value),
-              })
-            }
-          />
-        </div>
-
-         
-        <div>
-          <div style={label}>Destino mín</div>
-          <input
-            style={input}
-            type="number"
-            min={0}
-            value={relation.mult_destino_min ?? ""} // 🚨 bloquea edición igual
-            onChange={(e) =>
-              fullUpdate({ mult_destino_min: e.target.value === "" ? null : Number(e.target.value) })
-            }
-          />
-        </div>
-
-         
-        <div>
-          <div style={label}>Destino máx</div>
-          <input
-            style={input}
-            type="text"
-            value={relation.mult_destino_max == null ? "*" : relation.mult_destino_max}
-            onChange={(e) =>
-              fullUpdate({
-                mult_destino_max: e.target.value === "*" ? null : Number(e.target.value),
-              })
-            }
-          />
-        </div> */}
       </div>
     </aside>
   );

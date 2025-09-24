@@ -48,6 +48,7 @@ export default function HeaderBar({
           placeholder="Nombre a insertar"
           style={{ ...input, width: 180 }}
         />
+        {/* para insertar la clase */}
         <button
           onClick={() => setInsertMode((v) => !v)}
           style={{

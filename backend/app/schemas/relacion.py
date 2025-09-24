@@ -119,9 +119,11 @@ class RelacionOut(BaseModel):
     dst_lane: int
 
     src_mult_min: Optional[int] = Field(alias="mult_origen_min")
-    src_mult_max: Optional[int] = Field(alias="mult_origen_max")
+    src_mult_max: Optional[Union[int, str]] = Field(alias="mult_origen_max")
+    # src_mult_max: Optional[int] = Field(alias="mult_origen_max")
     dst_mult_min: Optional[int] = Field(alias="mult_destino_min")
-    dst_mult_max: Optional[int] = Field(alias="mult_destino_max")
+    dst_mult_max: Optional[Union[int, str]] = Field(alias="mult_destino_max")
+    # dst_mult_max: Optional[int] = Field(alias="mult_destino_max")
 
     # 🔹 Nombres de las clases
     origen_nombre: str
@@ -131,5 +133,12 @@ class RelacionOut(BaseModel):
         "from_attributes": True,
         "populate_by_name": True,
     }
+    @model_validator(mode="after")
+    def normalize_star(self):
+        if self.src_mult_max is None:
+            self.src_mult_max = "*"
+        if self.dst_mult_max is None:
+            self.dst_mult_max = "*"
+        return self
 
 

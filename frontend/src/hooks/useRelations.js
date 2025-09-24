@@ -1,8 +1,9 @@
 
-// src/hooks/useRelations.js
+// // src/hooks/useRelations.js
 import { useEffect, useState } from "react";
 import {
   listRelations,
+  getRelation,                // 👈 importa esta
   createRelation as apiCreateRelation,
   updateRelation as apiUpdateRelation,
   deleteRelation as apiDeleteRelation,
@@ -12,8 +13,7 @@ import { onEvent } from "../api/realtime";
 export default function useRelations(diagram) {
   const [relations, setRelations] = useState([]);
   const [selectedRelId, setSelectedRelId] = useState(null);
-
-  const selectedRelation = relations.find((r) => r.id === selectedRelId) || null;
+  const [selectedRelation, setSelectedRelation] = useState(null); // 👈 ya no usamos solo find()
 
   // ====== CARGA INICIAL ======
   async function loadRelations() {
@@ -23,6 +23,7 @@ export default function useRelations(diagram) {
       setRelations(items || []);
       if (selectedRelId && !items?.some((x) => x.id === selectedRelId)) {
         setSelectedRelId(null);
+        setSelectedRelation(null);
       }
     } catch {
       setRelations([]);
@@ -34,7 +35,23 @@ export default function useRelations(diagram) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [diagram]);
 
-  // ====== CRUD (solo API, sin tocar state) ======
+  // ====== FETCH RELACIÓN SELECCIONADA ======
+  useEffect(() => {
+    if (!selectedRelId) {
+      setSelectedRelation(null);
+      return;
+    }
+    (async () => {
+      try {
+        const rel = await getRelation(selectedRelId); // 👈 ahora traes la data fresca
+        setSelectedRelation(rel);
+      } catch {
+        setSelectedRelation(null);
+      }
+    })();
+  }, [selectedRelId]);
+
+  // ====== CRUD ======
   async function createRelation(body) {
     return await apiCreateRelation(diagram.id, body);
   }
@@ -65,18 +82,20 @@ export default function useRelations(diagram) {
         setRelations((prev) =>
           prev.map((r) => (r.id === rel.id ? { ...r, ...rel } : r))
         );
+        if (selectedRelId === rel.id) {
+          setSelectedRelation(rel); // 👈 actualiza también el detalle abierto
+        }
       }
     });
 
     // eliminar
-    // onEvent("relation.deleted", ({ id }) => {
-    //   setRelations((prev) => prev.filter((r) => r.id !== id));
-    //   if (selectedRelId === id) setSelectedRelId(null);
-    // });
     onEvent("relation.deleted", ({ id, diagram_id }) => {
       if (diagram_id === diagram.id) {
         setRelations((prev) => prev.filter((r) => r.id !== id));
-        if (selectedRelId === id) setSelectedRelId(null);
+        if (selectedRelId === id) {
+          setSelectedRelId(null);
+          setSelectedRelation(null);
+        }
       }
     });
   }, [diagram, selectedRelId]);
@@ -85,8 +104,7 @@ export default function useRelations(diagram) {
     relations,
     selectedRelId,
     setSelectedRelId,
-    selectedRelation,
-
+    selectedRelation,   // 👈 ahora viene desde getRelation
     loadRelations,
     createRelation,
     updateRelation,

@@ -14,6 +14,7 @@ from app.models.uml import Diagram, Clase, Relacion, RelType
 from app.schemas.relacion import RelacionCreate, RelacionUpdate, RelacionOut
 from ._helpers import get_my_diagram
 from app.utils import realtime_events  # 👈 notificaciones en tiempo real
+from app.schemas.relacion import RelacionOut
 
 router = APIRouter(prefix="/diagrams", tags=["relations"])
 logger = logging.getLogger(__name__)
@@ -152,19 +153,33 @@ async def update_relation(
         raise HTTPException(404, detail="Relación no encontrada")
 
     try:
-        if body.type is not None:        r.tipo = RelType(body.type)
-        if body.label is not None:       r.etiqueta = body.label
-        if body.src_anchor is not None:  r.src_anchor = body.src_anchor
-        if body.dst_anchor is not None:  r.dst_anchor = body.dst_anchor
-        if body.src_offset is not None:  r.src_offset = body.src_offset
-        if body.dst_offset is not None:  r.dst_offset = body.dst_offset
-        if body.src_lane is not None:    r.src_lane = body.src_lane
-        if body.dst_lane is not None:    r.dst_lane = body.dst_lane
-        if body.src_mult_min is not None: r.mult_origen_min = body.src_mult_min
-        if body.src_mult_max is not None: r.mult_origen_max = body.src_mult_max
-        if body.dst_mult_min is not None: r.mult_destino_min = body.dst_mult_min
-        if body.dst_mult_max is not None: r.mult_destino_max = body.dst_mult_max
+        # ⚡️ Campos normales
+        if "type" in body.__fields_set__:
+            r.tipo = RelType(body.type)
+        if "label" in body.__fields_set__:
+            r.etiqueta = body.label
+        if "src_anchor" in body.__fields_set__:
+            r.src_anchor = body.src_anchor
+        if "dst_anchor" in body.__fields_set__:
+            r.dst_anchor = body.dst_anchor
+        if "src_offset" in body.__fields_set__:
+            r.src_offset = body.src_offset
+        if "dst_offset" in body.__fields_set__:
+            r.dst_offset = body.dst_offset
+        if "src_lane" in body.__fields_set__:
+            r.src_lane = body.src_lane
+        if "dst_lane" in body.__fields_set__:
+            r.dst_lane = body.dst_lane
 
+        # ⚡️ Multiplicidad (acepta null explícito)
+        if "src_mult_min" in body.__fields_set__:
+            r.mult_origen_min = body.src_mult_min
+        if "src_mult_max" in body.__fields_set__:
+            r.mult_origen_max = body.src_mult_max
+        if "dst_mult_min" in body.__fields_set__:
+            r.mult_destino_min = body.dst_mult_min
+        if "dst_mult_max" in body.__fields_set__:
+            r.mult_destino_max = body.dst_mult_max
         r.diagram.updated_at = func.now()
         db.commit(); db.refresh(r)
 
@@ -219,15 +234,41 @@ async def delete_relation(
         raise
 
 
-# 🔹 Obtener una relación por ID
-@router.get("/relations/{relation_id}", response_model=RelacionOut)
+# # 🔹 Obtener una relación por ID
+# @router.get("/relations/{relation_id}", response_model=RelacionOut)
+# def get_relation(
+#     relation_id: UUID,
+#     request: Request,
+#     db: Session = Depends(get_db),
+#     me: User = Depends(get_current_user),
+# ):
+#     logger.info(f"📥 [GET] relación -> relation_id={relation_id}, user={me.id}")
+#     r = (
+#         db.query(Relacion)
+#         .join(Diagram, Diagram.id == Relacion.diagram_id)
+#         .filter(Relacion.id == relation_id, Diagram.owner_id == me.id)
+#         .one_or_none()
+#     )
+#     if not r:
+#         logger.warning(f"⚠️ Relación no encontrada -> relation_id={relation_id}, user={me.id}")
+#         raise HTTPException(404, detail="Relación no encontrada")
+
+#     origen_nombre = db.query(Clase.nombre).filter(Clase.id == r.origen_id).scalar()
+#     destino_nombre = db.query(Clase.nombre).filter(Clase.id == r.destino_id).scalar()
+
+#     logger.info(f"✅ Relación obtenida -> relation_id={relation_id}, diagram_id={r.diagram_id}")
+#     return RelacionOut.model_validate({
+#         **r.__dict__,
+#         "origen_nombre": origen_nombre,
+#         "destino_nombre": destino_nombre,
+#     })
+@router.get("/relations/{relation_id}", response_model=dict)
 def get_relation(
     relation_id: UUID,
     request: Request,
     db: Session = Depends(get_db),
     me: User = Depends(get_current_user),
 ):
-    logger.info(f"📥 [GET] relación -> relation_id={relation_id}, user={me.id}")
     r = (
         db.query(Relacion)
         .join(Diagram, Diagram.id == Relacion.diagram_id)
@@ -235,15 +276,28 @@ def get_relation(
         .one_or_none()
     )
     if not r:
-        logger.warning(f"⚠️ Relación no encontrada -> relation_id={relation_id}, user={me.id}")
         raise HTTPException(404, detail="Relación no encontrada")
 
     origen_nombre = db.query(Clase.nombre).filter(Clase.id == r.origen_id).scalar()
     destino_nombre = db.query(Clase.nombre).filter(Clase.id == r.destino_id).scalar()
 
-    logger.info(f"✅ Relación obtenida -> relation_id={relation_id}, diagram_id={r.diagram_id}")
-    return RelacionOut.model_validate({
-        **r.__dict__,
+    return {
+        "id": str(r.id),
+        "diagram_id": str(r.diagram_id),
+        "from_class": str(r.origen_id),
+        "to_class": str(r.destino_id),
+        "type": r.tipo,               # 👈 traducido
+        "label": r.etiqueta,          # 👈 traducido
+        "src_anchor": r.src_anchor,
+        "dst_anchor": r.dst_anchor,
+        "src_offset": r.src_offset,
+        "dst_offset": r.dst_offset,
+        "src_lane": r.src_lane,
+        "dst_lane": r.dst_lane,
+        "src_mult_min": r.mult_origen_min,  # 👈 traducido
+        "src_mult_max": r.mult_origen_max,
+        "dst_mult_min": r.mult_destino_min,
+        "dst_mult_max": r.mult_destino_max,
         "origen_nombre": origen_nombre,
         "destino_nombre": destino_nombre,
-    })
+    }

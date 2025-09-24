@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 // ===== API endpoints (backend REST) =====
-import { listRelations, createRelation } from "../api/relations";
-import { updateRelation, deleteRelation } from "../api/relations";
+// import { listRelations, createRelation } from "../api/relations";
+// import { updateRelation, deleteRelation } from "../api/relations";
 
 // ===== utilidades geométricas para canvas =====
 import { hitTestClasses, inferClosestSide } from "../components/canvas/utils/geometry";
@@ -62,7 +62,7 @@ export default function DiagramDashboard() {
     selectedRelation: selectedRel,
     createRelation, updateRelation, deleteRelation
   } = useRelations(diagram);
-  const [setRelations] = useState([]);
+  // const [setRelations] = useState([]);
 
   // 📦 Hook centralizado para manejar clases y detalles
   const {
@@ -86,17 +86,17 @@ export default function DiagramDashboard() {
   // =====================================================
   // 🔹 Cargar relaciones del diagrama al montar
   // =====================================================
-  useEffect(() => {
-    if (!diagram) return;
-    (async () => {
-      try {
-        const items = await listRelations(diagram.id); // API
-        setRelations(items || []);
-      } catch {
-        setRelations([]);
-      }
-    })();
-  }, [diagram]);
+  // useEffect(() => {
+  //   if (!diagram) return;
+  //   (async () => {
+  //     try {
+  //       const items = await listRelations(diagram.id); // API
+  //       setRelations(items || []);
+  //     } catch {
+  //       setRelations([]);
+  //     }
+  //   })();
+  // }, [diagram]);
 
 
   // =====================================================
@@ -184,7 +184,8 @@ export default function DiagramDashboard() {
   const handleUpdateRelation = async (patch) => {
     try {
       const updated = await updateRelation(selectedRel.id, patch);
-      setRelations((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+      //   setRelations((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+      //
     } catch {
       alert("No se pudo actualizar la relación");
     }
@@ -194,7 +195,7 @@ export default function DiagramDashboard() {
     if (!window.confirm("¿Eliminar esta relación?")) return;
     try {
       await deleteRelation(selectedRel.id);
-      setRelations((prev) => prev.filter((r) => r.id !== selectedRel.id));
+      // setRelations((prev) => prev.filter((r) => r.id !== selectedRel.id));
       setSelectedRelId(null);
     } catch {
       alert("No se pudo eliminar la relación");
@@ -232,7 +233,7 @@ export default function DiagramDashboard() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "260px 1fr minmax(300px, 420px)", // panel izq - canvas - panel der
+          gridTemplateColumns: "100px 1fr minmax(300px, 420px)", // panel izq controla el tamaño
           height: "100%",
         }}
       >
