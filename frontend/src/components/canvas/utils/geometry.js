@@ -106,10 +106,22 @@ export function getAnchorsForRelation(type, fromId, toId, srcA = "right", dstA =
       };
     case "ASSOCIATION":
     default:
+      if (fromId === toId) {
+        // 🔹 Relación recursiva
+        const rect = getClassRectById(fromId);
+        if (!rect) return { a: null, b: null };
+
+        // Puntos: derecha → abajo (ejemplo)
+        const a = anchorFromRect(rect, "right");
+        const b = anchorFromRect(rect, "bottom");
+
+        return { a, b, recursive: true }; // 👈 marcamos que es recursiva
+      }
       // Asociación normal → lados configurables
       return {
         a: getAnchorForClassSide(fromId, srcA),
         b: getAnchorForClassSide(toId, dstA),
+        recursive: false, 
       };
   }
 }

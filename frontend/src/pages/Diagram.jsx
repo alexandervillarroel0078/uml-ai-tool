@@ -125,7 +125,8 @@ export default function DiagramDashboard() {
       const pt = { x: e.clientX, y: e.clientY };
       let toId = hitTestByDom(pt) || hitTestClasses(pt, classes);
 
-      if (toId && toId !== linking.fromId) {
+      // if (toId && toId !== linking.fromId) {
+      if (toId) { //permite dibujar recursiva mas
         const dstSide = inferClosestSide(toId, pt);
         try {
           // const r = await createRelation(diagram.id, {

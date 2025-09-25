@@ -1,4 +1,4 @@
- 
+
 import React, { useMemo } from "react";
 import ReactFlow, {
   Background,
@@ -30,9 +30,9 @@ const nodeTypes = { page: PageNode };
 const PAGE_W = 1920;
 const PAGE_H = 1080;
 const CARD_W = 150;   // ancho fijo de cada clase
-const COLS   = 2;     // columnas del grid
-const H_GAP  = 260;   // separación horizontal (>= CARD_W si quieres más aire)
-const V_GAP  = 210;   // separación vertical
+const COLS = 2;     // columnas del grid
+const H_GAP = 260;   // separación horizontal (>= CARD_W si quieres más aire)
+const V_GAP = 210;   // separación vertical
 
 export default function Canvas({
   classes = [],
@@ -55,7 +55,7 @@ export default function Canvas({
     // cálculo del grid centrado
     const total = classes?.length || 0;
     const rows = Math.max(1, Math.ceil(total / COLS));
-    const totalGridWidth  = (COLS - 1) * H_GAP + CARD_W;
+    const totalGridWidth = (COLS - 1) * H_GAP + CARD_W;
     const totalGridHeight = (rows - 1) * V_GAP + 140; // 140 ≈ alto medio tarjeta
     const startX = Math.max(20, (PAGE_W - totalGridWidth) / 2);
     const startY = Math.max(20, (PAGE_H - totalGridHeight) / 2);
@@ -112,7 +112,23 @@ export default function Canvas({
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
 
   // Aún sin edges (se añadirán cuando integremos relaciones)
-  const edges = [];
+  // const edges = [];
+  // 🔹 Armar edges según las relaciones
+  const edges = useMemo(() => {
+    return rels.map((r, idx) => {
+      const fromId = r.from_class;
+      const toId = r.to_class;
+
+      return {
+        id: `rel-${idx}`,
+        source: String(fromId),
+        target: String(toId),
+        sourceHandle: r.src_anchor || "right",
+        targetHandle: r.dst_anchor || "left",
+        type: "default",
+      };
+    });
+  }, [rels]);
 
   function onNodeClick(_, node) {
     if (!relMode) return;
