@@ -5,7 +5,7 @@ from app.core.config import ALLOWED_ORIGINS
 from app.routers import auth as auth_router
 from app.routers import diagramas, classes, atributos, metodo, relacion, realtime 
 from app.routers import classes as classes_router
- 
+from app.routers import export 
 app = FastAPI(title="UML AI Tool API")
 
 app.add_middleware(
@@ -27,6 +27,6 @@ app.include_router(classes.router)
 app.include_router(atributos.router)
 app.include_router(metodo.router)
 app.include_router(relacion.router)
- 
+app.include_router(export.router)
 # Router WebSocket (colaboración en tiempo real)
 app.include_router(realtime.router)

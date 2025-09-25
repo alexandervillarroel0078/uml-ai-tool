@@ -60,3 +60,6 @@ Thumbs.db
 # === Docker / misc ===
 docker-data/
 **/tmp/
+.json
+# === Java / Spring Boot generado ===
+spring_project/

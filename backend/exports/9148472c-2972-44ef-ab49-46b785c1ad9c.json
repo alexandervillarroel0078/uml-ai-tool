@@ -1,0 +1,96 @@
+{
+  "id": "9148472c-2972-44ef-ab49-46b785c1ad9c",
+  "title": "prueba numero uno",
+  "updated_at": "2025-09-24T22:21:17.974579-04:00",
+  "classes": [
+    {
+      "id": "a2b44118-97ed-487a-8a79-204a64ccaa61",
+      "name": "ClaseA",
+      "attributes": [
+        {
+          "id": "28a0b754-f9f1-47dc-b84c-65a5739f6198",
+          "name": "Nombre",
+          "type": "string",
+          "required": false
+        },
+        {
+          "id": "423e476b-50af-4efd-9b89-274a65b747d4",
+          "name": "id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "id": "f631bb88-1d7a-498a-b359-8cb2080b6216",
+          "name": "apellido",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "methods": [
+        {
+          "id": "2440ee27-d518-47da-8288-5fd6b6bd4561",
+          "name": "get",
+          "return_type": "void"
+        }
+      ]
+    },
+    {
+      "id": "6b20873a-0872-4495-8d8b-da49f17bdbfb",
+      "name": "ClaseNB",
+      "attributes": [
+        {
+          "id": "685ecb6a-2ed9-45c0-b506-73a86db8447a",
+          "name": "Nombre",
+          "type": "string",
+          "required": false
+        },
+        {
+          "id": "7cdaeb6d-adc0-4d3e-bbb8-6610a7089113",
+          "name": "id",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "methods": [
+        {
+          "id": "f6074594-7d74-4e5c-9433-428c31415d71",
+          "name": "crear",
+          "return_type": "void"
+        },
+        {
+          "id": "b781aa71-5d80-4d37-b29d-1acb7de796bd",
+          "name": "editar",
+          "return_type": "void"
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "9a325328-971b-495f-9f73-734f752cc416",
+      "from_class": "6b20873a-0872-4495-8d8b-da49f17bdbfb",
+      "to_class": "a2b44118-97ed-487a-8a79-204a64ccaa61",
+      "type": "ASSOCIATION",
+      "label": "pertenece",
+      "src_anchor": "top",
+      "dst_anchor": "bottom",
+      "src_mult_min": 1,
+      "src_mult_max": "*",
+      "dst_mult_min": 1,
+      "dst_mult_max": "*"
+    },
+    {
+      "id": "1c9102db-6de5-403a-968e-e6be7de8d232",
+      "from_class": "a2b44118-97ed-487a-8a79-204a64ccaa61",
+      "to_class": "a2b44118-97ed-487a-8a79-204a64ccaa61",
+      "type": "ASSOCIATION",
+      "label": "usa",
+      "src_anchor": "top",
+      "dst_anchor": "right",
+      "src_mult_min": 1,
+      "src_mult_max": "*",
+      "dst_mult_min": 1,
+      "dst_mult_max": "*"
+    }
+  ]
+}
