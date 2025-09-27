@@ -1,0 +1,63 @@
+exporters/
+ ├─ templates/           ← Plantillas base (.j2, .mustache, etc.)
+ │   ├─ model.java.j2
+ │   ├─ repository.java.j2
+ │   ├─ service.java.j2
+ │   ├─ controller.java.j2
+ │   ├─ dto.java.j2
+ │   ├─ pom.xml.j2
+ │   ├─ application.properties.j2
+ │   └─ docker-compose.yml.j2
+ │
+ ├─ generators/          ← Código que transforma JSON → archivos
+ │   ├─ validator.py      ← Revisa UML antes de generar
+ │   ├─ uml_to_json.py    ← Convierte UML de tu DB a JSON estándar
+ │   ├─ json_to_orm.py    ← Genera entidades JPA desde JSON
+ │   ├─ orm_to_crud.py    ← Genera repos, services, controllers, DTOs
+ │   └─ project_builder.py← Empaqueta todo en generated_project/
+ │
+ ├─ output/              ← Carpeta donde se guardan los proyectos generados
+ │   └─ generated_project_001/
+ │       ├─ src/
+ │       ├─ pom.xml
+ │       └─ ...
+ │
+ ├─ tests/               ← Tests unitarios para validar el generador
+ │   ├─ test_validator.py
+ │   └─ test_generators.py
+ │
+ ├─ requirements.txt     ← Dependencias (si usas Python)
+ └─ README.md            ← Documentación del exportador
+
+
+
+Explicación de cada parte
+
+templates/
+Aquí guardas plantillas (con placeholders tipo {{className}}, {{attributes}}) que luego rellenas con datos del UML.
+Ejemplo: model.java.j2 → genera una clase con @Entity.
+
+generators/
+Módulos de transformación en tu pipeline:
+
+validator.py → asegura que el UML tenga sentido.
+
+uml_to_json.py → saca JSON limpio desde el UML guardado en tu BD.
+
+json_to_orm.py → genera clases JPA con anotaciones.
+
+orm_to_crud.py → crea repositorios, servicios, controladores y DTOs.
+
+project_builder.py → arma carpetas y copia plantillas generadas.
+
+output/
+Aquí aparecen las carpetas completas listas para entregar al usuario (generated_project/).
+
+tests/
+Para probar que el generador funciona sin necesidad de levantar FastAPI.
+
+requirements.txt
+Dependencias para correr tu generador (ej. jinja2 para plantillas).
+
+README.md
+Documentación de cómo usar el módulo exportador por separado.
