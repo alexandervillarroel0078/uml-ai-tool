@@ -92,12 +92,6 @@
                 "methods": []
             },
             {
-                "id": "367c4192-8136-4ecc-bfb6-a44ea9c67141",
-                "name": "Impresora",
-                "attributes": [],
-                "methods": []
-            },
-            {
                 "id": "6080c89b-bf32-4375-b83a-631b966a8c87",
                 "name": "Accesorio",
                 "attributes": [
@@ -112,12 +106,6 @@
                         "required": false
                     }
                 ],
-                "methods": []
-            },
-            {
-                "id": "a95b637d-a9b1-4262-8bd4-98fdc0557e73",
-                "name": "Factura",
-                "attributes": [],
                 "methods": []
             },
             {
@@ -187,6 +175,23 @@
                 "methods": []
             },
             {
+                "id": "a95b637d-a9b1-4262-8bd4-98fdc0557e73",
+                "name": "Factura",
+                "attributes": [
+                    {
+                        "name": "codigo",
+                        "type": "string",
+                        "required": false
+                    },
+                    {
+                        "name": "nombre",
+                        "type": "string",
+                        "required": false
+                    }
+                ],
+                "methods": []
+            },
+            {
                 "id": "7d26e1b3-56ab-4c89-b689-8690a876e4b6",
                 "name": "Camion",
                 "attributes": [
@@ -198,6 +203,23 @@
                     {
                         "name": "nroejes",
                         "type": "int",
+                        "required": false
+                    }
+                ],
+                "methods": []
+            },
+            {
+                "id": "367c4192-8136-4ecc-bfb6-a44ea9c67141",
+                "name": "Impresora",
+                "attributes": [
+                    {
+                        "name": "codigo",
+                        "type": "string",
+                        "required": false
+                    },
+                    {
+                        "name": "marca",
+                        "type": "string",
                         "required": false
                     }
                 ],
