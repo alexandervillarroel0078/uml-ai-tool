@@ -5,7 +5,10 @@ Convierte un diagrama UML exportado a JSON en entidades Java con JPA.
 """
 
 import os, json
+from jinja2 import Environment, FileSystemLoader
 
+TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "..", "templates")
+env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
 # 📂 Carpeta donde se guardarán las clases generadas
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "generated", "models")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -48,57 +51,64 @@ def generate_entity(class_def: dict):
     has_id = any(attr["name"].lower() == "id" for attr in attributes)
     if not has_id:
         attributes.insert(0, {"name": "id", "type": "long", "required": True})
-
-    # ========================
-    # Cabecera de la clase
-    # ========================
-    lines = []
-    lines.append("import jakarta.persistence.*;")
-    lines.append("import java.time.*;")
-    lines.append("")
-    lines.append("@Entity")
-    lines.append(f"public class {class_name} " + "{")
-    lines.append("")
-
-    # ========================
-    # Definición de atributos
-    # ========================
+    # Mapear tipos
     for attr in attributes:
-        attr_name = attr["name"]
-        attr_type = map_type(attr["type"])
+        attr["type"] = map_type(attr["type"])
 
-        if attr_name.lower() == "id":  # Primary Key
-            lines.append("    @Id")
-            lines.append("    @GeneratedValue(strategy = GenerationType.IDENTITY)")
-        lines.append(f"    private {attr_type} {attr_name};")
-        lines.append("")
+    # Render con Jinja2
+   # Render con Jinja2
+    template = env.get_template("model.java.j2")
+    return template.render(package="com.test", class_name=class_name, attributes=attributes)
+   # # ========================
+    # # Cabecera de la clase
+    # # ========================
+    # lines = []
+    # lines.append("import jakarta.persistence.*;")
+    # lines.append("import java.time.*;")
+    # lines.append("")
+    # lines.append("@Entity")
+    # lines.append(f"public class {class_name} " + "{")
+    # lines.append("")
 
-    # ========================
-    # Getters y Setters
-    # ========================
-    for attr in attributes:
-        attr_name = attr["name"]
-        attr_type = map_type(attr["type"])
-        method_name = attr_name[0].upper() + attr_name[1:]
+    # # ========================
+    # # Definición de atributos
+    # # ========================
+    # for attr in attributes:
+    #     attr_name = attr["name"]
+    #     attr_type = map_type(attr["type"])
 
-        # Getter
-        lines.append(f"    public {attr_type} get{method_name}() " + "{")
-        lines.append(f"        return {attr_name};")
-        lines.append("    }")
-        lines.append("")
+    #     if attr_name.lower() == "id":  # Primary Key
+    #         lines.append("    @Id")
+    #         lines.append("    @GeneratedValue(strategy = GenerationType.IDENTITY)")
+    #     lines.append(f"    private {attr_type} {attr_name};")
+    #     lines.append("")
 
-        # Setter
-        lines.append(f"    public void set{method_name}({attr_type} {attr_name}) " + "{")
-        lines.append(f"        this.{attr_name} = {attr_name};")
-        lines.append("    }")
-        lines.append("")
+    # # ========================
+    # # Getters y Setters
+    # # ========================
+    # for attr in attributes:
+    #     attr_name = attr["name"]
+    #     attr_type = map_type(attr["type"])
+    #     method_name = attr_name[0].upper() + attr_name[1:]
 
-    # ========================
-    # Cierre de la clase
-    # ========================
-    lines.append("}")
+    #     # Getter
+    #     lines.append(f"    public {attr_type} get{method_name}() " + "{")
+    #     lines.append(f"        return {attr_name};")
+    #     lines.append("    }")
+    #     lines.append("")
 
-    return "\n".join(lines)
+    #     # Setter
+    #     lines.append(f"    public void set{method_name}({attr_type} {attr_name}) " + "{")
+    #     lines.append(f"        this.{attr_name} = {attr_name};")
+    #     lines.append("    }")
+    #     lines.append("")
+
+    # # ========================
+    # # Cierre de la clase
+    # # ========================
+    # lines.append("}")
+
+    # return "\n".join(lines)
 
 
 # ========================

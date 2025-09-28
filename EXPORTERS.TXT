@@ -11,6 +11,8 @@ exporters/
  │
  ├─ generators/          ← Código que transforma JSON → archivos
  │   ├─ validator.py      ← Revisa UML antes de generar
+ │   ├─ json_to_full_orm.py  // genera orm con sus relaciones cpm son_to_orm.py y json_to_relations.py
+ │   ├─ json_to_relations.py
  │   ├─ uml_to_json.py    ← Convierte UML de tu DB a JSON estándar
  │   ├─ json_to_orm.py    ← Genera entidades JPA desde JSON
  │   ├─ orm_to_crud.py    ← Genera repos, services, controllers, DTOs

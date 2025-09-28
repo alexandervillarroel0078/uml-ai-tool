@@ -1,16 +1,222 @@
+# # """
 # # json_to_full_orm.py
+# # Convierte un diagrama UML (JSON) a entidades Java con JPA.
+# # 👉 Combina atributos (de json_to_orm) + relaciones (de json_to_relations).
+# # """
+
+# # import os, json
+# # from json_to_relations import build_relations, to_camel
+
+# # # ========================
+# # # Función de mapeo de tipos
+# # # ========================
+# # def map_type(attr_type: str) -> str:
+# #     mapping = {
+# #         "int": "Integer",
+# #         "long": "Long",
+# #         "string": "String",
+# #         "float": "Float",
+# #         "double": "Double",
+# #         "boolean": "Boolean",
+# #         "date": "LocalDate",
+# #         "datetime": "LocalDateTime"
+# #     }
+# #     return mapping.get(attr_type.lower(), "String")
+
+
+# # # ========================
+# # # Generador de entidad con relaciones
+# # # ========================
+# # def generate_entity(class_def: dict, relations_map: dict):
+# #     class_name = class_def["name"]
+# #     attributes = class_def.get("attributes", [])
+
+# #     # Detectar si es clase hija (Extends)
+# #     is_child = any(
+# #         rel["type"] == "Extends"
+# #         for rels in relations_map.get(class_name, {}).values()
+# #         for rel in [rels]
+# #     )
+
+# #     # 🔹 Solo el padre lleva id, los hijos heredan
+# #     if not is_child:
+# #         has_id = any(attr["name"].lower() == "id" for attr in attributes)
+# #         if not has_id:
+# #             attributes.insert(0, {"name": "id", "type": "long", "required": True})
+
+# #     lines = []
+# #     lines.append("package com.test.models;")
+# #     lines.append("")
+# #     lines.append("import jakarta.persistence.*;")
+# #     lines.append("import java.time.*;")
+# #     lines.append("import java.util.*;")
+# #     lines.append("")
+# #     lines.append("@Entity")
+
+# #     # ========================
+# #     # Herencia
+# #     # ========================
+# #     extends_clause = ""
+# #     inheritance_added = False
+# #     if class_name in relations_map:
+# #         for target, rel in relations_map[class_name].items():
+# #             if rel["type"] == "Inheritance" and not inheritance_added:
+# #                 # Padre
+# #                 lines.append(rel["annotation"])
+# #                 inheritance_added = True
+# #             elif rel["type"] == "Extends":
+# #                 # Hijo
+# #                 extends_clause = f" extends {rel['parent']}"
+
+# #     lines.append(f"public class {class_name}{extends_clause} " + "{")
+# #     lines.append("")
+
+# #     # ========================
+# #     # Atributos normales
+# #     # ========================
+# #     for attr in attributes:
+# #         attr_name = to_camel(attr["name"])
+# #         attr_type = map_type(attr["type"])
+
+# #         if attr_name.lower() == "id" and not is_child:
+# #             lines.append("    @Id")
+# #             lines.append("    @GeneratedValue(strategy = GenerationType.IDENTITY)")
+# #         lines.append(f"    private {attr_type} {attr_name};")
+# #         lines.append("")
+
+# #     # ========================
+# #     # Relaciones JPA
+# #     # ========================
+# #     if class_name in relations_map:
+# #         for target, rel in relations_map[class_name].items():
+# #             rel_type = rel["type"]
+# #             if target.lower() == "id":
+# #                 continue
+# #             if rel_type in ("Inheritance", "Extends"):
+# #                 continue  # ya manejado arriba
+
+# #             # --- Recursivas ---
+# #             if rel_type == "RecursiveAssociation":
+# #                 if "annotation_one" in rel and "annotation_two" in rel:
+# #                     lines.append(f"    {rel['annotation_one']}")
+# #                     lines.append(f"    private List<{class_name}> children;")
+# #                     lines.append("")
+# #                     lines.append(f"    {rel['annotation_two']}")
+# #                     lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
+# #                     lines.append(f"    private {class_name} parent;")
+# #                 elif "annotation" in rel and rel["annotation"] == "@ManyToMany":
+# #                     role_name = rel.get("label") or "related"
+# #                     lines.append(f"    {rel['annotation']}")
+# #                     lines.append(f"    @JoinTable(name = \"{rel['joinTable']}\")")
+# #                     lines.append(f"    private List<{class_name}> {role_name};")
+# #                 else:
+# #                     role_name = rel.get("label") or "reference"
+# #                     lines.append(f"    {rel['annotation']}")
+# #                     lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
+# #                     lines.append(f"    private {class_name} {role_name};")
+
+# #             # --- Composición ---
+# #             elif rel_type == "Composition":
+# #                 if "mappedBy" in rel:
+# #                     role_name = rel.get("label") or to_camel(target) + "s"
+# #                     mapped_by = rel["mappedBy"]
+
+# #                     if "(" in rel['annotation']:
+# #                         base = rel['annotation'].rstrip(")")
+# #                         lines.append(f"    {base}, mappedBy = \"{mapped_by}\")")
+# #                     else:
+# #                         lines.append(f"    {rel['annotation']}(mappedBy = \"{mapped_by}\")")
+
+# #                     lines.append(f"    private List<{target}> {role_name};")
+# #                 else:
+# #                     role_name = rel.get("label") or to_camel(target)
+# #                     lines.append(f"    {rel['annotation']}")
+# #                     lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
+# #                     lines.append(f"    private {target} {role_name};")
+
+# #             # --- Relaciones normales ---
+# #             elif rel_type == "OneToMany":
+# #                 role_name = rel.get("label") or to_camel(target) + "s"
+# #                 mapped_by = rel.get("mappedBy") or to_camel(class_name)
+
+# #                 if "(" in rel['annotation']:
+# #                     base = rel['annotation'].rstrip(")")
+# #                     lines.append(f"    {base}, mappedBy = \"{mapped_by}\")")
+# #                 else:
+# #                     lines.append(f"    {rel['annotation']}(mappedBy = \"{mapped_by}\")")
+
+# #                 lines.append(f"    private List<{target}> {role_name};")
+
+# #             elif rel_type == "ManyToOne":
+# #                 role_name = rel.get("label") or to_camel(target)
+# #                 lines.append(f"    {rel['annotation']}")
+# #                 lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
+# #                 lines.append(f"    private {target} {role_name};")
+
+# #             elif rel_type == "ManyToMany":
+# #                 role_name = rel.get("label") or to_camel(target) + "s"
+# #                 lines.append(f"    {rel['annotation']}")
+# #                 if "joinTable" in rel:
+# #                     lines.append(f"    @JoinTable(name = \"{rel['joinTable']}\")")
+# #                 lines.append(f"    private List<{target}> {role_name};")
+
+# #             elif rel_type == "OneToOne":
+# #                 role_name = rel.get("label") or to_camel(target)
+# #                 lines.append(f"    {rel['annotation']}")
+# #                 lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
+# #                 lines.append(f"    private {target} {role_name};")
+
+# #             lines.append("")
+
+# #     # ========================
+# #     # Getters y Setters
+# #     # ========================
+# #     for attr in attributes:
+# #         attr_name = to_camel(attr["name"])
+# #         attr_type = map_type(attr["type"])
+# #         method_name = attr_name[0].upper() + attr_name[1:]
+
+# #         lines.append(f"    public {attr_type} get{method_name}() " + "{")
+# #         lines.append(f"        return {attr_name};")
+# #         lines.append("    }")
+# #         lines.append("")
+# #         lines.append(f"    public void set{method_name}({attr_type} {attr_name}) " + "{")
+# #         lines.append(f"        this.{attr_name} = {attr_name};")
+# #         lines.append("    }")
+# #         lines.append("")
+
+# #     lines.append("}")
+# #     return "\n".join(lines)
+
+
+# # # ========================
+# # # Función principal
+# # # ========================
+# # def generate_from_json(json_path: str, output_dir=None):
+# #     if output_dir is None:
+# #         output_dir = os.path.join(os.path.dirname(__file__), "..", "generated", "models")
+# #         os.makedirs(output_dir, exist_ok=True)
+
+# #     with open(json_path, "r", encoding="utf-8") as f:
+# #         data = json.load(f)
+
+# #     diagram = data["diagram"]
+# #     relations_map = build_relations(json_path)
+
+# #     for c in diagram["classes"]:
+# #         code = generate_entity(c, relations_map)
+# #         file_path = os.path.join(output_dir, f"{c['name']}.java")
+# #         with open(file_path, "w", encoding="utf-8") as f:
+# #             f.write(code)
+# #         print(f"✅ Generada entidad con relaciones: {file_path}")
 # """
+# json_to_full_orm.py
 # Convierte un diagrama UML (JSON) a entidades Java con JPA.
 # 👉 Combina atributos (de json_to_orm) + relaciones (de json_to_relations).
 # """
 
 # import os, json
-# from json_to_relations import build_relations
-
-# # 📂 Carpeta donde se guardarán las clases generadas
-# OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "generated", "models")
-# os.makedirs(OUTPUT_DIR, exist_ok=True)
-
+# from json_to_relations import build_relations, to_camel
 
 # # ========================
 # # Función de mapeo de tipos
@@ -36,28 +242,54 @@
 #     class_name = class_def["name"]
 #     attributes = class_def.get("attributes", [])
 
-#     # 🔹 Si no existe atributo "id", lo agregamos automáticamente
-#     has_id = any(attr["name"].lower() == "id" for attr in attributes)
-#     if not has_id:
-#         attributes.insert(0, {"name": "id", "type": "long", "required": True})
+#     # Detectar si es clase hija (Extends)
+#     is_child = any(
+#         rel["type"] == "Extends"
+#         for rels in relations_map.get(class_name, {}).values()
+#         for rel in [rels]
+#     )
+
+#     # 🔹 Solo el padre lleva id, los hijos heredan
+#     if not is_child:
+#         has_id = any(attr["name"].lower() == "id" for attr in attributes)
+#         if not has_id:
+#             attributes.insert(0, {"name": "id", "type": "long", "required": True})
 
 #     lines = []
+#     lines.append("package com.test.models;")
+#     lines.append("")
 #     lines.append("import jakarta.persistence.*;")
 #     lines.append("import java.time.*;")
 #     lines.append("import java.util.*;")
 #     lines.append("")
 #     lines.append("@Entity")
-#     lines.append(f"public class {class_name} " + "{")
+
+#     # ========================
+#     # Herencia
+#     # ========================
+#     extends_clause = ""
+#     inheritance_added = False
+#     if class_name in relations_map:
+#         for target, rel in relations_map[class_name].items():
+#             if rel["type"] == "Inheritance" and not inheritance_added:
+#                 # Padre
+#                 lines.append(rel["annotation"])
+#                 inheritance_added = True
+#             elif rel["type"] == "Extends":
+#                 # Hijo
+#                 extends_clause = f" extends {rel['parent']}"
+
+#     lines.append(f"public class {class_name}{extends_clause} " + "{")
 #     lines.append("")
 
 #     # ========================
 #     # Atributos normales
 #     # ========================
 #     for attr in attributes:
-#         attr_name = attr["name"]
+#         attr_name = to_camel(attr["name"])
 #         attr_type = map_type(attr["type"])
 
-#         if attr_name.lower() == "id":
+#         if attr_name.lower() == "id" and not is_child:
 #             lines.append("    @Id")
 #             lines.append("    @GeneratedValue(strategy = GenerationType.IDENTITY)")
 #         lines.append(f"    private {attr_type} {attr_name};")
@@ -69,54 +301,88 @@
 #     if class_name in relations_map:
 #         for target, rel in relations_map[class_name].items():
 #             rel_type = rel["type"]
+#             if target.lower() == "id":
+#                 continue
+#             if rel_type in ("Inheritance", "Extends"):
+#                 continue  # ya manejado arriba
 
 #             # --- Recursivas ---
 #             if rel_type == "RecursiveAssociation":
 #                 if "annotation_one" in rel and "annotation_two" in rel:
-#                     # Ejemplo: OneToMany + ManyToOne
 #                     lines.append(f"    {rel['annotation_one']}")
 #                     lines.append(f"    private List<{class_name}> children;")
 #                     lines.append("")
 #                     lines.append(f"    {rel['annotation_two']}")
 #                     lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
 #                     lines.append(f"    private {class_name} parent;")
-#                 elif "annotation" in rel and rel["annotation"] == "@ManyToMany":
-#                     # Muchos ↔ Muchos recursivo
-#                     lines.append(f"    {rel['annotation']}")
-#                     lines.append(f"    @JoinTable(name = \"{rel['joinTable']}\")")
-#                     lines.append(f"    private List<{class_name}> related;")
+#                 elif "annotation" in rel and rel["annotation"].startswith("@ManyToMany"):
+#                     role_name = rel.get("label") or "related"
+#                     annotation = rel["annotation"]
+#                     # lines.append(f"    {rel['annotation']}")
+#                     if "joinTable" in rel:  # lado dueño
+#                         lines.append(f"    {annotation}")
+#                         lines.append(f"    @JoinTable(name = \"{rel['joinTable']}\")")
+#                     elif "mappedByTarget" in rel:
+#                         lines.append(f"    @ManyToMany(mappedBy = \"{rel['mappedByTarget']}\")")
+#                     else:
+#                         lines.append(f"    {annotation}")
+#                         lines.append(f"    private List<{class_name}> {role_name};")
 #                 else:
-#                     # Caso raro: OneToOne recursivo
+#                     role_name = rel.get("label") or "reference"
 #                     lines.append(f"    {rel['annotation']}")
 #                     lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
-#                     lines.append(f"    private {class_name} reference;")
+#                     lines.append(f"    private {class_name} {role_name};")
+
+#             # --- Composición ---
+#             elif rel_type == "Composition":
+#                 if "mappedBy" in rel:
+#                     role_name = rel.get("label") or to_camel(target) + "s"
+#                     mapped_by = rel["mappedBy"]
+
+#                     if "(" in rel['annotation']:
+#                         base = rel['annotation'].rstrip(")")
+#                         lines.append(f"    {base}, mappedBy = \"{mapped_by}\")")
+#                     else:
+#                         lines.append(f"    {rel['annotation']}(mappedBy = \"{mapped_by}\")")
+
+#                     lines.append(f"    private List<{target}> {role_name};")
+#                 else:
+#                     role_name = rel.get("label") or to_camel(target)
+#                     lines.append(f"    {rel['annotation']}")
+#                     lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
+#                     lines.append(f"    private {target} {role_name};")
 
 #             # --- Relaciones normales ---
-#             else:
-#                 annotation = rel["annotation"]
-#                 join_col = rel.get("joinColumn")
+#             elif rel_type == "OneToMany":
+#                 role_name = rel.get("label") or to_camel(target) + "s"
+#                 mapped_by = rel.get("mappedBy") or to_camel(class_name)
 
-#                 if "OneToMany" in annotation:
-#                     role_name = rel.get("label") or target.lower() + "s"
-#                     lines.append(f"    {annotation}")
-#                     if "joinTable" in rel:
-#                      lines.append(f"    @JoinTable(name = \"{rel['joinTable']}\")")
-#                     lines.append(f"    private List<{target}> {role_name};")                    
-#                     # lines.append(f"    {annotation}(mappedBy = \"{class_name.lower()}\")")
-#                     # lines.append(f"    private List<{target}> {target.lower()}s;")
-#                 elif "ManyToOne" in annotation:
-#                     lines.append(f"    {annotation}")
-#                     lines.append(f"    @JoinColumn(name = \"{join_col}\")")
-#                     lines.append(f"    private {target} {target.lower()};")
-#                 elif "ManyToMany" in annotation:
-#                     lines.append(f"    {annotation}")
-#                     lines.append(f"    private List<{target}> {target.lower()}s;")
-#                 elif "OneToOne" in annotation:
-#                     lines.append(f"    {annotation}")
-#                     lines.append(f"    @JoinColumn(name = \"{join_col}\")")
-#                     lines.append(f"    private {target} {target.lower()};")
-#                 elif "Inheritance" in annotation:
-#                     lines.append(f"    {annotation}")  # Se aplica a la clase padre
+#                 if "(" in rel['annotation']:
+#                     base = rel['annotation'].rstrip(")")
+#                     lines.append(f"    {base}, mappedBy = \"{mapped_by}\")")
+#                 else:
+#                     lines.append(f"    {rel['annotation']}(mappedBy = \"{mapped_by}\")")
+
+#                 lines.append(f"    private List<{target}> {role_name};")
+
+#             elif rel_type == "ManyToOne":
+#                 role_name = rel.get("label") or to_camel(target)
+#                 lines.append(f"    {rel['annotation']}")
+#                 lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
+#                 lines.append(f"    private {target} {role_name};")
+
+#             elif rel_type == "ManyToMany":
+#                 role_name = rel.get("label") or to_camel(target) + "s"
+#                 lines.append(f"    {rel['annotation']}")
+#                 if "joinTable" in rel:  # solo lado dueño lleva JoinTable
+#                     lines.append(f"    @JoinTable(name = \"{rel['joinTable']}\")")
+#                 lines.append(f"    private List<{target}> {role_name};")
+
+#             elif rel_type == "OneToOne":
+#                 role_name = rel.get("label") or to_camel(target)
+#                 lines.append(f"    {rel['annotation']}")
+#                 lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
+#                 lines.append(f"    private {target} {role_name};")
 
 #             lines.append("")
 
@@ -124,17 +390,14 @@
 #     # Getters y Setters
 #     # ========================
 #     for attr in attributes:
-#         attr_name = attr["name"]
+#         attr_name = to_camel(attr["name"])
 #         attr_type = map_type(attr["type"])
 #         method_name = attr_name[0].upper() + attr_name[1:]
 
-#         # Getter
 #         lines.append(f"    public {attr_type} get{method_name}() " + "{")
 #         lines.append(f"        return {attr_name};")
 #         lines.append("    }")
 #         lines.append("")
-
-#         # Setter
 #         lines.append(f"    public void set{method_name}({attr_type} {attr_name}) " + "{")
 #         lines.append(f"        this.{attr_name} = {attr_name};")
 #         lines.append("    }")
@@ -144,11 +407,14 @@
 #     return "\n".join(lines)
 
 
-
 # # ========================
 # # Función principal
 # # ========================
-# def generate_from_json(json_path: str):
+# def generate_from_json(json_path: str, output_dir=None):
+#     if output_dir is None:
+#         output_dir = os.path.join(os.path.dirname(__file__), "..", "generated", "models")
+#         os.makedirs(output_dir, exist_ok=True)
+
 #     with open(json_path, "r", encoding="utf-8") as f:
 #         data = json.load(f)
 
@@ -157,30 +423,18 @@
 
 #     for c in diagram["classes"]:
 #         code = generate_entity(c, relations_map)
-#         file_path = os.path.join(OUTPUT_DIR, f"{c['name']}.java")
+#         file_path = os.path.join(output_dir, f"{c['name']}.java")
 #         with open(file_path, "w", encoding="utf-8") as f:
 #             f.write(code)
 #         print(f"✅ Generada entidad con relaciones: {file_path}")
-
-
-# # ========================
-# # Ejecución directa
-# # ========================
-# if __name__ == "__main__":
-#     generate_from_json("../json/diagram_367493a5-e490-4665-a73f-8626674b2ee2.json")
-# json_to_full_orm.py
 """
+json_to_full_orm.py
 Convierte un diagrama UML (JSON) a entidades Java con JPA.
 👉 Combina atributos (de json_to_orm) + relaciones (de json_to_relations).
 """
 
 import os, json
-from json_to_relations import build_relations
-
-# 📂 Carpeta donde se guardarán las clases generadas
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "generated", "models")
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
+from json_to_relations import build_relations, to_camel
 
 # ========================
 # Función de mapeo de tipos
@@ -206,28 +460,52 @@ def generate_entity(class_def: dict, relations_map: dict):
     class_name = class_def["name"]
     attributes = class_def.get("attributes", [])
 
-    # 🔹 Si no existe atributo "id", lo agregamos automáticamente
-    has_id = any(attr["name"].lower() == "id" for attr in attributes)
-    if not has_id:
-        attributes.insert(0, {"name": "id", "type": "long", "required": True})
+    # Detectar si es clase hija (Extends)
+    is_child = any(
+        rel["type"] == "Extends"
+        for rels in relations_map.get(class_name, {}).values()
+        for rel in [rels]
+    )
+
+    # 🔹 Solo el padre lleva id, los hijos heredan
+    if not is_child:
+        has_id = any(attr["name"].lower() == "id" for attr in attributes)
+        if not has_id:
+            attributes.insert(0, {"name": "id", "type": "long", "required": True})
 
     lines = []
+    lines.append("package com.test.models;")
+    lines.append("")
     lines.append("import jakarta.persistence.*;")
     lines.append("import java.time.*;")
     lines.append("import java.util.*;")
     lines.append("")
     lines.append("@Entity")
-    lines.append(f"public class {class_name} " + "{")
+
+    # ========================
+    # Herencia
+    # ========================
+    extends_clause = ""
+    inheritance_added = False
+    if class_name in relations_map:
+        for target, rel in relations_map[class_name].items():
+            if rel["type"] == "Inheritance" and not inheritance_added:
+                lines.append(rel["annotation"])
+                inheritance_added = True
+            elif rel["type"] == "Extends":
+                extends_clause = f" extends {rel['parent']}"
+
+    lines.append(f"public class {class_name}{extends_clause} " + "{")
     lines.append("")
 
     # ========================
     # Atributos normales
     # ========================
     for attr in attributes:
-        attr_name = attr["name"]
+        attr_name = to_camel(attr["name"])
         attr_type = map_type(attr["type"])
 
-        if attr_name.lower() == "id":
+        if attr_name.lower() == "id" and not is_child:
             lines.append("    @Id")
             lines.append("    @GeneratedValue(strategy = GenerationType.IDENTITY)")
         lines.append(f"    private {attr_type} {attr_name};")
@@ -237,63 +515,108 @@ def generate_entity(class_def: dict, relations_map: dict):
     # Relaciones JPA
     # ========================
     if class_name in relations_map:
-        for target, rel in relations_map[class_name].items():
+        # 👇 Procesar primero el lado dueño (joinTable), luego mappedBy
+        for target, rel in sorted(
+            relations_map[class_name].items(),
+            key=lambda kv: 0 if "joinTable" in kv[1] else 1
+        ):
             rel_type = rel["type"]
+            if target.lower() == "id":
+                continue
+            if rel_type in ("Inheritance", "Extends"):
+                continue
 
             # --- Recursivas ---
             if rel_type == "RecursiveAssociation":
                 if "annotation_one" in rel and "annotation_two" in rel:
-                    # Ejemplo: OneToMany + ManyToOne
                     lines.append(f"    {rel['annotation_one']}")
                     lines.append(f"    private List<{class_name}> children;")
                     lines.append("")
                     lines.append(f"    {rel['annotation_two']}")
                     lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
                     lines.append(f"    private {class_name} parent;")
-                elif "annotation" in rel and rel["annotation"] == "@ManyToMany":
-                    # Muchos ↔ Muchos recursivo
-                    role_name = rel.get("label") or "related"
-                    lines.append(f"    {rel['annotation']}")
-                    lines.append(f"    @JoinTable(name = \"{rel['joinTable']}\")")
-                    lines.append(f"    private List<{class_name}> {role_name};")
+                # elif "annotation" in rel and rel["annotation"].startswith("@ManyToMany"):
+                #     role_name = rel.get("label") or "related"
+                #     if "joinTable" in rel:  # lado dueño
+                #         lines.append(f"    {rel['annotation']}")
+                #         lines.append(f"    @JoinTable(name = \"{rel['joinTable']}\")")
+                #     elif "mappedByTarget" in rel:  # lado inverso
+                #         lines.append(f"    @ManyToMany(mappedBy = \"{rel['mappedByTarget']}\")")
+                #     else:
+                #         lines.append(f"    {rel['annotation']}")
+                #     lines.append(f"    private List<{class_name}> {role_name};")
+                # else:
+                #     role_name = rel.get("label") or "reference"
+                #     lines.append(f"    {rel['annotation']}")
+                #     lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
+                #     lines.append(f"    private {class_name} {role_name};")
+                elif "annotation" in rel and rel["annotation"].startswith("@ManyToMany"):
+                    label = rel.get("label") or "related"
+
+    # 👉 Lado dueño
+                    lines.append(f"    @ManyToMany")
+                    lines.append(f"    @JoinTable(")
+                    lines.append(f"        name = \"{to_camel(class_name)}_{to_camel(class_name)}\",")
+                    lines.append(f"        joinColumns = @JoinColumn(name = \"{to_camel(class_name)}_id\"),")
+                    lines.append(f"        inverseJoinColumns = @JoinColumn(name = \"{label}_id\")")
+                    lines.append(f"    )")
+                    lines.append(f"    private List<{class_name}> {label};")
+                    lines.append("")
+
+    # 👉 Lado inverso
+                    lines.append(f"    @ManyToMany(mappedBy = \"{label}\")")
+                    lines.append(f"    private List<{class_name}> {label}De;")
+
+            # --- Composición ---
+            elif rel_type == "Composition":
+                if "mappedBy" in rel:
+                    role_name = rel.get("label") or to_camel(target) + "s"
+                    mapped_by = rel["mappedBy"]
+
+                    if "(" in rel['annotation']:
+                        base = rel['annotation'].rstrip(")")
+                        lines.append(f"    {base}, mappedBy = \"{mapped_by}\")")
+                    else:
+                        lines.append(f"    {rel['annotation']}(mappedBy = \"{mapped_by}\")")
+
+                    lines.append(f"    private List<{target}> {role_name};")
                 else:
-                    # Caso raro: OneToOne recursivo
-                    role_name = rel.get("label") or "reference"
+                    role_name = rel.get("label") or to_camel(target)
                     lines.append(f"    {rel['annotation']}")
                     lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
-                    lines.append(f"    private {class_name} {role_name};")
+                    lines.append(f"    private {target} {role_name};")
 
             # --- Relaciones normales ---
-            else:
-                annotation = rel["annotation"]
-                join_col = rel.get("joinColumn")
+            elif rel_type == "OneToMany":
+                role_name = rel.get("label") or to_camel(target) + "s"
+                mapped_by = rel.get("mappedBy") or to_camel(class_name)
 
-                if "OneToMany" in annotation:
-                    role_name = rel.get("label") or target.lower() + "s"
-                    lines.append(f"    {annotation}(mappedBy = \"{class_name.lower()}\")")
-                    lines.append(f"    private List<{target}> {role_name};")
+                if "(" in rel['annotation']:
+                    base = rel['annotation'].rstrip(")")
+                    lines.append(f"    {base}, mappedBy = \"{mapped_by}\")")
+                else:
+                    lines.append(f"    {rel['annotation']}(mappedBy = \"{mapped_by}\")")
 
-                elif "ManyToOne" in annotation:
-                    role_name = rel.get("label") or target.lower()
-                    lines.append(f"    {annotation}")
-                    lines.append(f"    @JoinColumn(name = \"{join_col}\")")
-                    lines.append(f"    private {target} {role_name};")
+                lines.append(f"    private List<{target}> {role_name};")
 
-                elif "ManyToMany" in annotation:
-                    role_name = rel.get("label") or target.lower() + "s"
-                    lines.append(f"    {annotation}")
-                    if "joinTable" in rel:
-                        lines.append(f"    @JoinTable(name = \"{rel['joinTable']}\")")
-                    lines.append(f"    private List<{target}> {role_name};")
+            elif rel_type == "ManyToOne":
+                role_name = rel.get("label") or to_camel(target)
+                lines.append(f"    {rel['annotation']}")
+                lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
+                lines.append(f"    private {target} {role_name};")
 
-                elif "OneToOne" in annotation:
-                    role_name = rel.get("label") or target.lower()
-                    lines.append(f"    {annotation}")
-                    lines.append(f"    @JoinColumn(name = \"{join_col}\")")
-                    lines.append(f"    private {target} {role_name};")
+            elif rel_type == "ManyToMany":
+                role_name = rel.get("label") or to_camel(target) + "s"
+                lines.append(f"    {rel['annotation']}")
+                if "joinTable" in rel:
+                    lines.append(f"    @JoinTable(name = \"{rel['joinTable']}\")")
+                lines.append(f"    private List<{target}> {role_name};")
 
-                elif "Inheritance" in annotation:
-                    lines.append(f"    {annotation}")  # Se aplica a la clase padre
+            elif rel_type == "OneToOne":
+                role_name = rel.get("label") or to_camel(target)
+                lines.append(f"    {rel['annotation']}")
+                lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
+                lines.append(f"    private {target} {role_name};")
 
             lines.append("")
 
@@ -301,17 +624,14 @@ def generate_entity(class_def: dict, relations_map: dict):
     # Getters y Setters
     # ========================
     for attr in attributes:
-        attr_name = attr["name"]
+        attr_name = to_camel(attr["name"])
         attr_type = map_type(attr["type"])
         method_name = attr_name[0].upper() + attr_name[1:]
 
-        # Getter
         lines.append(f"    public {attr_type} get{method_name}() " + "{")
         lines.append(f"        return {attr_name};")
         lines.append("    }")
         lines.append("")
-
-        # Setter
         lines.append(f"    public void set{method_name}({attr_type} {attr_name}) " + "{")
         lines.append(f"        this.{attr_name} = {attr_name};")
         lines.append("    }")
@@ -324,7 +644,11 @@ def generate_entity(class_def: dict, relations_map: dict):
 # ========================
 # Función principal
 # ========================
-def generate_from_json(json_path: str):
+def generate_from_json(json_path: str, output_dir=None):
+    if output_dir is None:
+        output_dir = os.path.join(os.path.dirname(__file__), "..", "generated", "models")
+        os.makedirs(output_dir, exist_ok=True)
+
     with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
@@ -333,14 +657,7 @@ def generate_from_json(json_path: str):
 
     for c in diagram["classes"]:
         code = generate_entity(c, relations_map)
-        file_path = os.path.join(OUTPUT_DIR, f"{c['name']}.java")
+        file_path = os.path.join(output_dir, f"{c['name']}.java")
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(code)
         print(f"✅ Generada entidad con relaciones: {file_path}")
-
-
-# ========================
-# Ejecución directa
-# ========================
-if __name__ == "__main__":
-    generate_from_json("../json/diagram_367493a5-e490-4665-a73f-8626674b2ee2.json")
