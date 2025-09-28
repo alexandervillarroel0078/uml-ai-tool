@@ -1,0 +1,121 @@
+{
+  "info": {
+    "name": "Vehiculo API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Vehiculo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"placa\": \"Texto de ejemplo\",\n  \"marca\": \"Texto de ejemplo\",\n  \"año\": \"2025-10-03\",\n  \"modelo\": \"Texto de ejemplo\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/vehiculos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "vehiculos"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get All Vehiculo",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/vehiculos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "vehiculos"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Vehiculo by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/vehiculos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "vehiculos",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Vehiculo",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"placa\": \"Texto de ejemplo\",\n  \"marca\": \"Texto de ejemplo\",\n  \"año\": \"2025-10-03\",\n  \"modelo\": \"Texto de ejemplo\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/vehiculos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "vehiculos",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Vehiculo",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8080/api/vehiculos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "vehiculos",
+            "1"
+          ]
+        }
+      }
+    }
+  ]
+}

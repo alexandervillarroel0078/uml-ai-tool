@@ -6,7 +6,7 @@ Convierte un diagrama UML (JSON) a entidades Java con JPA.
 """
 
 import os, json
-from json_to_relations import build_relations, to_camel
+from exporters.generators.json_to_relations import build_relations, to_camel
 
 # ========================
 # Función de mapeo de tipos

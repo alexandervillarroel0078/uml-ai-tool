@@ -1,0 +1,121 @@
+{
+  "info": {
+    "name": "Micro API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Micro",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"placa\": \"Texto de ejemplo\",\n  \"marca\": \"Texto de ejemplo\",\n  \"modelo\": \"Texto de ejemplo\",\n  \"año\": \"Texto de ejemplo\",\n  \"accesorio\": {\n    \"id\": 1\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/micros",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "micros"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get All Micro",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/micros",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "micros"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Micro by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/micros/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "micros",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Micro",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"placa\": \"Texto de ejemplo\",\n  \"marca\": \"Texto de ejemplo\",\n  \"modelo\": \"Texto de ejemplo\",\n  \"año\": \"Texto de ejemplo\",\n  \"accesorio\": {\n    \"id\": 1\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/micros/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "micros",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Micro",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8080/api/micros/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "micros",
+            "1"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "info": {
+    "name": "Modulo API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Modulo",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo\": \"Texto de ejemplo\",\n  \"ubicacion\": \"Texto de ejemplo\",\n  \"aula\": {\n    \"id\": 1\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/modulos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "modulos"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get All Modulo",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/modulos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "modulos"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Modulo by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/modulos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "modulos",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Modulo",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"codigo\": \"Texto de ejemplo\",\n  \"ubicacion\": \"Texto de ejemplo\",\n  \"aula\": {\n    \"id\": 1\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/modulos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "modulos",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Modulo",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8080/api/modulos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "modulos",
+            "1"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "info": {
+    "name": "Accesorio API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Accesorio",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Texto de ejemplo\",\n  \"codigo\": \"Texto de ejemplo\",\n  \"micro\": {\n    \"id\": 1\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/accesorios",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "accesorios"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get All Accesorio",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/accesorios",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "accesorios"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Accesorio by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/accesorios/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "accesorios",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Accesorio",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Texto de ejemplo\",\n  \"codigo\": \"Texto de ejemplo\",\n  \"micro\": {\n    \"id\": 1\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/accesorios/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "accesorios",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Accesorio",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8080/api/accesorios/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "accesorios",
+            "1"
+          ]
+        }
+      }
+    }
+  ]
+}

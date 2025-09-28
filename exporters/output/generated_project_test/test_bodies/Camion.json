@@ -1,0 +1,121 @@
+{
+  "info": {
+    "name": "Camion API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Camion",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"capacidad\": 54,\n  \"nroejes\": 71\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/camions",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "camions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get All Camion",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/camions",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "camions"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Camion by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/camions/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "camions",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Camion",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"capacidad\": 54,\n  \"nroejes\": 71\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/camions/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "camions",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Camion",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8080/api/camions/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "camions",
+            "1"
+          ]
+        }
+      }
+    }
+  ]
+}

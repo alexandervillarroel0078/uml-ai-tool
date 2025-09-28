@@ -4,7 +4,7 @@ Convierte un UML (ya en formato dict) a un archivo JSON estándar.
 """
 
 import json
-from .validator import validate_diagram, UMLValidationError
+from exporters.generators.validator import validate_diagram, UMLValidationError
 
 
 def export_diagram_to_json(diagram_dict: dict, output_path: str) -> str:

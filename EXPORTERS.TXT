@@ -30,8 +30,7 @@ exporters/
  │
  ├─ requirements.txt     ← Dependencias (si usas Python)
  └─ README.md            ← Documentación del exportador
-
-
+ 
 
 Explicación de cada parte
 

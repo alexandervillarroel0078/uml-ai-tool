@@ -26,6 +26,33 @@
                 "methods": []
             },
             {
+                "id": "07a19e99-a5a7-4f91-845b-d34e79b528ea",
+                "name": "Vehiculo",
+                "attributes": [
+                    {
+                        "name": "placa",
+                        "type": "string",
+                        "required": false
+                    },
+                    {
+                        "name": "marca",
+                        "type": "string",
+                        "required": false
+                    },
+                    {
+                        "name": "año",
+                        "type": "date",
+                        "required": false
+                    },
+                    {
+                        "name": "modelo",
+                        "type": "string",
+                        "required": false
+                    }
+                ],
+                "methods": []
+            },
+            {
                 "id": "81586d98-abb9-41b7-8e61-2ab74b67407c",
                 "name": "Micro",
                 "attributes": [
@@ -119,33 +146,6 @@
                     },
                     {
                         "name": "codigo",
-                        "type": "string",
-                        "required": false
-                    }
-                ],
-                "methods": []
-            },
-            {
-                "id": "07a19e99-a5a7-4f91-845b-d34e79b528ea",
-                "name": "Vehiculo",
-                "attributes": [
-                    {
-                        "name": "placa",
-                        "type": "string",
-                        "required": false
-                    },
-                    {
-                        "name": "marca",
-                        "type": "string",
-                        "required": false
-                    },
-                    {
-                        "name": "año",
-                        "type": "date",
-                        "required": false
-                    },
-                    {
-                        "name": "modelo",
                         "type": "string",
                         "required": false
                     }
@@ -332,20 +332,6 @@
                 "role_to": "micro"
             },
             {
-                "from": "Factura",
-                "from_id": "a95b637d-a9b1-4262-8bd4-98fdc0557e73",
-                "to": "Impresora",
-                "to_id": "367c4192-8136-4ecc-bfb6-a44ea9c67141",
-                "type": "DEPENDENCY",
-                "from_min": 1,
-                "from_max": 1,
-                "to_min": 1,
-                "to_max": 1,
-                "label": "depend",
-                "role_from": "factura",
-                "role_to": "impresora"
-            },
-            {
                 "from": "Materia",
                 "from_id": "a635f82d-dc24-4492-8ed7-a473c1d7d5a9",
                 "to": "Materia",
@@ -356,8 +342,22 @@
                 "to_min": 0,
                 "to_max": null,
                 "label": "prerequisito",
-                "role_from": "prerequisito",
-                "role_to": "prerequisito"
+                "role_from": "materia",
+                "role_to": "materia"
+            },
+            {
+                "from": "Factura",
+                "from_id": "a95b637d-a9b1-4262-8bd4-98fdc0557e73",
+                "to": "Impresora",
+                "to_id": "367c4192-8136-4ecc-bfb6-a44ea9c67141",
+                "type": "DEPENDENCY",
+                "from_min": 1,
+                "from_max": 1,
+                "to_min": 1,
+                "to_max": 1,
+                "label": "",
+                "role_from": "factura",
+                "role_to": "impresora"
             },
             {
                 "from": "UnidadMedida",

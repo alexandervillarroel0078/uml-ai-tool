@@ -1,11 +1,11 @@
 # # project_builder.py
 import os
-from json_to_full_orm import generate_from_json
-from model_to_repository import generate_repositories
-from repository_to_service import generate_services
-from service_to_controller import generate_controllers  # ✅ nuevo import
-from model_to_dto import generate_dtos
-from postman_generator import generate_postman
+from exporters.generators.json_to_full_orm import generate_from_json
+from exporters.generators.model_to_repository import generate_repositories
+from exporters.generators.repository_to_service import generate_services
+from exporters.generators.service_to_controller import generate_controllers  # ✅ nuevo import
+from exporters.generators.model_to_dto import generate_dtos
+from exporters.generators.postman_generator import generate_postman
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "..", "templates")
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "output", "generated_project_test")

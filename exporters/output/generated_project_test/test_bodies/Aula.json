@@ -1,0 +1,121 @@
+{
+  "info": {
+    "name": "Aula API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Aula",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nro\": 68,\n  \"capacidad\": 54,\n  \"tipo\": \"Texto de ejemplo\",\n  \"modulo\": {\n    \"id\": 1\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/aulas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "aulas"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get All Aula",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/aulas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "aulas"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Aula by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/aulas/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "aulas",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Aula",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nro\": 68,\n  \"capacidad\": 54,\n  \"tipo\": \"Texto de ejemplo\",\n  \"modulo\": {\n    \"id\": 1\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/aulas/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "aulas",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Aula",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8080/api/aulas/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "aulas",
+            "1"
+          ]
+        }
+      }
+    }
+  ]
+}
