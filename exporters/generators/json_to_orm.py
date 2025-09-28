@@ -53,7 +53,11 @@ def generate_entity(class_def: dict):
         attributes.insert(0, {"name": "id", "type": "long", "required": True})
     # Mapear tipos
     for attr in attributes:
-        attr["type"] = map_type(attr["type"])
+        
+        if attr["name"].lower() == "id":
+            attr["type"] = "Long"
+        else:
+            attr["type"] = map_type(attr["type"])
 
     # Render con Jinja2
    # Render con Jinja2

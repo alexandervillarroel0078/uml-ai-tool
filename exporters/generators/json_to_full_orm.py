@@ -75,11 +75,15 @@ def generate_entity(class_def: dict, relations_map: dict):
     # ========================
     for attr in attributes:
         attr_name = to_camel(attr["name"])
-        attr_type = map_type(attr["type"])
+        # attr_type = map_type(attr["type"])
 
         if attr_name.lower() == "id" and not is_child:
             lines.append("    @Id")
             lines.append("    @GeneratedValue(strategy = GenerationType.IDENTITY)")
+            attr_type = "Long"   # 👈 Forzamos que siempre sea Long
+        else:
+            attr_type = map_type(attr["type"])
+
         lines.append(f"    private {attr_type} {attr_name};")
         lines.append("")
 
@@ -224,7 +228,11 @@ def generate_entity(class_def: dict, relations_map: dict):
     # ========================
     for attr in attributes:
         attr_name = to_camel(attr["name"])
-        attr_type = map_type(attr["type"])
+        if attr["name"].lower() == "id":
+            attr_type = "Long"   # 👈 Forzamos siempre Long para id
+        else:
+            attr_type = map_type(attr["type"])
+        # attr_type = map_type(attr["type"])
         method_name = attr_name[0].upper() + attr_name[1:]
 
         lines.append(f"    public {attr_type} get{method_name}() " + "{")
