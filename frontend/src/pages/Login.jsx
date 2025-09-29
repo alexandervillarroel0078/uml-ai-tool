@@ -15,7 +15,6 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // estilos compartidos (mismo tamaño en ambos inputs)
   const inputStyle = {
     width: "100%",
     height: 40,
@@ -36,12 +35,25 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
+
     try {
-      const { data } = await api.post("/auth/sign-in", { email, password });
+      const payload = { email, password };
+      console.log("🔎 Payload enviado:", payload);
+
+      const { data } = await api.post("/auth/sign-in", payload);
+      console.log("✅ Respuesta login:", data);
+
+      // ✅ usa lo que realmente devuelve tu backend (access_token directo)
       login(data.access_token);
+
       nav("/", { replace: true });
     } catch (err) {
-      setError(err?.response?.data?.detail || "Login fallido");
+      console.error("❌ Error login:", err?.response?.data);
+
+      const detail = err?.response?.data?.detail;
+      if (Array.isArray(detail)) setError(detail[0].msg);
+      else if (typeof detail === "string") setError(detail);
+      else setError("Login fallido");
     } finally {
       setLoading(false);
     }

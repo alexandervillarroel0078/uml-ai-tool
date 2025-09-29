@@ -10,7 +10,8 @@ app = FastAPI(title="UML AI Tool API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
+    allow_origins=["*"],
+
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,

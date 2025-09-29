@@ -1,4 +1,0 @@
-diagram_title,origen_clase,destino_clase,tipo,etiqueta,mult_origen_min,mult_origen_max,mult_destino_min,mult_destino_max
-Tiendita Online,Usuario,Pedido,ASSOCIATION,"realiza",1,1,0,"*"
-Tiendita Online,Pedido,LineaPedido,COMPOSITION,"contiene",1,1,1,"*"
-Tiendita Online,LineaPedido,Producto,ASSOCIATION,"corresponde a",1,1,1,1
