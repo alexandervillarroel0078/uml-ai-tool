@@ -1,16 +1,16 @@
 # backend/app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.config import ALLOWED_ORIGINS
+from app.core.config import ALLOWED_ORIGINS, settings
 from app.routers import auth as auth_router
 from app.routers import diagramas, classes, atributos, metodo, relacion, realtime 
 from app.routers import classes as classes_router
 from app.routers import export 
 app = FastAPI(title="UML AI Tool API")
-
+cors_origins = ["*"] if settings.DEBUG else ALLOWED_ORIGINS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
 
     allow_methods=["*"],
     allow_headers=["*"],
