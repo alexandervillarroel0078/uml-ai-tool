@@ -48,15 +48,21 @@ export default function LoginPage() {
 
       nav("/", { replace: true });
     } catch (err) {
-      console.error("❌ Error login:", err?.response?.data);
+  console.error("❌ Error login:", err?.response?.data);
 
-      const detail = err?.response?.data?.detail;
-      if (Array.isArray(detail)) setError(detail[0].msg);
-      else if (typeof detail === "string") setError(detail);
-      else setError("Login fallido");
-    } finally {
-      setLoading(false);
-    }
+  const detail = err?.response?.data?.detail;
+
+  if (Array.isArray(detail)) {
+    setError(detail[0]?.msg || "Error en validación");
+  } else if (typeof detail === "string") {
+    setError(detail);
+  } else if (typeof detail === "object" && detail?.msg) {
+    setError(detail.msg);
+  } else {
+    setError("Login fallido");
+  }
+}
+
   }
 
   return (

@@ -1,3 +1,3 @@
 email,name,password,role,active
-admin@example.com,Admin,changeme123,admin,true
-editor@example.com,Ana Editor,changeme123,editor,true
+ad@example.com,Admin,cha123,admin,true
+edi@example.com,Ana Editor,cha123,editor,true
