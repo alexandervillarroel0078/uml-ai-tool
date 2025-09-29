@@ -1,20 +1,17 @@
- 
-
 frontend/
 ├─ node_modules/
 ├─ public/
 ├─ src/
 │  ├─ api/
-│  │  ├─ attributes.js
-│  │  ├─ realtime.js
 │  │  ├─ classes.js
 │  │  ├─ client.js
 │  │  ├─ diagrams.js
+│  │  ├─ realtime.js
 │  │  └─ relations.js
-│  │  └─realtime.js
-│  │  └─methods.js
+│  │
 │  ├─ assets/
 │  │  └─ react.svg
+│  │
 │  ├─ components/
 │  │  ├─ canvas/
 │  │  │  ├─ ClassCard/
@@ -22,9 +19,7 @@ frontend/
 │  │  │  │  ├─ ClassCard.jsx
 │  │  │  │  ├─ Header.jsx
 │  │  │  │  ├─ index.js
-│  │  │  │  ├─ Ports.jsx
-│  │  │  │  ├─ useAutoGrow.js
-│  │  │  │  └─ useDragResize.js
+│  │  │  │  └─ Ports.jsx
 │  │  │  ├─ utils/
 │  │  │  │  └─ geometry.js
 │  │  │  ├─ Canvas.jsx
@@ -32,42 +27,51 @@ frontend/
 │  │  │  ├─ ClassDetails.jsx
 │  │  │  ├─ ConnectionLayer.jsx
 │  │  │  └─ Sheet.jsx
+│  │  │
 │  │  ├─ common/
 │  │  │  ├─ ApiStatusBadge.jsx
 │  │  │  └─ HeaderBar.jsx
+│  │  │
 │  │  ├─ layout/
 │  │  │  ├─ HeaderBar.jsx
 │  │  │  └─ LeftPanel.jsx
+│  │  │
 │  │  └─ panels/
 │  │     ├─ Inspector.jsx
 │  │     ├─ RelationInspector.jsx
 │  │     ├─ RelationsPanel.jsx
 │  │     └─ Sidebar.jsx
+│  │
 │  ├─ hooks/
 │  │  ├─ useAttributes.js
 │  │  ├─ useClassesAndDetails.js
 │  │  ├─ useDebouncedCallback.js
 │  │  ├─ useDiagram.js
-│  │  ├─ useMethods.js            //
+│  │  ├─ useMethods.js
 │  │  ├─ useRelations.js
 │  │  └─ useTheme.js
+│  │
 │  ├─ pages/
-│  │  ├─ DiagramDashboard.jsx
+│  │  ├─ Diagram.jsx
 │  │  ├─ Home.jsx
 │  │  └─ Login.jsx
+│  │
 │  ├─ store/
 │  │  └─ auth.js
+│  │
 │  ├─ styles/
 │  │  └─ theme.css
-│  ├─ App.jsx
+│  │
 │  ├─ App.css
+│  ├─ App.jsx
 │  ├─ config.js
 │  ├─ index.css
 │  └─ main.jsx
+│
 ├─ .env
 ├─ .gitignore
 ├─ eslint.config.js
-├─ estructura.txt
+├─ index.html
 ├─ index.html
 ├─ package-lock.json
 ├─ package.json

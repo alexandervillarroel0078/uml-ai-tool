@@ -31,21 +31,25 @@ backend/
 │  │  ├─ clase.py
 │  │  ├─ diagram.py
 │  │  ├─ metodo.py
+│  │  ├─ realtime.py
 │  │  └─ relacion.py
 │  ├─ services/
 │  │  ├─ __init__.py
 │  │  └─ users.py
+│  ├─ utils/
+│  │  ├─realtime_events.py
 │  ├─ db.py
 │  └─ main.py
+│  └─ ws_manager.py
 ├─ seeds/
 │  ├─ __pycache__/
 │  ├─ data/
-atributos.csv
-clases.csv
-diagrams.csv
-metodos.csv
-relaciones.csv
-│  ├─ __init__.py
+│  │  ├─ atributos.csv
+│  │  ├─ clases.csv
+│  │  ├─ diagrams.csv
+│  │  ├─ metodos.csv
+│  │  ├─ relaciones.csv
+│   __init__.py
 │  └─ load_csv_sa.py
 ├─ .env.example
 ├─ alembic.ini

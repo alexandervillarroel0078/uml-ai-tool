@@ -1,0 +1,179 @@
+UML_AI_TOOL/
+├─ frontend/
+│  ├─ node_modules/
+│  ├─ public/
+│  ├─ src/
+│  │  ├─ api/
+│  │  │  ├─ classes.js
+│  │  │  ├─ client.js
+│  │  │  ├─ diagrams.js
+│  │  │  ├─ realtime.js
+│  │  │  └─ relations.js
+│  │  │
+│  │  ├─ assets/
+│  │  │  └─ react.svg
+│  │  │
+│  │  ├─ components/
+│  │  │  ├─ canvas/
+│  │  │  │  ├─ ClassCard/
+│  │  │  │  │  ├─ Body.jsx
+│  │  │  │  │  ├─ ClassCard.jsx
+│  │  │  │  │  ├─ Header.jsx
+│  │  │  │  │  ├─ index.js
+│  │  │  │  │  └─ Ports.jsx
+│  │  │  │  ├─ utils/
+│  │  │  │  │  └─ geometry.js
+│  │  │  │  ├─ Canvas.jsx
+│  │  │  │  ├─ ClassCardShell.jsx
+│  │  │  │  ├─ ClassDetails.jsx
+│  │  │  │  ├─ ConnectionLayer.jsx
+│  │  │  │  └─ Sheet.jsx
+│  │  │  │
+│  │  │  ├─ common/
+│  │  │  │  ├─ ApiStatusBadge.jsx
+│  │  │  │  └─ HeaderBar.jsx
+│  │  │  │
+│  │  │  ├─ layout/
+│  │  │  │  ├─ HeaderBar.jsx
+│  │  │  │  └─ LeftPanel.jsx
+│  │  │  │
+│  │  │  └─ panels/
+│  │  │     ├─ Inspector.jsx
+│  │  │     ├─ RelationInspector.jsx
+│  │  │     ├─ RelationsPanel.jsx
+│  │  │     └─ Sidebar.jsx
+│  │  │
+│  │  ├─ hooks/
+│  │  │  ├─ useAttributes.js
+│  │  │  ├─ useClassesAndDetails.js
+│  │  │  ├─ useDebouncedCallback.js
+│  │  │  ├─ useDiagram.js
+│  │  │  ├─ useMethods.js
+│  │  │  ├─ useRelations.js
+│  │  │  └─ useTheme.js
+│  │  │
+│  │  ├─ pages/
+│  │  │  ├─ Diagram.jsx
+│  │  │  ├─ Home.jsx
+│  │  │  └─ Login.jsx
+│  │  │
+│  │  ├─ store/
+│  │  │  └─ auth.js
+│  │  │
+│  │  ├─ styles/
+│  │  │  └─ theme.css
+│  │  │
+│  │  ├─ App.css
+│  │  ├─ App.jsx
+│  │  ├─ config.js
+│  │  ├─ index.css
+│  │  └─ main.jsx
+│  │
+│  ├─ .env
+│  ├─ .gitignore
+│  ├─ eslint.config.js
+│  ├─ index.html
+│  ├─ package-lock.json
+│  ├─ package.json
+│  └─ README.md
+│
+├─ backend/
+│  ├─ .venv/
+│  ├─ alembic/
+│  │  ├─ versions/
+│  │  ├─ env.py
+│  │  ├─ README
+│  │  └─ script.py.mako
+│  │
+│  ├─ app/
+│  │  ├─ core/
+│  │  │  ├─ __init__.py
+│  │  │  ├─ config.py
+│  │  │  └─ security.py
+│  │  ├─ models/
+│  │  │  ├─ __init__.py
+│  │  │  ├─ uml.py
+│  │  │  └─ user.py
+│  │  ├─ routers/
+│  │  │  ├─ __init__.py
+│  │  │  ├─ _helpers.py
+│  │  │  ├─ atributos.py
+│  │  │  ├─ auth.py
+│  │  │  ├─ classes.py
+│  │  │  ├─ diagramas.py
+│  │  │  ├─ metodo.py
+│  │  │  └─ relacion.py
+│  │  ├─ schemas/
+│  │  │  ├─ __init__.py
+│  │  │  ├─ atributo.py
+│  │  │  ├─ auth.py
+│  │  │  ├─ clase.py
+│  │  │  ├─ diagram.py
+│  │  │  ├─ metodo.py
+│  │  │  ├─ realtime.py
+│  │  │  └─ relacion.py
+│  │  ├─ services/
+│  │  │  ├─ __init__.py
+│  │  │  └─ users.py
+│  │  ├─ utils/
+│  │  │  └─ realtime_events.py
+│  │  ├─ db.py
+│  │  ├─ main.py
+│  │  └─ ws_manager.py
+│  │
+│  ├─ seeds/
+│  │  ├─ data/
+│  │  │  ├─ atributos.csv
+│  │  │  ├─ clases.csv
+│  │  │  ├─ diagrams.csv
+│  │  │  ├─ metodos.csv
+│  │  │  └─ relaciones.csv
+│  │  ├─ __init__.py
+│  │  └─ load_csv_sa.py
+│  │
+│  ├─ .env.example
+│  ├─ alembic.ini
+│  ├─ diagrama.png
+│  ├─ diagrama.txt
+│  ├─ postman.txt
+│  ├─ pyproject.toml
+│  ├─ zarquitectura.txt
+│  └─ zcomandos.txt
+│
+├─ exporters/
+│  ├─ templates/
+│  │  ├─ model.java.j2
+│  │  ├─ repository.java.j2
+│  │  ├─ service.java.j2
+│  │  ├─ controller.java.j2
+│  │  ├─ dto.java.j2
+│  │  ├─ pom.xml.j2
+│  │  ├─ application.properties.j2
+│  │  └─ docker-compose.yml.j2
+│  │
+│  ├─ generators/
+│  │  ├─ validator.py
+│  │  ├─ json_to_full_orm.py
+│  │  ├─ json_to_relations.py
+│  │  ├─ uml_to_json.py
+│  │  ├─ json_to_orm.py
+│  │  ├─ orm_to_crud.py
+│  │  └─ project_builder.py
+│  │
+│  ├─ output/
+│  │  └─ generated_project_001/
+│  │     ├─ src/
+│  │     ├─ pom.xml
+│  │     └─ ...
+│  │
+│  ├─ tests/
+│  │  ├─ test_validator.py
+│  │  └─ test_generators.py
+│  │
+│  ├─ requirements.txt
+│  └─ README.md
+├─ pyproject.toml
+├─ README.md
+├─ requirements.txt
+├─ .gitattributes
+├─ .gitignore
