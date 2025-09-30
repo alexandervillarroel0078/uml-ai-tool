@@ -1,20 +1,19 @@
-from pydantic import BaseModel, EmailStr, Field
-from uuid import UUID
+from pydantic import BaseModel, Field
 from typing import Optional
 
 # ====== INPUTS ======
 
 class SignUpIn(BaseModel):
     """Datos que envía el cliente para registrarse"""
-    email: EmailStr
+    email: str                      # 👈 sin validación estricta de formato
     name: str = Field(min_length=2, max_length=120)
     password: str = Field(min_length=8, max_length=128)
 
 
 class SignInIn(BaseModel):
     """Datos que envía el cliente para iniciar sesión"""
-    email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
+    email: str                      # 👈 acepta cualquier string
+    password: str                   # 👈 sin límite de longitud aquí
 
 
 # ====== OUTPUTS ======
@@ -22,7 +21,7 @@ class SignInIn(BaseModel):
 class UserOut(BaseModel):
     """Lo que devolvemos cuando pedimos datos de usuario"""
     id: int
-    email: EmailStr
+    email: str
     name: str
     role: str
     active: bool
@@ -34,7 +33,7 @@ class TokensOut(BaseModel):
     """Tokens de acceso (login/refresh)"""
     access_token: str
     token_type: str = "bearer"
-    refresh_token: Optional[str] = None  # si luego agregamos refresh
+    refresh_token: Optional[str] = None
 
 
 class LoginResponse(BaseModel):
