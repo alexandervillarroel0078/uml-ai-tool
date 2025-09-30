@@ -16,11 +16,14 @@ bearer = HTTPBearer(auto_error=False)
 # ========================
 # Password helpers
 # ========================
-def hash_password(raw: str) -> str:
-    return bcrypt.hash(raw)
+ 
+
+def hash_password(password: str) -> str:
+    return bcrypt.hash(password[:72])   # corta a 72 chars
 
 def verify_password(raw: str, hashed: str) -> bool:
-    return bcrypt.verify(raw, hashed)
+    return bcrypt.verify(raw[:72], hashed)
+
 
 # ========================
 # JWT helpers

@@ -20,7 +20,10 @@ app.add_middleware(
 @app.get("/health")
 def health():
     return {"ok": True}
-
+# 🔹 Ruta raíz (útil en navegador/Render)
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "Backend is running 🚀"}
 app.include_router(auth_router.router)
 
 app.include_router(diagramas.router)
