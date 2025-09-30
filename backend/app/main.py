@@ -11,7 +11,6 @@ cors_origins = ["*"] if settings.DEBUG else ALLOWED_ORIGINS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
-
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,

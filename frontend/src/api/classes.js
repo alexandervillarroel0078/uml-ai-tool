@@ -1,9 +1,6 @@
 import api from "./client";
 
 // ===== Helper para mapear nombre → name =====
-// El backend devuelve las clases con campo `nombre`,
-// pero en el frontend trabajamos con `name`.
-// Este helper convierte el objeto de backend → frontend.
 const mapClass = (c) => ({
   id: c.id,
   name: c.nombre,
@@ -16,134 +13,167 @@ const mapClass = (c) => ({
 
 // ====== CLASES ======
 
-/** 
- * Lista todas las clases de un diagrama.
- * Hace un GET a la API y transforma cada clase con `mapClass`.
- */
-export const listClasses = (diagramId) =>
-  api.get(`/diagrams/${diagramId}/classes`)
-    .then(r => (r.data || []).map(mapClass));
+export const listClasses = async (diagramId) => {
+  console.log("📥 [listClasses] GET", diagramId);
+  try {
+    const r = await api.get(`/diagrams/${diagramId}/classes`);
+    console.log("✅ [listClasses] response:", r.data);
+    return (r.data || []).map(mapClass);
+  } catch (err) {
+    console.error("❌ [listClasses] error:", err?.response?.data || err);
+    throw err;
+  }
+};
 
-/**
- * Crea una nueva clase dentro de un diagrama.
- * Envía el objeto al backend y devuelve la clase ya mapeada (nombre → name).
- * Incluye logs para depuración.
- */
-export const createClass = (
+export const createClass = async (
   diagramId,
   { name, x_grid, y_grid, w_grid, h_grid, z_index } = {}
 ) => {
   const body = { name, x_grid, y_grid, w_grid, h_grid, z_index };
-  console.log("[createClass] POST body:", body); // 👈 LOG
-  
-  return api.post(`/diagrams/${diagramId}/classes`, body)
-    .then(r => {
-      console.log("[createClass] response:", r.data); // 👈 LOG
-      return mapClass(r.data);
-    })
-    .catch(err => {
-      console.error("[createClass] error:", err?.response?.data || err); // 👈 LOG
-      throw err;
-    });
+  console.log("📤 [createClass] POST body:", body);
+  try {
+    const r = await api.post(`/diagrams/${diagramId}/classes`, body);
+    console.log("✅ [createClass] response:", r.data);
+    return mapClass(r.data);
+  } catch (err) {
+    console.error("❌ [createClass] error:", err?.response?.data || err);
+    throw err;
+  }
 };
 
-/**
- * Actualiza una clase existente.
- * Hace un PATCH con el objeto parcial (`patch`).
- * Devuelve la clase actualizada ya mapeada.
- */
-export const updateClass = (classId, patch) => {
-  console.log("[updateClass] PATCH body:", patch); // 👈 LOG
-
-  return api.patch(`/diagrams/classes/${classId}`, patch)
-    .then(r => {
-      console.log("[updateClass] response:", r.data); // 👈 LOG
-      return mapClass(r.data);
-    })
-    .catch(err => {
-      console.error("[updateClass] error:", err?.response?.data || err); // 👈 LOG
-      throw err;
-    });
+export const updateClass = async (classId, patch) => {
+  console.log("📤 [updateClass] PATCH body:", patch);
+  try {
+    const r = await api.patch(`/diagrams/classes/${classId}`, patch);
+    console.log("✅ [updateClass] response:", r.data);
+    return mapClass(r.data);
+  } catch (err) {
+    console.error("❌ [updateClass] error:", err?.response?.data || err);
+    throw err;
+  }
 };
 
-/**
- * Elimina una clase por ID.
- */
-export const deleteClass = (classId) =>
-  api.delete(`/diagrams/classes/${classId}`);
+export const deleteClass = async (classId) => {
+  console.log("🗑️ [deleteClass] DELETE", classId);
+  try {
+    const r = await api.delete(`/diagrams/classes/${classId}`);
+    console.log("✅ [deleteClass] OK");
+    return r.data;
+  } catch (err) {
+    console.error("❌ [deleteClass] error:", err?.response?.data || err);
+    throw err;
+  }
+};
 
 // ====== HELPERS DE CLASE ======
 
-/**
- * Atajo para actualizar solo la posición de una clase.
- */
 export const updateClassPosition = (classId, { x_grid, y_grid }) =>
   updateClass(classId, { x_grid, y_grid });
 
-/**
- * Atajo para actualizar solo el tamaño (w,h) de una clase.
- */
 export const updateClassSize = (classId, { w_grid, h_grid }) =>
   updateClass(classId, { w_grid, h_grid });
 
-/**
- * Atajo para actualizar el z-index (orden en el canvas).
- */
 export const updateClassZ = (classId, z_index) =>
   updateClass(classId, { z_index });
 
-
 // ====== ATRIBUTOS ======
 
-/**
- * Lista atributos de una clase.
- */
-export const listAttributes = (classId) =>
-  api.get(`/diagrams/classes/${classId}/attributes`).then(r => r.data);
+export const listAttributes = async (classId) => {
+  console.log("📥 [listAttributes] GET", classId);
+  try {
+    const r = await api.get(`/diagrams/classes/${classId}/attributes`);
+    console.log("✅ [listAttributes] response:", r.data);
+    return r.data;
+  } catch (err) {
+    console.error("❌ [listAttributes] error:", err?.response?.data || err);
+    throw err;
+  }
+};
 
-/**
- * Crea un atributo dentro de una clase.
- * `required` por defecto es false.
- */
-export const createAttribute = (classId, { name, type, required = false }) =>
-  api.post(`/diagrams/classes/${classId}/attributes`, { name, type, required }).then(r => r.data);
+export const createAttribute = async (classId, { name, type, required = false }) => {
+  const body = { name, type, required };
+  console.log("📤 [createAttribute] POST body:", body);
+  try {
+    const r = await api.post(`/diagrams/classes/${classId}/attributes`, body);
+    console.log("✅ [createAttribute] response:", r.data);
+    return r.data;
+  } catch (err) {
+    console.error("❌ [createAttribute] error:", err?.response?.data || err);
+    throw err;
+  }
+};
 
-/**
- * Actualiza un atributo por ID.
- */
-export const updateAttribute = (attrId, patch) =>
-  api.patch(`/diagrams/attributes/${attrId}`, patch).then(r => r.data);
+export const updateAttribute = async (attrId, patch) => {
+  console.log("📤 [updateAttribute] PATCH body:", patch);
+  try {
+    const r = await api.patch(`/diagrams/attributes/${attrId}`, patch);
+    console.log("✅ [updateAttribute] response:", r.data);
+    return r.data;
+  } catch (err) {
+    console.error("❌ [updateAttribute] error:", err?.response?.data || err);
+    throw err;
+  }
+};
 
-/**
- * Elimina un atributo por ID.
- */
-export const deleteAttribute = (attrId) =>
-  api.delete(`/diagrams/attributes/${attrId}`);
-
+export const deleteAttribute = async (attrId) => {
+  console.log("🗑️ [deleteAttribute] DELETE", attrId);
+  try {
+    const r = await api.delete(`/diagrams/attributes/${attrId}`);
+    console.log("✅ [deleteAttribute] OK");
+    return r.data;
+  } catch (err) {
+    console.error("❌ [deleteAttribute] error:", err?.response?.data || err);
+    throw err;
+  }
+};
 
 // ====== MÉTODOS ======
 
-/**
- * Lista los métodos de una clase.
- */
-export const listMethods = (classId) =>
-  api.get(`/diagrams/classes/${classId}/methods`).then(r => r.data);
+export const listMethods = async (classId) => {
+  console.log("📥 [listMethods] GET", classId);
+  try {
+    const r = await api.get(`/diagrams/classes/${classId}/methods`);
+    console.log("✅ [listMethods] response:", r.data);
+    return r.data;
+  } catch (err) {
+    console.error("❌ [listMethods] error:", err?.response?.data || err);
+    throw err;
+  }
+};
 
-/**
- * Crea un nuevo método dentro de una clase.
- * Por defecto el `return_type` es "void".
- */
-export const createMethod = (classId, { name, return_type = "void" }) =>
-  api.post(`/diagrams/classes/${classId}/methods`, { name, return_type }).then(r => r.data);
+export const createMethod = async (classId, { name, return_type = "void" }) => {
+  const body = { name, return_type };
+  console.log("📤 [createMethod] POST body:", body);
+  try {
+    const r = await api.post(`/diagrams/classes/${classId}/methods`, body);
+    console.log("✅ [createMethod] response:", r.data);
+    return r.data;
+  } catch (err) {
+    console.error("❌ [createMethod] error:", err?.response?.data || err);
+    throw err;
+  }
+};
 
-/**
- * Actualiza un método por ID.
- */
-export const updateMethod = (methodId, patch) =>
-  api.patch(`/diagrams/methods/${methodId}`, patch).then(r => r.data);
+export const updateMethod = async (methodId, patch) => {
+  console.log("📤 [updateMethod] PATCH body:", patch);
+  try {
+    const r = await api.patch(`/diagrams/methods/${methodId}`, patch);
+    console.log("✅ [updateMethod] response:", r.data);
+    return r.data;
+  } catch (err) {
+    console.error("❌ [updateMethod] error:", err?.response?.data || err);
+    throw err;
+  }
+};
 
-/**
- * Elimina un método por ID.
- */
-export const deleteMethod = (methodId) =>
-  api.delete(`/diagrams/methods/${methodId}`);
+export const deleteMethod = async (methodId) => {
+  console.log("🗑️ [deleteMethod] DELETE", methodId);
+  try {
+    const r = await api.delete(`/diagrams/methods/${methodId}`);
+    console.log("✅ [deleteMethod] OK");
+    return r.data;
+  } catch (err) {
+    console.error("❌ [deleteMethod] error:", err?.response?.data || err);
+    throw err;
+  }
+};

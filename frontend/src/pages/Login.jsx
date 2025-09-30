@@ -40,29 +40,35 @@ export default function LoginPage() {
       const payload = { email, password };
       console.log("🔎 Payload enviado:", payload);
 
-      const { data } = await api.post("/auth/sign-in", payload);
-      console.log("✅ Respuesta login:", data);
+      const { data, status, headers } = await api.post("/auth/sign-in", payload);
 
-      // ✅ usa lo que realmente devuelve tu backend (access_token directo)
+      console.log("✅ Login status:", status);
+      console.log("✅ Login headers:", headers);
+      console.log("✅ Login data:", data);
+
       login(data.access_token);
-
       nav("/", { replace: true });
     } catch (err) {
-  console.error("❌ Error login:", err?.response?.data);
+      console.error("❌ Error login (objeto completo):", err);
+      console.error("❌ Error response:", err?.response);
+      console.error("❌ Error status:", err?.response?.status);
+      console.error("❌ Error headers:", err?.response?.headers);
+      console.error("❌ Error data:", err?.response?.data);
 
-  const detail = err?.response?.data?.detail;
+      const detail = err?.response?.data?.detail;
 
-  if (Array.isArray(detail)) {
-    setError(detail[0]?.msg || "Error en validación");
-  } else if (typeof detail === "string") {
-    setError(detail);
-  } else if (typeof detail === "object" && detail?.msg) {
-    setError(detail.msg);
-  } else {
-    setError("Login fallido");
-  }
-}
-
+      if (Array.isArray(detail)) {
+        setError(detail[0]?.msg || "Error en validación");
+      } else if (typeof detail === "string") {
+        setError(detail);
+      } else if (typeof detail === "object" && detail?.msg) {
+        setError(detail.msg);
+      } else {
+        setError("Login fallido");
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

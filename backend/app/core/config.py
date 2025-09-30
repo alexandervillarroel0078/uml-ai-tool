@@ -19,7 +19,4 @@ settings = Settings()
 
 ALLOWED_ORIGINS: List[str] = [
     o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()
-] or [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
 ]
