@@ -234,34 +234,6 @@ async def delete_relation(
         raise
 
 
-# # 🔹 Obtener una relación por ID
-# @router.get("/relations/{relation_id}", response_model=RelacionOut)
-# def get_relation(
-#     relation_id: UUID,
-#     request: Request,
-#     db: Session = Depends(get_db),
-#     me: User = Depends(get_current_user),
-# ):
-#     logger.info(f"📥 [GET] relación -> relation_id={relation_id}, user={me.id}")
-#     r = (
-#         db.query(Relacion)
-#         .join(Diagram, Diagram.id == Relacion.diagram_id)
-#         .filter(Relacion.id == relation_id, Diagram.owner_id == me.id)
-#         .one_or_none()
-#     )
-#     if not r:
-#         logger.warning(f"⚠️ Relación no encontrada -> relation_id={relation_id}, user={me.id}")
-#         raise HTTPException(404, detail="Relación no encontrada")
-
-#     origen_nombre = db.query(Clase.nombre).filter(Clase.id == r.origen_id).scalar()
-#     destino_nombre = db.query(Clase.nombre).filter(Clase.id == r.destino_id).scalar()
-
-#     logger.info(f"✅ Relación obtenida -> relation_id={relation_id}, diagram_id={r.diagram_id}")
-#     return RelacionOut.model_validate({
-#         **r.__dict__,
-#         "origen_nombre": origen_nombre,
-#         "destino_nombre": destino_nombre,
-#     })
 @router.get("/relations/{relation_id}", response_model=dict)
 def get_relation(
     relation_id: UUID,

@@ -82,23 +82,6 @@ const { exportDiagram, loading: exporting } = useExportDiagram();
     addMeth, patchMeth, removeMeth,
   } = useClassesAndDetails(diagram);
 
-
-  // =====================================================
-  // 🔹 Cargar relaciones del diagrama al montar
-  // =====================================================
-  // useEffect(() => {
-  //   if (!diagram) return;
-  //   (async () => {
-  //     try {
-  //       const items = await listRelations(diagram.id); // API
-  //       setRelations(items || []);
-  //     } catch {
-  //       setRelations([]);
-  //     }
-  //   })();
-  // }, [diagram]);
-
-
   // =====================================================
   // 🔹 Manejar "linking" (cuando el usuario conecta clases)
   // =====================================================
@@ -288,19 +271,6 @@ const { exportDiagram, loading: exporting } = useExportDiagram();
             onDelete={handleDeleteRelation}
           />
         ) : (
-          // <Inspector
-          //   selected={selected}
-          //   details={selected ? detailsByClass[selected.id] : undefined}
-          //   onRename={(name) =>
-          //     selected &&
-          //     setClasses((prev) =>
-          //       prev.map((x) => (x.id === selected.id ? { ...x, name } : x))
-          //     )
-          //   }
-          //   onDetailsChange={(patch) => selected && replaceDetails(selected.id, patch)}
-          //   reloadDetails={() => selected && fetchDetails(selected.id)}
-          //   onDeleteClass={() => selected && handleDelete(selected.id)}
-          // />
           <Inspector
             selected={selected}
             details={selected ? detailsByClass[selected.id] : undefined}
