@@ -7,6 +7,7 @@ from app.routers import diagramas, classes, atributos, metodo, relacion, realtim
 from app.routers import classes as classes_router
 from app.routers import export 
 app = FastAPI(title="UML AI Tool API")
+print("🚀 ALLOWED_ORIGINS:", ALLOWED_ORIGINS)
 cors_origins = ["*"] if settings.DEBUG else ALLOWED_ORIGINS
 app.add_middleware(
     CORSMiddleware,
