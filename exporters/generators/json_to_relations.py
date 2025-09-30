@@ -172,27 +172,38 @@ def build_relations(json_path: str):
                         "annotation": f"@OneToMany(mappedBy = \"{to_camel(dst)}\")"
                     }
 
-                elif (from_max in (None, "*")) and (to_max in (None, "*")):
-                    relations_map[src][dst] = {
-                        "type": "ManyToMany",
-                        "annotation": "@ManyToMany",
-                        "joinTable": f"{to_camel(src)}_{to_camel(dst)}"
-                    }
-                    relations_map[dst][src] = {
-                        "type": "ManyToMany",
-                        "annotation": f"@ManyToMany(mappedBy = \"{to_camel(src)}\")"
-                    }
 
-                else:
+                elif from_max == 1 and to_max == 1:
                     relations_map[src][dst] = {
                         "type": "OneToOne",
                         "annotation": "@OneToOne",
-                        "joinColumn": f"{to_camel(dst)}_id"
+                        "joinColumn": f"{to_camel(dst)}_id",
+                        "role_name": rel.get("role_to") or to_camel(dst)
                     }
                     relations_map[dst][src] = {
                         "type": "OneToOne",
-                        "annotation": f"@OneToOne(mappedBy = \"{to_camel(src)}\")"
+                        "annotation": f"@OneToOne(mappedBy = \"{rel.get('role_to') or to_camel(dst)}\")",
+                        "role_name": rel.get("role_from") or to_camel(src)
                     }
+                elif (from_max in (None, "*")) and (to_max in (None, "*")):
+                    owner_role_name = rel.get("role_to") or to_camel(dst) + "s"
+                    relations_map[src][dst] = {
+                        "type": "ManyToMany",
+                        "annotation": "@ManyToMany",
+                        "joinTable": f"{to_camel(src)}_{to_camel(dst)}",
+                        "joinColumns": f"{to_camel(src)}_id",
+                       "inverseJoinColumns": f"{to_camel(dst)}_id",
+                        "role_name": rel.get("role_to") or to_camel(dst) + "s"
+                    }
+                    relations_map[dst][src] = {
+                        "type": "ManyToMany",
+                        # 👇 mappedBy debe referirse al atributo generado en la otra clase
+                        "annotation": "@ManyToMany",
+
+                        "role_name": rel.get("role_from") or to_camel(src) + "s",
+                        "mappedByTarget": owner_role_name
+                              }
+
 
     return relations_map
 

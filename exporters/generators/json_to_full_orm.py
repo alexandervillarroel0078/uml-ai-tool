@@ -204,22 +204,43 @@ def generate_entity(class_def: dict, relations_map: dict):
 
             elif rel_type == "ManyToOne":
                 role_name = rel.get("label") or to_camel(target)
+                col = rel.get("joinColumn", f"{to_camel(target)}_id")
                 lines.append(f"    {rel['annotation']}")
-                lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
+                lines.append(f"    @JoinColumn(name = \"{col}\")")
+              
                 lines.append(f"    private {target} {role_name};")
 
             elif rel_type == "ManyToMany":
-                role_name = rel.get("label") or to_camel(target) + "s"
-                lines.append(f"    {rel['annotation']}")
-                if "joinTable" in rel:
-                    lines.append(f"    @JoinTable(name = \"{rel['joinTable']}\")")
-                lines.append(f"    private List<{target}> {role_name};")
+                role_name = rel.get("role_name") or to_camel(target) + "s"
+
+                if "joinTable" in rel:  # 👉 lado dueño
+                    lines.append("    @ManyToMany")
+                    lines.append("    @JoinTable(")
+                    lines.append(f"        name = \"{rel['joinTable']}\",")
+                    lines.append(f"        joinColumns = @JoinColumn(name = \"{rel.get('joinColumns', to_camel(class_name) + '_id') }\"),")
+                    lines.append(f"        inverseJoinColumns = @JoinColumn(name = \"{rel.get('inverseJoinColumns', to_camel(target) + '_id') }\")")
+                    lines.append("    )")
+                    lines.append(f"    private List<{target}> {role_name};")
+
+                elif rel.get("mappedByTarget"):  # 👉 lado inverso
+                    lines.append(f"    @ManyToMany(mappedBy = \"{rel['mappedByTarget']}\")")
+                    lines.append(f"    private List<{target}> {role_name};")
+
 
             elif rel_type == "OneToOne":
                 role_name = rel.get("label") or to_camel(target)
-                lines.append(f"    {rel['annotation']}")
-                lines.append(f"    @JoinColumn(name = \"{rel['joinColumn']}\")")
-                lines.append(f"    private {target} {role_name};")
+            
+                if "mappedBy" in rel["annotation"]:
+                    # Lado inverso (NO debe tener JoinColumn)
+                    lines.append(f"    {rel['annotation']}")
+                    lines.append(f"    private {target} {rel.get('role_name') or to_camel(target)};")
+                else:
+                    # Lado dueño (lleva JoinColumn)
+                    col = rel.get("joinColumn", f"{to_camel(target)}_id")
+                    lines.append(f"    {rel['annotation']}")
+                    lines.append(f"    @JoinColumn(name = \"{col}\")")
+                    lines.append(f"    private {target} {rel.get('role_name') or to_camel(target)};")
+
 
             lines.append("")
 
