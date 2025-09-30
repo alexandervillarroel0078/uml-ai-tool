@@ -9,6 +9,8 @@ export default function HeaderBar({
   insertName, setInsertName,
   insertMode, setInsertMode,
   onLogout,
+     onExport,   // 👈 nueva prop
+  exporting,
 }) {
   const input = {
     width: "100%",
@@ -40,7 +42,20 @@ export default function HeaderBar({
       <span style={{ fontSize: 12, opacity: 0.8, marginLeft: 8 }}>
         Actualizado: {new Date(diagram.updated_at).toLocaleString()}
       </span>
-
+<button
+  onClick={onExport}
+  disabled={exporting}
+  style={{
+    padding: "6px 10px",
+    borderRadius: 8,
+    border: "1px solid #334",
+    background: exporting ? "#888" : "#4f46e5",
+    color: "#fff",
+    fontWeight: 600,
+  }}
+>
+  {exporting ? "Exportando…" : "⬇ Exportar backend"}
+</button>
       <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
         <input
           value={insertName}
@@ -48,6 +63,7 @@ export default function HeaderBar({
           placeholder="Nombre a insertar"
           style={{ ...input, width: 180 }}
         />
+
         {/* para insertar la clase */}
         <button
           onClick={() => setInsertMode((v) => !v)}
