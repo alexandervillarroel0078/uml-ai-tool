@@ -18,7 +18,7 @@ import useTheme from "../hooks/useTheme";
 import useDiagram from "../hooks/useDiagram";
 import useClassesAndDetails from "../hooks/useClassesAndDetails";
 import useRelations from "../hooks/useRelations";
-
+import useExportDiagram from "../hooks/useExport";
 // ===== componentes de UI =====
 import Sheet from "../components/canvas/Sheet";
 import ClassCard from "../components/canvas/ClassCard";
@@ -52,7 +52,7 @@ export default function DiagramDashboard() {
   // const [relations, setRelations] = useState([]);
   const [linking, setLinking] = useState(null); // si el usuario está creando relación
   const [camera, setCamera] = useState({ x: 0, y: 0, z: 1 }); // zoom/pan del canvas
-
+const { exportDiagram, loading: exporting } = useExportDiagram();
   // 🎯 Selección actual (relación/clase)
   // const [selectedRelId, setSelectedRelId] = useState(null);
   // const selectedRel = relations.find(r => r.id === selectedRelId) || null;
@@ -81,23 +81,6 @@ export default function DiagramDashboard() {
     // 🔹 Métodos
     addMeth, patchMeth, removeMeth,
   } = useClassesAndDetails(diagram);
-
-
-  // =====================================================
-  // 🔹 Cargar relaciones del diagrama al montar
-  // =====================================================
-  // useEffect(() => {
-  //   if (!diagram) return;
-  //   (async () => {
-  //     try {
-  //       const items = await listRelations(diagram.id); // API
-  //       setRelations(items || []);
-  //     } catch {
-  //       setRelations([]);
-  //     }
-  //   })();
-  // }, [diagram]);
-
 
   // =====================================================
   // 🔹 Manejar "linking" (cuando el usuario conecta clases)
@@ -229,7 +212,9 @@ export default function DiagramDashboard() {
         setInsertMode={setInsertMode}
         onBack={() => nav("/")}
         onLogout={() => { logout(); nav("/login", { replace: true }); }}
-      />
+          onExport={() => exportDiagram(diagram.id)}   // 👈 pasamos handler
+  exporting={exporting}  
+    />
 
       <div
         style={{
@@ -286,19 +271,6 @@ export default function DiagramDashboard() {
             onDelete={handleDeleteRelation}
           />
         ) : (
-          // <Inspector
-          //   selected={selected}
-          //   details={selected ? detailsByClass[selected.id] : undefined}
-          //   onRename={(name) =>
-          //     selected &&
-          //     setClasses((prev) =>
-          //       prev.map((x) => (x.id === selected.id ? { ...x, name } : x))
-          //     )
-          //   }
-          //   onDetailsChange={(patch) => selected && replaceDetails(selected.id, patch)}
-          //   reloadDetails={() => selected && fetchDetails(selected.id)}
-          //   onDeleteClass={() => selected && handleDelete(selected.id)}
-          // />
           <Inspector
             selected={selected}
             details={selected ? detailsByClass[selected.id] : undefined}

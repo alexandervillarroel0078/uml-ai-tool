@@ -75,38 +75,6 @@ def zip_generated_project(output_dir: str, zip_path: str):
                 zipf.write(file_path, arcname)
     return zip_path
 
-
-# @router.post("/{diagram_id}/export-download")
-# def export_and_download(diagram_id: UUID, db: Session = Depends(get_db)):
-#     diagram = db.query(Diagram).filter(Diagram.id == diagram_id).first()
-#     if not diagram:
-#         raise HTTPException(404, "Diagrama no encontrado")
-
-#     json_path = os.path.join(EXPORT_DIR, f"diagram_{diagram_id}.json")
-#     zip_path = os.path.join(EXPORT_DIR, f"generated_project_{diagram_id}.zip")
-
-#     try:
-#         # 1) Guardar JSON UML
-#         diagram_dict = build_diagram_dict(diagram)
-#         export_diagram_to_json(diagram_dict, json_path)
-
-#         # 2) Construir proyecto
-#         build_project(json_path)
-
-#         # 3) Comprimir en ZIP
-#         zip_generated_project(OUTPUT_DIR, zip_path)
-
-#         # 4) Descargar directamente el ZIP
-#         return FileResponse(
-#             zip_path,
-#             media_type="application/zip",
-#             filename=f"generated_project_{diagram_id}.zip"
-#         )
-
-#     except UMLValidationError as e:
-#         raise HTTPException(status_code=400, detail=f"Error de validación UML: {e}")
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Error interno: {e}")
 @router.post("/{diagram_id}/export-download")
 def export_and_download(diagram_id: UUID, db: Session = Depends(get_db)):
     diagram = db.query(Diagram).filter(Diagram.id == diagram_id).first()

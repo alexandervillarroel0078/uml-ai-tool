@@ -1,0 +1,26 @@
+{
+    "diagram": {
+        "id": "bd5f6952-4ebb-4ae9-8e85-4b8548b3d51d",
+        "title": "segundo diagrama",
+        "classes": [
+            {
+                "id": "0ea1f7a0-838b-4698-a898-8af2ba4bf96f",
+                "name": "NuevaClase",
+                "attributes": [
+                    {
+                        "name": "campo",
+                        "type": "string",
+                        "required": false
+                    }
+                ],
+                "methods": [
+                    {
+                        "name": "operacion",
+                        "return_type": "void"
+                    }
+                ]
+            }
+        ],
+        "relations": []
+    }
+}

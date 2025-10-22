@@ -1,0 +1,121 @@
+{
+  "info": {
+    "name": "NuevaClase API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create NuevaClase",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campo\": \"Texto de ejemplo\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/nuevaclases",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "nuevaclases"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get All NuevaClase",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/nuevaclases",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "nuevaclases"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get NuevaClase by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/nuevaclases/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "nuevaclases",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update NuevaClase",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campo\": \"Texto de ejemplo\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/nuevaclases/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "nuevaclases",
+            "1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete NuevaClase",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:8080/api/nuevaclases/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "nuevaclases",
+            "1"
+          ]
+        }
+      }
+    }
+  ]
+}
